@@ -40,6 +40,8 @@ ApplicationWindow {
         spacing: 0
 
         NavigationBar {
+            objectName: "navigationBar"
+
             Layout.fillHeight: true
             Layout.preferredWidth: AppMetrics.navigationBarWidth
         }

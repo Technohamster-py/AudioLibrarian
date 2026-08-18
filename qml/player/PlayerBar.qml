@@ -35,7 +35,7 @@ Item {
                     Layout.preferredWidth: 36
                     Layout.preferredHeight: 32
 
-                    icon: "◀" //TODO: find a real svg
+                    iconText: "◀" //TODO: find a real svg
                     tooltipText: qsTr("Previous")
 
                     onClicked: root.progress = 0
@@ -47,7 +47,7 @@ Item {
                     Layout.preferredWidth: 40
                     Layout.preferredHeight: 32
 
-                    icon: root.playing ? "Ⅱ" : "▶" //TODO: find a real svg
+                    iconText: root.playing ? "Ⅱ" : "▶" //TODO: find a real svg
 
                     tooltipText: root.playing
                         ? qsTr("Pause")
@@ -62,7 +62,7 @@ Item {
                     Layout.preferredWidth: 36
                     Layout.preferredHeight: 32
 
-                    icon: "▶" //TODO: find a real svg
+                    iconText: "▶" //TODO: find a real svg
                     tooltipText: qsTr("Next")
 
                     onClicked: root.progress = 0

@@ -12,7 +12,6 @@ Item {
     id: root
 
     property alias currentItem: contentStack.currentItem
-    property alias currentIndex: contentStack.currentIndex
 
     Rectangle {
         anchors.fill: parent

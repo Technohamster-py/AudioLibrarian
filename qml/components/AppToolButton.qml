@@ -10,7 +10,9 @@ import QtQuick.Controls.Basic
 ToolButton {
     id: root
 
-    property string icon: ""
+    // ToolButton already has a final `icon` property. Use a separate name
+    // for the text glyph used by this application's placeholder icon.
+    property string iconText: ""
     property string tooltipText: ""
 
     implicitWidth: AppMetrics.iconButtonSize
@@ -22,7 +24,7 @@ ToolButton {
     contentItem: AppIcon{
         anchors.fill: parent
         anchors.margins: 4
-        icon: root.icon
+        icon: root.iconText
     }
 
     background: Rectangle{

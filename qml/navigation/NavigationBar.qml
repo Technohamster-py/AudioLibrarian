@@ -29,7 +29,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 48
 
-                icon: "▣" //TODO: find a real svg
+                iconText: "▣" //TODO: find a real svg
                 tooltipText: qsTr("Files")
 
                 onClicked: root.sectionSelected("files")
@@ -39,7 +39,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 48
 
-                icon: "●" //TODO: find a real svg
+                iconText: "●" //TODO: find a real svg
                 tooltipText: qsTr("Albums")
 
                 onClicked: root.sectionSelected("albums")
@@ -49,7 +49,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 48
 
-                icon: "≡" //TODO: find a real svg
+                iconText: "≡" //TODO: find a real svg
                 tooltipText: qsTr("Artists")
 
                 onClicked: root.sectionSelected("artists")
@@ -59,7 +59,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 48
 
-                icon: "♫" //TODO: find a real svg
+                iconText: "♫" //TODO: find a real svg
                 tooltipText: qsTr("Playlists")
 
                 onClicked: root.sectionSelected("playlists")
@@ -69,7 +69,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 48
 
-                icon: "◉" //TODO: find a real svg
+                iconText: "◉" //TODO: find a real svg
                 tooltipText: qsTr("Duplicates")
 
                 onClicked: root.sectionSelected("duplicates")
@@ -83,7 +83,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 48
 
-                icon: "⚙" //TODO: find a real svg
+                iconText: "⚙" //TODO: find a real svg
                 tooltipText: qsTr("Settings")
 
                 onClicked: root.sectionSelected("settings")

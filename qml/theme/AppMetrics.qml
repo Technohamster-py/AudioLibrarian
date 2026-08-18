@@ -13,8 +13,8 @@ QtObject {
     readonly property int navigationBarWidth: 80
 
     readonly property int navigationViewWidth: 900
-    readonly property int navigationViewMinWidth: 300
-    readonly property int navigationViewMaxWidth: 1500
+    readonly property int navigationViewMinimumWidth: 300
+    readonly property int navigationViewMaximumWidth: 1500
 
     readonly property int playerHeight: 80
 

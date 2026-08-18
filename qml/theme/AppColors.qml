@@ -10,6 +10,7 @@ import QtQuick
  */
 QtObject {
     readonly property color primary: "#1e1e1e"
+    readonly property color background: primary
     readonly property color navigationBar: "#171717"
     readonly property color panel: "#292929"
     readonly property color panelElevated: "#303030"
