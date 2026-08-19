@@ -5,17 +5,14 @@ import QtQuick.Layouts
 /**
  * @brief Main application window.
  *
- * The window consists of three logical areas:
+ * The window consists of:
  *
- * - NavigationBar: global application navigation;
- * - LibraryPane: currently visible library and audio player;
- * - EditorView: editor associated with the selected library item.
+ * - a narrow global navigation bar;
+ * - a stacked workspace selected by the navigation bar.
  *
- * LibraryPane and EditorView are separated by a draggable SplitView handle.
- *
- * The currently selected audio file is represented by simple properties
- * for this UI-only vertical slice. They will later be replaced by a
- * C++-based selection/model mechanism.
+ * The Files workspace contains the library and tag editor. Other
+ * workspaces currently contain placeholders and will be implemented
+ * independently as their domain functionality is developed.
  */
 ApplicationWindow {
     id: root
@@ -27,16 +24,18 @@ ApplicationWindow {
     minimumHeight: 600
 
     visible: true
+
     title: qsTr("AudioLibrarian")
 
     color: AppColors.background
 
     /**
+     * @brief Currently active top-level application section.
+     */
+    property string activeSection: "files"
+
+    /**
      * @brief Currently selected audio file metadata.
-     *
-     * This is deliberately kept in the window for now because there is
-     * no C++ model yet. Later the selection will belong to the library
-     * model/controller rather than MainWindow.
      */
     property string selectedFileName: ""
     property string selectedArtist: ""
@@ -45,20 +44,53 @@ ApplicationWindow {
     property int selectedYear: 0
     property string selectedDuration: ""
 
+    /**
+     * @brief Converts a navigation section name into StackLayout index.
+     *
+     * Keeping the mapping in one place prevents magic indexes from
+     * spreading throughout the UI.
+     *
+     * @param section Navigation section identifier.
+     * @return StackLayout index.
+     */
+    function sectionIndex(section) {
+        switch (section) {
+            case "files":
+                return 0
+            case "albums":
+                return 1
+            case "artists":
+                return 2
+            case "library":
+                return 3
+            case "duplicates":
+                return 4
+            case "settings":
+                return 5
+            default:
+                return 0
+        }
+    }
+
     RowLayout {
         anchors.fill: parent
         spacing: 0
 
         NavigationBar {
+            id: navigationBar
             objectName: "navigationBar"
 
             Layout.fillHeight: true
             Layout.preferredWidth: AppMetrics.navigationBarWidth
+            currentSection: root.activeSection
+
+            onSectionSelected: function(section) {
+                root.activeSection = section
+            }
         }
 
         SplitView {
-            id: mainSplitView
-
+            id: filesWorkspace
             objectName: "mainSplitView"
 
             Layout.fillWidth: true
@@ -68,39 +100,82 @@ ApplicationWindow {
 
             handle: Rectangle {
                 implicitWidth: 1
-
-                color: SplitHandle.pressed
-                    ? AppColors.accent
-                    : AppColors.separator
+                color: SplitHandle.pressed ? AppColors.accent : AppColors.separator
             }
 
-            LibraryPane {
-                id: libraryPane
+            ColumnLayout{
+                id: navigationLayout
+                objectName: "navigationLayout"
 
-                objectName: "libraryPane"
+                StackLayout {
+                    id: contentStack
+                    objectName: "workspaceStack"
 
-                SplitView.preferredWidth: AppMetrics.libraryWidth
-                SplitView.minimumWidth: AppMetrics.libraryMinimumWidth
-                SplitView.maximumWidth: AppMetrics.libraryMaximumWidth
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
 
-                /**
-                 * Propagate the selected file from the library to the
-                 * application window.
-                 */
-                onFileSelected: function(fileName, artist, album, genre,
-                                         year, duration) {
-                    root.selectedFileName = fileName
-                    root.selectedArtist = artist
-                    root.selectedAlbum = album
-                    root.selectedGenre = genre
-                    root.selectedYear = year
-                    root.selectedDuration = duration
+                    SplitView.preferredWidth: AppMetrics.libraryWidth
+                    SplitView.minimumWidth: AppMetrics.libraryMinimumWidth
+                    SplitView.maximumWidth: AppMetrics.libraryMaximumWidth
+
+                    currentIndex: root.sectionIndex(root.activeSection)
+
+                    NavigationPlaceholderView {
+                        objectName: "filesView"
+                        title: qsTr("Files")
+                        iconSource: "qrc:/qt/qml/AudioLibrarian/assets/files.svg"
+                    }
+
+                    NavigationPlaceholderView {
+                        objectName: "albumsView"
+                        title: qsTr("Albums")
+                        iconSource: "qrc:/qt/qml/AudioLibrarian/assets/albums.svg"
+                    }
+
+                    NavigationPlaceholderView {
+                        objectName: "artistsView"
+                        title: qsTr("Artists")
+                        iconSource: "qrc:/qt/qml/AudioLibrarian/assets/artists.svg"
+                    }
+
+                    LibraryPane {
+                        id: libraryPane
+
+                        objectName: "libraryPane"
+
+                        onFileSelected: function (fileName, artist, album, genre, year, duration) {
+                            root.selectedFileName = fileName
+                            root.selectedArtist = artist
+                            root.selectedAlbum = album
+                            root.selectedGenre = genre
+                            root.selectedYear = year
+                            root.selectedDuration = duration
+                        }
+                    }
+
+                    NavigationPlaceholderView {
+                        objectName: "duplicatesView"
+                        title: qsTr("Duplicates")
+                        iconSource: "qrc:/qt/qml/AudioLibrarian/assets/duplicate.svg"
+                    }
+
+                    NavigationPlaceholderView {
+                        objectName: "settingsView"
+                        title: qsTr("Settings")
+                        iconSource: "qrc:/qt/qml/AudioLibrarian/assets/settings.svg"
+                    }
+                }
+
+                PlayerBar {
+                    objectName: "playerBar"
+
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: AppMetrics.playerHeight
                 }
             }
 
             EditorView {
                 id: editorView
-
                 objectName: "editorView"
 
                 SplitView.fillWidth: true
@@ -114,4 +189,10 @@ ApplicationWindow {
             }
         }
     }
+
+    /**
+     * Initialize the tag editor with the first library item.
+     *
+     * LibraryView emits fileSelected() from Component.onCompleted.
+     */
 }

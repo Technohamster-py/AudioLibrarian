@@ -66,10 +66,10 @@ Item {
             }
 
             NavigationItem {
-                section: "playlists"
+                section: "library"
 
                 iconSource: "qrc:/qt/qml/AudioLibrarian/assets/music-library.svg"
-                tooltipText: qsTr("Playlists")
+                tooltipText: qsTr("Library")
                 checked: root.currentSection === section
                 onSelected: root.sectionSelected(section)
             }

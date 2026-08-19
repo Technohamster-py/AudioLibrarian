@@ -37,8 +37,7 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            onFileSelected: function(fileName, artist, album, genre,
-                                     year, duration) {
+            onFileSelected: function(fileName, artist, album, genre, year, duration) {
                 root.fileSelected(
                     fileName,
                     artist,
@@ -48,13 +47,6 @@ Item {
                     duration
                 )
             }
-        }
-
-        PlayerBar {
-            objectName: "playerBar"
-
-            Layout.fillWidth: true
-            Layout.preferredHeight: AppMetrics.playerHeight
         }
     }
 }
