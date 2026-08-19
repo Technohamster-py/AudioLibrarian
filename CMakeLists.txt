@@ -13,7 +13,25 @@ find_package(Qt6 REQUIRED COMPONENTS
         QuickControls2
         QuickTest
 )
+
+find_package(TagLib 2.0 REQUIRED)
+
 qt_standard_project_setup(REQUIRES 6.11)
+
+# ---------------------------------------------------------------------------
+# Core application logic
+# ---------------------------------------------------------------------------
+
+add_library(AudioLibrarianCore STATIC
+        src/metadata/audiometadata.h            src/metadata/audiometadata.cpp
+        src/metadata/taglibmetadatabackend.h    src/metadata/taglibmetadatabackend.cpp
+)
+
+target_link_libraries(AudioLibrarianCore
+        PUBLIC
+        Qt6::Core
+        TagLib::tag
+)
 
 # ---------------------------------------------------------------------------
 # QML UI module
@@ -83,15 +101,15 @@ set_source_files_properties(
 set_source_files_properties(
         qml/theme/AppColors.qml
         PROPERTIES
-            QT_QML_SINGLETON_TYPE TRUE
-            QT_RESOURCE_ALIAS "AppColors.qml"
+        QT_QML_SINGLETON_TYPE TRUE
+        QT_RESOURCE_ALIAS "AppColors.qml"
 )
 
 set_source_files_properties(
         qml/theme/AppMetrics.qml
         PROPERTIES
-            QT_QML_SINGLETON_TYPE TRUE
-            QT_RESOURCE_ALIAS "AppMetrics.qml"
+        QT_QML_SINGLETON_TYPE TRUE
+        QT_RESOURCE_ALIAS "AppMetrics.qml"
 )
 
 qt_add_qml_module(AudioLibrarianUi
@@ -99,45 +117,45 @@ qt_add_qml_module(AudioLibrarianUi
         VERSION 0.1
 
         QML_FILES
-            qml/Main.qml
+        qml/Main.qml
 
-            qml/app/MainWindow.qml
+        qml/app/MainWindow.qml
 
-            qml/components/AppIcon.qml
-            qml/components/AppToolButton.qml
+        qml/components/AppIcon.qml
+        qml/components/AppToolButton.qml
 
-            qml/editor/EditorView.qml
-            qml/editor/TagEditorView.qml
+        qml/editor/EditorView.qml
+        qml/editor/TagEditorView.qml
 
-            qml/library/AudioFileDelegate.qml
-            qml/library/LibraryPane.qml
-            qml/library/LibraryView.qml
+        qml/library/AudioFileDelegate.qml
+        qml/library/LibraryPane.qml
+        qml/library/LibraryView.qml
 
-            qml/player/PlayerBar.qml
+        qml/player/PlayerBar.qml
 
-            qml/navigation/NavigationBar.qml
-            qml/navigation/NavigationItem.qml
-            qml/navigation/NavigationPlaceholderView.qml
+        qml/navigation/NavigationBar.qml
+        qml/navigation/NavigationItem.qml
+        qml/navigation/NavigationPlaceholderView.qml
 
-            qml/theme/AppColors.qml
-            qml/theme/AppMetrics.qml
+        qml/theme/AppColors.qml
+        qml/theme/AppMetrics.qml
 
         RESOURCES
-            assets/albums.svg
-            assets/artists.svg
-            assets/backward.svg
-            assets/duplicate.svg
-            assets/files.svg
-            assets/forward.svg
-            assets/music-library.svg
-            assets/music.svg
-            assets/pause.svg
-            assets/play.svg
-            assets/settings.svg
+        assets/albums.svg
+        assets/artists.svg
+        assets/backward.svg
+        assets/duplicate.svg
+        assets/files.svg
+        assets/forward.svg
+        assets/music-library.svg
+        assets/music.svg
+        assets/pause.svg
+        assets/play.svg
+        assets/settings.svg
 )
 
 target_link_libraries(AudioLibrarianUi
-    PRIVATE
+        PRIVATE
         Qt6::Quick
         Qt6::QuickControls2
 )
@@ -152,7 +170,8 @@ qt_add_executable(AudioLibrarian
 )
 
 target_link_libraries(AudioLibrarian
-    PRIVATE
+        PRIVATE
+        AudioLibrarianCore
         AudioLibrarianUiplugin
         Qt6::Gui
         Qt6::Quick
@@ -166,11 +185,11 @@ target_link_libraries(AudioLibrarian
 enable_testing()
 
 add_executable(tst_AudioLibrarian
-    tests/qml/tst_audioLibrarian.cpp
+        tests/qml/tst_audioLibrarian.cpp
 )
 
 target_link_libraries(tst_AudioLibrarian
-    PRIVATE
+        PRIVATE
         AudioLibrarianUiplugin
         Qt6::QuickTest
         Qt6::Qml
@@ -178,11 +197,31 @@ target_link_libraries(tst_AudioLibrarian
 )
 
 target_compile_definitions(tst_AudioLibrarian
-    PRIVATE
+        PRIVATE
         QUICK_TEST_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/qml"
 )
 
 add_test(
-    NAME tst_AudioLibrarian
-    COMMAND tst_AudioLibrarian -platform offscreen
+        NAME tst_AudioLibrarian
+        COMMAND tst_AudioLibrarian -platform offscreen
+)
+
+
+# ---------------------------------------------------------------------------
+# Metadata tests
+# ---------------------------------------------------------------------------
+
+add_executable(tst_TagLibMetadataBackend
+        tests/metadata/tst_taglibmetadatabackend.cpp
+)
+
+target_link_libraries(tst_TagLibMetadataBackend
+        PRIVATE
+        AudioLibrarianCore
+        Qt6::Test
+)
+
+add_test(
+        NAME tst_TagLibMetadataBackend
+        COMMAND tst_TagLibMetadataBackend
 )
