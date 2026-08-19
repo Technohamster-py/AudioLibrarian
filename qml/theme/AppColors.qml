@@ -24,6 +24,6 @@ QtObject {
     readonly property color selection: "#333f40"
     readonly property color hover: "#353535"
 
-    readonly property color playerBackground: "#f4d9f4"
+    readonly property color playerBackground: "#ff6766"
     readonly property color playerForeground: "#161616"
 }
