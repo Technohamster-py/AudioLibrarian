@@ -40,8 +40,7 @@ Item {
                 Layout.preferredWidth: 28
                 Layout.preferredHeight: 28
 
-                icon: "♫" //TODO: find real icon
-                color: root.selected ? AppColors.accent : AppColors.textSecondary
+                source: "qrc:/qt/qml/AudioLibrarian/assets/music.svg"
             }
 
             ColumnLayout {

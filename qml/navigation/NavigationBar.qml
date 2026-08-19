@@ -2,19 +2,32 @@ import QtQuick
 import QtQuick.Layouts
 
 /**
- * @brief Narrow global navigation bar.
+ * @brief Global application navigation bar.
  *
- * Each button represents a top-level application section. The actual
- * navigation state is intentionally local for now and will later be
- * connected to a navigation model.
+ * The navigation bar is responsible only for selecting a top-level
+ * application section. The actual content switching is performed by
+ * MainWindow.
  */
 Item {
     id: root
 
+    /**
+     * @brief Currently selected application section.
+     *
+     * The value is controlled by MainWindow. Keeping the state outside
+     * the navigation bar prevents the navigation control from becoming
+     * coupled to particular content views.
+     */
+    property string currentSection: "files"
+
+    /**
+     * @brief Emitted when the user selects another section.
+     */
     signal sectionSelected(string section)
 
     Rectangle {
         anchors.fill: parent
+
         color: AppColors.navigationBar
 
         ColumnLayout {
@@ -25,68 +38,62 @@ Item {
 
             spacing: 2
 
-            AppToolButton {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 48
+            NavigationItem {
+                section: "files"
 
-                iconText: "▣" //TODO: find a real svg
+                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/files.svg"
                 tooltipText: qsTr("Files")
-
-                onClicked: root.sectionSelected("files")
+                checked: root.currentSection === section
+                onSelected: root.sectionSelected(section)
             }
 
-            AppToolButton {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 48
+            NavigationItem {
+                section: "albums"
 
-                iconText: "●" //TODO: find a real svg
+                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/albums.svg"
                 tooltipText: qsTr("Albums")
-
-                onClicked: root.sectionSelected("albums")
+                checked: root.currentSection === section
+                onSelected: root.sectionSelected(section)
             }
 
-            AppToolButton {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 48
+            NavigationItem {
+                section: "artists"
 
-                iconText: "≡" //TODO: find a real svg
+                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/artists.svg"
                 tooltipText: qsTr("Artists")
-
-                onClicked: root.sectionSelected("artists")
+                checked: root.currentSection === section
+                onSelected: root.sectionSelected(section)
             }
 
-            AppToolButton {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 48
+            NavigationItem {
+                section: "playlists"
 
-                iconText: "♫" //TODO: find a real svg
+                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/music-library.svg"
                 tooltipText: qsTr("Playlists")
-
-                onClicked: root.sectionSelected("playlists")
+                checked: root.currentSection === section
+                onSelected: root.sectionSelected(section)
             }
 
-            AppToolButton {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 48
+            NavigationItem {
+                section: "duplicates"
 
-                iconText: "◉" //TODO: find a real svg
+                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/duplicate.svg"
                 tooltipText: qsTr("Duplicates")
-
-                onClicked: root.sectionSelected("duplicates")
+                checked: root.currentSection === section
+                onSelected: root.sectionSelected(section)
             }
 
             Item {
                 Layout.fillHeight: true
             }
 
-            AppToolButton {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 48
+            NavigationItem {
+                section: "settings"
 
-                iconText: "⚙" //TODO: find a real svg
+                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/settings.svg"
                 tooltipText: qsTr("Settings")
-
-                onClicked: root.sectionSelected("settings")
+                checked: root.currentSection === section
+                onSelected: root.sectionSelected(section)
             }
         }
     }

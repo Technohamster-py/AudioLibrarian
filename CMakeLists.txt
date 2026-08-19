@@ -51,7 +51,7 @@ set_source_files_properties(
 )
 
 set_source_files_properties(
-        qml/Library/LibraryPane.qml
+        qml/library/LibraryPane.qml
         PROPERTIES QT_RESOURCE_ALIAS "LibraryPane.qml"
 )
 
@@ -60,24 +60,15 @@ set_source_files_properties(
         PROPERTIES QT_RESOURCE_ALIAS "LibraryView.qml"
 )
 
+
 set_source_files_properties(
-        qml/navigation/NavigationBar.qml
-        PROPERTIES QT_RESOURCE_ALIAS "NavigationBar.qml"
+        qml/navigation/NavigationView.qml
+        PROPERTIES QT_RESOURCE_ALIAS "NavigationView.qml"
 )
 
 set_source_files_properties(
         qml/navigation/NavigationItem.qml
         PROPERTIES QT_RESOURCE_ALIAS "NavigationItem.qml"
-)
-
-set_source_files_properties(
-        qml/navigation/NavigationPane.qml
-        PROPERTIES QT_RESOURCE_ALIAS "NavigationPane.qml"
-)
-
-set_source_files_properties(
-        qml/navigation/NavigationView.qml
-        PROPERTIES QT_RESOURCE_ALIAS "NavigationView.qml"
 )
 
 set_source_files_properties(
@@ -121,6 +112,7 @@ qt_add_qml_module(AudioLibrarianUi
             qml/player/PlayerBar.qml
 
             qml/navigation/NavigationBar.qml
+            qml/navigation/NavigationItem.qml
 
             qml/theme/AppColors.qml
             qml/theme/AppMetrics.qml

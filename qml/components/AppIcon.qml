@@ -1,21 +1,43 @@
 import QtQuick
 
 /**
- * @brief Small text-based placeholder icon.
+ * @brief Displays an SVG icon from the Qt resource system.
  *
- * The first UI vertical slice intentionally avoids introducing an icon
- * library. The icon property contains a Unicode symbol used only until
- * the final SVG icon set is selected.
+ * The component is intentionally small. It provides a single place where
+ * application icons are rendered, so changing the rendering strategy later
+ * does not require modifying every button using an icon.
  */
 Text {
     id: root
 
-    property string icon: "?"
+    /**
+     * @brief Resource URL of the icon.
+     *
+     * Expected format:
+     * qrc:/qt/qml/AudioLibrarian/assets/files.svg
+     */
+    property string source: ""
 
-    text: root.icon
-    color: AppColors.textPrimary
-    font.pixelSize: 22
-    horizontalAlignment: Text.AlignHCenter
-    verticalAlignment: Text.AlignVCenter
-    renderType: Text.NativeRendering
+    /**
+     * @brief Controls whether the image preserves its aspect ratio.
+     */
+    property alias fillMode: iconImage.fillMode
+
+    Image {
+        id: iconImage
+
+        anchors.fill: parent
+
+        source: root.source
+
+        sourceSize.width: width
+        sourceSize.height: height
+
+        fillMode: Image.PreserveAspectFit
+
+        asynchronous: true
+        smooth: true
+
+        mipmap: true
+    }
 }

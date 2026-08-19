@@ -35,9 +35,8 @@ Item {
                     Layout.preferredWidth: 36
                     Layout.preferredHeight: 32
 
-                    iconText: "◀" //TODO: find a real svg
+                    iconSource: "qrc:/qt/qml/AudioLibrarian/assets/backward.svg"
                     tooltipText: qsTr("Previous")
-
                     onClicked: root.progress = 0
                 }
 
@@ -47,12 +46,8 @@ Item {
                     Layout.preferredWidth: 40
                     Layout.preferredHeight: 32
 
-                    iconText: root.playing ? "Ⅱ" : "▶" //TODO: find a real svg
-
-                    tooltipText: root.playing
-                        ? qsTr("Pause")
-                        : qsTr("Play")
-
+                    iconSource: root.playing ? "qrc:/qt/qml/AudioLibrarian/assets/pause.svg" : "qrc:/qt/qml/AudioLibrarian/assets/play.svg"
+                    tooltipText: root.playing ? qsTr("Pause") : qsTr("Play")
                     onClicked: root.playing = !root.playing
                 }
 
@@ -62,9 +57,8 @@ Item {
                     Layout.preferredWidth: 36
                     Layout.preferredHeight: 32
 
-                    iconText: "▶" //TODO: find a real svg
+                    iconSource: "qrc:/qt/qml/AudioLibrarian/assets/forward.svg"
                     tooltipText: qsTr("Next")
-
                     onClicked: root.progress = 0
                 }
 

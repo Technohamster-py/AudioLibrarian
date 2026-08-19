@@ -4,32 +4,39 @@ import QtQuick.Controls.Basic
 /**
  * @brief Compact application-specific tool button.
  *
- * Provides a consistent visual wrapper around ToolButton. Business logic
- * remains in the caller, while this component owns only presentation.
+ * Provides consistent presentation for navigation and player buttons.
+ * The component does not contain application logic.
  */
 ToolButton {
     id: root
 
-    // ToolButton already has a final `icon` property. Use a separate name
-    // for the text glyph used by this application's placeholder icon.
-    property string iconText: ""
+    /**
+     * @brief SVG resource displayed by the button.
+     */
+    property url iconSource: ""
+
+    /**
+     * @brief Tooltip displayed when the pointer hovers over the button.
+     */
     property string tooltipText: ""
 
     implicitWidth: AppMetrics.iconButtonSize
     implicitHeight: AppMetrics.iconButtonSize
 
     hoverEnabled: true
+
+    checkable: true
+
     display: AbstractButton.IconOnly
 
-    contentItem: AppIcon{
+    contentItem: AppIcon {
         anchors.fill: parent
-        anchors.margins: 4
-        icon: root.iconText
+        anchors.margins: 6
+        source: root.iconSource
     }
 
-    background: Rectangle{
+    background: Rectangle {
         radius: AppMetrics.radiusMedium
-
         color: root.checked ? AppColors.selection : (root.hovered ? AppColors.hover : "transparent")
     }
 
