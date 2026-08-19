@@ -144,11 +144,12 @@ TestCase {
      * RowLayout
      * ├── NavigationBar
      * └── SplitView
-     *     ├── ColumnLayout
-     *     │   ├── StackLayout
-     *     │   │   └── LibraryPane
-     *     │   └── PlayerBar
-     *     └── EditorView
+     *     └── contentItem (Qt Quick Controls internal item)
+     *         ├── ColumnLayout
+     *         │   ├── StackLayout
+     *         │   │   └── LibraryPane
+     *         │   └── PlayerBar
+     *         └── EditorView
      */
     function test_workspace_structure() {
         const window = createTemporaryObject(
@@ -195,12 +196,12 @@ TestCase {
 
         /*
          * StackLayout and PlayerBar belong to the left-side
-         * ColumnLayout, while EditorView belongs directly to
-         * the horizontal SplitView.
+         * ColumnLayout, while EditorView is a direct child of the
+         * SplitView's content item.
          */
         compare(
             navigationLayout.parent,
-            splitView
+            splitView.contentItem
         )
 
         compare(
@@ -220,7 +221,7 @@ TestCase {
 
         compare(
             editorView.parent,
-            splitView
+            splitView.contentItem
         )
     }
 
