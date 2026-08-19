@@ -3,13 +3,30 @@ import QtQuick.Controls.Basic
 import QtQuick.Layouts
 
 /**
- * @brief Static library mockup used by the first UI vertical slice.
+ * @brief Audio library view.
  *
- * The model is intentionally a local ListModel. It will later be replaced
- * with a C++ QAbstractListModel representing actual audio files.
+ * Displays a static list of audio files for the first UI vertical slice.
+ *
+ * The local ListModel is temporary. It will later be replaced with a
+ * C++ QAbstractListModel representing the actual audio library.
  */
 Item {
     id: root
+
+    signal fileSelected(
+        string fileName,
+        string artist,
+        string album,
+        string genre,
+        int year,
+        string duration
+    )
+
+    /**
+     * @brief Index of the currently selected file.
+     */
+    property int selectedIndex: -1
+
     //TODO: Replace with a C++ QAbstractListModel
     ListModel {
         id: libraryModel
@@ -41,6 +58,29 @@ Item {
         }
     }
 
+    /**
+     * @brief Selects an item and emits its metadata.
+     *
+     * @param index Index of the item in libraryModel.
+     */
+    function selectFile(index) {
+        if (index < 0 || index >= libraryModel.count)
+            return
+
+        const item = libraryModel.get(index)
+
+        root.selectedIndex = index
+
+        root.fileSelected(
+            item.fileName,
+            item.artist,
+            item.album,
+            item.genre,
+            item.year,
+            item.duration
+        )
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: AppMetrics.spacingLarge
@@ -68,11 +108,14 @@ Item {
             Layout.fillWidth: true
 
             height: 1
+
             color: AppColors.separator
         }
 
         ListView {
             id: fileList
+
+            objectName: "fileList"
 
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -92,10 +135,19 @@ Item {
                 year: model.year
                 duration: model.duration
 
-                onActivated: {
-                    console.log("Selected:", fileName)
-                }
+                selected: index === root.selectedIndex
+
+                onActivated: root.selectFile(index)
             }
         }
+    }
+
+    /**
+     * Select the first file when the mock library is initialized.
+     *
+     * This gives the tag editor useful content immediately after startup.
+     */
+    Component.onCompleted: {
+        selectFile(0)
     }
 }

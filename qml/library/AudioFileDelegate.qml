@@ -5,8 +5,8 @@ import QtQuick.Layouts
 /**
  * @brief Delegate representing one audio file in the library.
  *
- * The delegate exposes file metadata through properties so that the
- * presentation is independent from the eventual C++ model role names.
+ * The delegate contains presentation only. Actual file data will later
+ * come from the C++ library model.
  */
 Item {
     id: root
@@ -17,6 +17,8 @@ Item {
     property int year: 0
     property string duration: ""
 
+    property bool selected: false
+
     signal activated()
 
     Rectangle {
@@ -24,9 +26,7 @@ Item {
 
         radius: AppMetrics.radiusSmall
 
-        color: mouseArea.containsMouse
-            ? AppColors.hover
-            : "transparent"
+        color: root.selected ? AppColors.selection : (mouseArea.containsMouse ? AppColors.hover : "transparent")
 
         RowLayout {
             anchors.fill: parent
@@ -40,8 +40,8 @@ Item {
                 Layout.preferredWidth: 28
                 Layout.preferredHeight: 28
 
-                icon: "♫"
-                color: AppColors.textSecondary
+                icon: "♫" //TODO: find real icon
+                color: root.selected ? AppColors.accent : AppColors.textSecondary
             }
 
             ColumnLayout {
@@ -101,7 +101,6 @@ Item {
 
         anchors.fill: parent
         hoverEnabled: true
-
-        onDoubleClicked: root.activated()
+        onClicked: root.activated()
     }
 }

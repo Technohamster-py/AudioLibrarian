@@ -36,17 +36,27 @@ set_source_files_properties(
 )
 
 set_source_files_properties(
-        qml/content/AudioFileDelegate.qml
+        qml/editor/EditorView.qml
+        PROPERTIES QT_RESOURCE_ALIAS "EditorView.qml"
+)
+
+set_source_files_properties(
+        qml/editor/TagEditorView.qml
+        PROPERTIES QT_RESOURCE_ALIAS "TagEditorView.qml"
+)
+
+set_source_files_properties(
+        qml/library/AudioFileDelegate.qml
         PROPERTIES QT_RESOURCE_ALIAS "AudioFileDelegate.qml"
 )
 
 set_source_files_properties(
-        qml/content/ContentView.qml
-        PROPERTIES QT_RESOURCE_ALIAS "ContentView.qml"
+        qml/Library/LibraryPane.qml
+        PROPERTIES QT_RESOURCE_ALIAS "LibraryPane.qml"
 )
 
 set_source_files_properties(
-        qml/content/LibraryView.qml
+        qml/library/LibraryView.qml
         PROPERTIES QT_RESOURCE_ALIAS "LibraryView.qml"
 )
 
@@ -101,16 +111,16 @@ qt_add_qml_module(AudioLibrarianUi
             qml/components/AppIcon.qml
             qml/components/AppToolButton.qml
 
-            qml/content/AudioFileDelegate.qml
-            qml/content/ContentView.qml
-            qml/content/LibraryView.qml
+            qml/editor/EditorView.qml
+            qml/editor/TagEditorView.qml
+
+            qml/library/AudioFileDelegate.qml
+            qml/library/LibraryPane.qml
+            qml/library/LibraryView.qml
 
             qml/player/PlayerBar.qml
 
             qml/navigation/NavigationBar.qml
-            qml/navigation/NavigationItem.qml
-            qml/navigation/NavigationPane.qml
-            qml/navigation/NavigationView.qml
 
             qml/theme/AppColors.qml
             qml/theme/AppMetrics.qml

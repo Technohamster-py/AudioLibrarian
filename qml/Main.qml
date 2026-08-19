@@ -1,6 +1,5 @@
 import QtQuick
-import QtQuick.Controls
-
+import AudioLibrarian
 
 /**
  * @brief Entry point of the AudioLibrarian QML application.

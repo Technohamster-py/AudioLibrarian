@@ -12,9 +12,9 @@ import QtQuick
 QtObject {
     readonly property int navigationBarWidth: 80
 
-    readonly property int navigationViewWidth: 900
-    readonly property int navigationViewMinimumWidth: 300
-    readonly property int navigationViewMaximumWidth: 1500
+    readonly property int libraryWidth: 900
+    readonly property int libraryMinimumWidth: 300
+    readonly property int libraryMaximumWidth: 1500
 
     readonly property int playerHeight: 80
 
