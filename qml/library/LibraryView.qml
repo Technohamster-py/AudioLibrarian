@@ -37,6 +37,7 @@ Item {
             fileName: "01 - Example Song.flac"
             artist: "Example Artist"
             album: "Example Album"
+            genre: "Electronic"
             year: 2026
             duration: "03:42"
         }
@@ -45,6 +46,7 @@ Item {
             fileName: "02 - Another Song.mp3"
             artist: "Another Artist"
             album: "Another Album"
+            genre: "Rock"
             year: 2025
             duration: "04:18"
         }
@@ -53,6 +55,7 @@ Item {
             fileName: "03 - Third Song.ogg"
             artist: "Third Artist"
             album: "Third Album"
+            genre: "Jazz"
             year: 2024
             duration: "05:07"
         }

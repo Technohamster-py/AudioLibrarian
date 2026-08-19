@@ -98,6 +98,7 @@ Item {
 
     MouseArea {
         id: mouseArea
+        objectName: "mouseArea"
 
         anchors.fill: parent
         hoverEnabled: true
