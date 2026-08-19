@@ -198,12 +198,14 @@ void TagLibMetadataBackendTest::multipleValues() {
 
     QVERIFY2(loadedMetadata.has_value(), qPrintable(error));
 
+    const QStringList expectedArtists{
+        QStringLiteral("Artist One"),
+        QStringLiteral("Artist Two")
+    };
+
     QCOMPARE(
         loadedMetadata->values(QStringLiteral("ARTIST")),
-        QStringList{
-            QStringLiteral("Artist One"),
-            QStringLiteral("Artist Two")
-        }
+        expectedArtists
     );
 }
 
