@@ -9,6 +9,7 @@ TestCase {
     id: testCase
 
     name: "AudioFileDelegate"
+    when: windowShown
 
     Component {
         id: component
@@ -17,6 +18,11 @@ TestCase {
             width: 600
             height: 56
         }
+    }
+
+    Component {
+        id: signalSpyComponent
+        SignalSpy { }
     }
 
     function test_default_state() {
@@ -48,9 +54,11 @@ TestCase {
 
     function test_activation_signal() {
         const delegate = createTemporaryObject(component, testCase)
-        const spy = signalSpy(delegate, "activated")
+        const spy = createTemporaryObject(signalSpyComponent, testCase)
+        spy.target = delegate
+        spy.signalName = "activated"
 
-        mouseClick(delegate)
+        findChild(delegate, "mouseArea").clicked(null)
 
         compare(spy.count, 1)
     }

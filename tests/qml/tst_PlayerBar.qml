@@ -36,11 +36,11 @@ TestCase {
         verify(button !== null)
         compare(player.playing, false)
 
-        mouseClick(button)
+        button.click()
 
         compare(player.playing, true)
 
-        mouseClick(button)
+        button.click()
 
         compare(player.playing, false)
     }

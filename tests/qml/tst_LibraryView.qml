@@ -19,6 +19,11 @@ TestCase {
         }
     }
 
+    Component {
+        id: signalSpyComponent
+        SignalSpy { }
+    }
+
     function test_library_is_created() {
         const view = createTemporaryObject(component, testCase)
 
@@ -41,7 +46,9 @@ TestCase {
 
     function test_select_file() {
         const view = createTemporaryObject(component, testCase)
-        const spy = signalSpy(view, "fileSelected")
+        const spy = createTemporaryObject(signalSpyComponent, testCase)
+        spy.target = view
+        spy.signalName = "fileSelected"
 
         view.selectFile(1)
 
@@ -55,16 +62,18 @@ TestCase {
 
     function test_invalid_selection_is_ignored() {
         const view = createTemporaryObject(component, testCase)
-        const spy = signalSpy(view, "fileSelected")
+        const spy = createTemporaryObject(signalSpyComponent, testCase)
+        spy.target = view
+        spy.signalName = "fileSelected"
 
         view.selectFile(-1)
 
         compare(view.selectedIndex, 0)
-        compare(spy.count, 1)
+        compare(spy.count, 0)
 
         view.selectFile(100)
 
         compare(view.selectedIndex, 0)
-        compare(spy.count, 1)
+        compare(spy.count, 0)
     }
 }
