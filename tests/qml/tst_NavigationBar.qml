@@ -10,6 +10,9 @@ TestCase {
 
     name: "NavigationBar"
 
+    /**
+     * @brief Component used to instantiate isolated NavigationBar objects.
+     */
     Component {
         id: component
 
@@ -19,24 +22,65 @@ TestCase {
         }
     }
 
+    SignalSpy {
+        id: sectionSpy
+    }
+
+    /**
+     * @brief Verifies the default selected section.
+     */
     function test_default_section() {
-        const navigation = createTemporaryObject(component, testCase)
+        const navigation = createTemporaryObject(
+            component,
+            testCase
+        )
 
-        compare(navigation.currentSection, "files")
+        compare(
+            navigation.currentSection,
+            "files"
+        )
     }
 
-    function test_section_selection_signal() {
-        const navigation = createTemporaryObject(component, testCase)
-        const spy = signalSpy(navigation, "sectionSelected")
+    /**
+     * @brief Verifies that a navigation item emits the expected
+     *        section through NavigationBar.
+     *
+     * The test uses the real NavigationItem interaction instead of
+     * relying on a nonexistent signalSpy() helper.
+     */
+    function test_section_selection() {
+        const navigation = createTemporaryObject(
+            component,
+            testCase
+        )
 
-        navigation.sectionSelected("albums")
+        sectionSpy.target = navigation
+        sectionSpy.signalName = "sectionSelected"
 
-        compare(spy.count, 1)
-        compare(spy.signalArguments[0][0], "albums")
+        const albums = findChild(
+            navigation,
+            "albumsNavigationItem"
+        )
+
+        verify(albums !== null)
+
+        albums.clicked()
+
+        compare(sectionSpy.count, 1)
+        compare(
+            sectionSpy.signalArguments[0][0],
+            "albums"
+        )
     }
 
+    /**
+     * @brief Verifies that all expected navigation items exist.
+     */
     function test_navigation_items_exist() {
-        const navigation = createTemporaryObject(component, testCase)
+        const navigation = createTemporaryObject(
+            component,
+            testCase
+        )
 
         verify(findChild(
             navigation,
@@ -55,7 +99,7 @@ TestCase {
 
         verify(findChild(
             navigation,
-            "playlistsNavigationItem"
+            "libraryNavigationItem"
         ) !== null)
 
         verify(findChild(
@@ -69,28 +113,34 @@ TestCase {
         ) !== null)
     }
 
+    /**
+     * @brief Verifies that only the current navigation item is checked.
+     */
     function test_current_item_is_checked() {
-        const navigation = createTemporaryObject(component, testCase)
+        const navigation = createTemporaryObject(
+            component,
+            testCase
+        )
 
         const files = findChild(
             navigation,
             "filesNavigationItem"
         )
 
-        const albums = findChild(
+        const library = findChild(
             navigation,
-            "albumsNavigationItem"
+            "libraryNavigationItem"
         )
 
         verify(files !== null)
-        verify(albums !== null)
+        verify(library !== null)
 
         compare(files.checked, true)
-        compare(albums.checked, false)
+        compare(library.checked, false)
 
-        navigation.currentSection = "albums"
+        navigation.currentSection = "library"
 
         compare(files.checked, false)
-        compare(albums.checked, true)
+        compare(library.checked, true)
     }
 }

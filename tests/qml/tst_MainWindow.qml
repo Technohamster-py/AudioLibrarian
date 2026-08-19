@@ -1,120 +1,276 @@
-function test_default_navigation_section() {
-    const window = createTemporaryObject(component, testCase)
-
-    compare(window.activeSection, "files")
-
-    const stack = findChild(window, "contentStack")
-
-    verify(stack !== null)
-    compare(stack.currentIndex, 0)
-}
-
-function test_section_index_mapping() {
-    const window = createTemporaryObject(component, testCase)
-
-    compare(window.sectionIndex("files"), 0)
-    compare(window.sectionIndex("albums"), 1)
-    compare(window.sectionIndex("artists"), 2)
-    compare(window.sectionIndex("playlists"), 3)
-    compare(window.sectionIndex("duplicates"), 4)
-    compare(window.sectionIndex("settings"), 5)
-}
-
-function test_navigation_switches_content() {
-    const window = createTemporaryObject(component, testCase)
-
-    const navigation = findChild(
-        window,
-        "navigationBar"
-    )
-
-    const stack = findChild(
-        window,
-        "contentStack"
-    )
-
-    verify(navigation !== null)
-    verify(stack !== null)
-
-    navigation.sectionSelected("albums")
-
-    compare(window.activeSection, "albums")
-    compare(stack.currentIndex, 1)
-
-    verify(findChild(
-        window,
-        "albumsView"
-    ) !== null)
-}
-
-function test_switching_back_to_files() {
-    const window = createTemporaryObject(component, testCase)
-
-    const navigation = findChild(
-        window,
-        "navigationBar"
-    )
-
-    const stack = findChild(
-        window,
-        "contentStack"
-    )
-
-    navigation.sectionSelected("albums")
-
-    compare(stack.currentIndex, 1)
-
-    navigation.sectionSelected("files")
-
-    compare(window.activeSection, "files")
-    compare(stack.currentIndex, 0)
-
-    verify(findChild(
-        window,
-        "filesWorkspace"
-    ) !== null)
-}
+import QtQuick
+import QtTest
+import AudioLibrarian
 
 /**
- * @brief Verifies that the workspace stack is placed inside
- *        the main horizontal SplitView together with EditorView.
+ * @brief Tests for the main application window.
+ *
+ * The tests verify the structure and navigation behaviour of the
+ * first UI vertical slice.
  */
-function test_workspace_stack_structure() {
-    const window = createTemporaryObject(component, testCase)
+TestCase {
+    id: testCase
 
-    const splitView = findChild(
-        window,
-        "mainSplitView"
-    )
+    name: "MainWindow"
 
-    const workspaceStack = findChild(
-        window,
-        "workspaceStack"
-    )
+    /**
+     * @brief Component used to instantiate isolated MainWindow objects.
+     */
+    Component {
+        id: component
 
-    const libraryPane = findChild(
-        window,
-        "libraryPane"
-    )
+        MainWindow {
+            visible: false
+        }
+    }
 
-    const editorView = findChild(
-        window,
-        "editorView"
-    )
+    /**
+     * @brief Verifies the default navigation section.
+     */
+    function test_default_navigation_section() {
+        const window = createTemporaryObject(
+            component,
+            testCase
+        )
 
-    const playerBar = findChild(
-        window,
-        "playerBar"
-    )
+        compare(window.activeSection, "files")
 
-    verify(splitView !== null)
-    verify(workspaceStack !== null)
-    verify(libraryPane !== null)
-    verify(editorView !== null)
-    verify(playerBar !== null)
+        const stack = findChild(
+            window,
+            "workspaceStack"
+        )
 
-    compare(workspaceStack.parent, splitView)
-    compare(libraryPane.parent, workspaceStack)
-    compare(editorView.parent, splitView)
-    compare(playerBar.parent, splitView)
+        verify(stack !== null)
+        compare(stack.currentIndex, 0)
+    }
+
+    /**
+     * @brief Verifies the mapping between navigation sections
+     *        and StackLayout indexes.
+     */
+    function test_section_index_mapping() {
+        const window = createTemporaryObject(
+            component,
+            testCase
+        )
+
+        compare(window.sectionIndex("files"), 0)
+        compare(window.sectionIndex("albums"), 1)
+        compare(window.sectionIndex("artists"), 2)
+        compare(window.sectionIndex("library"), 3)
+        compare(window.sectionIndex("duplicates"), 4)
+        compare(window.sectionIndex("settings"), 5)
+
+        // Unknown sections must fall back to the Files page.
+        compare(window.sectionIndex("unknown"), 0)
+    }
+
+    /**
+     * @brief Verifies that navigation changes the active workspace.
+     */
+    function test_navigation_switches_content() {
+        const window = createTemporaryObject(
+            component,
+            testCase
+        )
+
+        const navigation = findChild(
+            window,
+            "navigationBar"
+        )
+
+        const stack = findChild(
+            window,
+            "workspaceStack"
+        )
+
+        verify(navigation !== null)
+        verify(stack !== null)
+
+        navigation.sectionSelected("albums")
+
+        compare(window.activeSection, "albums")
+        compare(stack.currentIndex, 1)
+
+        verify(findChild(
+            window,
+            "albumsView"
+        ) !== null)
+    }
+
+    /**
+     * @brief Verifies switching from another workspace back to Files.
+     */
+    function test_switching_back_to_files() {
+        const window = createTemporaryObject(
+            component,
+            testCase
+        )
+
+        const navigation = findChild(
+            window,
+            "navigationBar"
+        )
+
+        const stack = findChild(
+            window,
+            "workspaceStack"
+        )
+
+        verify(navigation !== null)
+        verify(stack !== null)
+
+        navigation.sectionSelected("albums")
+
+        compare(window.activeSection, "albums")
+        compare(stack.currentIndex, 1)
+
+        navigation.sectionSelected("files")
+
+        compare(window.activeSection, "files")
+        compare(stack.currentIndex, 0)
+
+        verify(findChild(
+            window,
+            "filesView"
+        ) !== null)
+    }
+
+    /**
+     * @brief Verifies the actual hierarchy of the main workspace.
+     *
+     * Expected structure:
+     *
+     * RowLayout
+     * ├── NavigationBar
+     * └── SplitView
+     *     ├── ColumnLayout
+     *     │   ├── StackLayout
+     *     │   │   └── LibraryPane
+     *     │   └── PlayerBar
+     *     └── EditorView
+     */
+    function test_workspace_structure() {
+        const window = createTemporaryObject(
+            component,
+            testCase
+        )
+
+        const splitView = findChild(
+            window,
+            "mainSplitView"
+        )
+
+        const navigationLayout = findChild(
+            window,
+            "navigationLayout"
+        )
+
+        const workspaceStack = findChild(
+            window,
+            "workspaceStack"
+        )
+
+        const libraryPane = findChild(
+            window,
+            "libraryPane"
+        )
+
+        const playerBar = findChild(
+            window,
+            "playerBar"
+        )
+
+        const editorView = findChild(
+            window,
+            "editorView"
+        )
+
+        verify(splitView !== null)
+        verify(navigationLayout !== null)
+        verify(workspaceStack !== null)
+        verify(libraryPane !== null)
+        verify(playerBar !== null)
+        verify(editorView !== null)
+
+        /*
+         * StackLayout and PlayerBar belong to the left-side
+         * ColumnLayout, while EditorView belongs directly to
+         * the horizontal SplitView.
+         */
+        compare(
+            navigationLayout.parent,
+            splitView
+        )
+
+        compare(
+            workspaceStack.parent,
+            navigationLayout
+        )
+
+        compare(
+            libraryPane.parent,
+            workspaceStack
+        )
+
+        compare(
+            playerBar.parent,
+            navigationLayout
+        )
+
+        compare(
+            editorView.parent,
+            splitView
+        )
+    }
+
+    /**
+     * @brief Verifies that the PlayerBar exists independently
+     *        of the selected navigation workspace.
+     */
+    function test_player_is_outside_workspace_stack() {
+        const window = createTemporaryObject(
+            component,
+            testCase
+        )
+
+        const navigation = findChild(
+            window,
+            "navigationBar"
+        )
+
+        const stack = findChild(
+            window,
+            "workspaceStack"
+        )
+
+        const playerBar = findChild(
+            window,
+            "playerBar"
+        )
+
+        verify(navigation !== null)
+        verify(stack !== null)
+        verify(playerBar !== null)
+
+        /*
+         * Switch through several workspaces. PlayerBar must remain
+         * present because it is a sibling of StackLayout rather
+         * than one of its pages.
+         */
+        navigation.sectionSelected("albums")
+        verify(playerBar.visible)
+
+        navigation.sectionSelected("artists")
+        verify(playerBar.visible)
+
+        navigation.sectionSelected("duplicates")
+        verify(playerBar.visible)
+
+        navigation.sectionSelected("settings")
+        verify(playerBar.visible)
+
+        navigation.sectionSelected("files")
+        verify(playerBar.visible)
+    }
 }
