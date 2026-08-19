@@ -128,9 +128,13 @@ qt_add_qml_module(AudioLibrarianUi
         RESOURCES
             assets/albums.svg
             assets/artists.svg
+            assets/backward.svg
             assets/duplicate.svg
             assets/files.svg
+            assets/forward.svg
             assets/music-library.svg
+            assets/pause.svg
+            assets/play.svg
             assets/settings.svg
 )
 
