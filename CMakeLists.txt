@@ -126,7 +126,12 @@ qt_add_qml_module(AudioLibrarianUi
             qml/theme/AppMetrics.qml
 
         RESOURCES
-            assets/audio-file.svg
+            assets/albums.svg
+            assets/artists.svg
+            assets/duplicate.svg
+            assets/files.svg
+            assets/music-library.svg
+            assets/settings.svg
 )
 
 target_link_libraries(AudioLibrarianUi
