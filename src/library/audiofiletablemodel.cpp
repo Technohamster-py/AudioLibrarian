@@ -1,6 +1,8 @@
 #include "audiofiletablemodel.h"
 
 #include <QFileInfo>
+#include <QBuffer>
+#include <QImageReader>
 #include <QDirIterator>
 #include <QStandardPaths>
 #include <QUrl>
@@ -197,11 +199,56 @@ void AudioFileTableModel::sort(int column, Qt::SortOrder order) {
     layoutChanged();
 }
 
-QString AudioFileTableModel::makeCoverUrl(const QByteArray &imageBytes, QString &mimeType) {
-    if (imageBytes.isEmpty()) return {};
+/**
+ * @brief Converts embedded image data into a QML-compatible data URL.
+ *
+ * QImageReader is used to determine the actual image format instead of
+ * assuming JPEG. This allows embedded PNG, JPEG, WebP and other formats
+ * supported by Qt to be displayed correctly.
+ *
+ * @param imageBytes Embedded image data.
+ *
+ * @return Data URL suitable for Image::source, or an empty string when
+ *         the data cannot be recognized as an image.
+ */
+QString AudioFileTableModel::makeCoverUrl(const QByteArray &imageBytes) const {
+    if (imageBytes.isEmpty())
+        return {};
 
-    const QByteArray base64 = imageBytes.toBase64();
-    return QStringLiteral("data:%1;base64,%2").arg(mimeType, QString::fromLatin1(base64));
+    QBuffer buffer;
+    buffer.setData(imageBytes);
+
+    if (!buffer.open(QIODevice::ReadOnly))
+        return {};
+
+    QImageReader reader(&buffer);
+
+    const QByteArray format = reader.format();
+
+    if (format.isEmpty())
+        return {};
+
+    QString mimeType;
+
+    if (format.compare("jpg", Qt::CaseInsensitive) == 0 || format.compare("jpeg", Qt::CaseInsensitive) == 0) {
+        mimeType = QStringLiteral("image/jpeg");
+    }
+    else if (format.compare("png", Qt::CaseInsensitive) == 0) {
+            mimeType = QStringLiteral("image/png");
+    }
+    else if (format.compare("webp", Qt::CaseInsensitive) == 0) {
+            mimeType = QStringLiteral("image/webp");
+    }
+    else if (format.compare("bmp", Qt::CaseInsensitive) == 0) {
+            mimeType = QStringLiteral("image/bmp");
+    }
+    else if (format.compare("gif", Qt::CaseInsensitive) == 0) {
+            mimeType = QStringLiteral("image/gif");
+    }
+    else {
+            mimeType = QStringLiteral("image/%1").arg(QString::fromLatin1(format));
+    }
+    return QStringLiteral("data:%1;base64,%2").arg(mimeType, QString::fromLatin1(imageBytes.toBase64()));
 }
 
 void AudioFileTableModel::handleScanFinished() {

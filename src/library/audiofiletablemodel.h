@@ -163,7 +163,17 @@ public:
      */
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
-    QString makeCoverUrl(const QByteArray& imageBytes, QString& mimeType);
+    /**
+     * @brief Converts embedded image data into a QML-compatible data URL.
+     *
+     * The MIME type is detected from the image data itself. The returned URL
+     * can be passed directly to QML Image::source.
+     *
+     * @param imageBytes Embedded image data.
+     *
+     * @return Data URL or an empty string when the image data is invalid.
+     */
+    Q_INVOKABLE QString makeCoverUrl(const QByteArray& imageBytes) const;
 
 signals:
     /**

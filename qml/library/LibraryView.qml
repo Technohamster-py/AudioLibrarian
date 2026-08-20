@@ -256,30 +256,35 @@ Item {
                         height: 40
 
                         radius: 2
-
                         color: AppColors.surfaceElevated
 
                         Image {
+                            id: coverImage
+
                             anchors.fill: parent
                             anchors.margins: 2
 
                             fillMode: Image.PreserveAspectFit
 
-                            source: model.coverArtUrl && model.coverArtUrl.length > 0 ? model.coverArtUrl : "qrc:/qt/qml/AudioLibrarian/assets/music.svg"
+                            source: {
+                                if (!model.cover || model.cover.length === 0)
+                                    return ""
 
-                            visible: source.length > 0
+                                return libraryModel.makeCoverUrl(model.cover)
+                            }
                         }
 
-                        Label {
+                        Image {
                             anchors.centerIn: parent
 
-                            visible: !model.cover ||
-                                model.cover.length === 0
+                            visible: coverImage.status !== Image.Ready
 
-                            text: "♪"
+                            width: 24
+                            height: 24
 
-                            color: AppColors.textSecondary
-                            font.pixelSize: 20
+                            source: "qrc:/qt/qml/AudioLibrarian/assets/music.svg"
+
+                            fillMode: Image.PreserveAspectFit
                         }
                     }
                 }

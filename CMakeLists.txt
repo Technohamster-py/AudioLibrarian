@@ -32,6 +32,7 @@ add_library(AudioLibrarianCore STATIC
 target_link_libraries(AudioLibrarianCore
         PUBLIC
         Qt6::Core
+        Qt6::Gui
         Qt6::Concurrent
         TagLib::tag
 )
