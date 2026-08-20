@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Qt6 REQUIRED COMPONENTS
         Core
         Gui
+        Concurrent
         Quick
         QuickControls2
         QuickTest
@@ -31,6 +32,7 @@ add_library(AudioLibrarianCore STATIC
 target_link_libraries(AudioLibrarianCore
         PUBLIC
         Qt6::Core
+        Qt6::Concurrent
         TagLib::tag
 )
 
