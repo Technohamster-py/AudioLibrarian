@@ -26,6 +26,7 @@ qt_standard_project_setup(REQUIRES 6.11)
 add_library(AudioLibrarianCore STATIC
         src/library/audiofiletablemodel.h       src/library/audiofiletablemodel.cpp
         src/metadata/audiometadata.h            src/metadata/audiometadata.cpp
+        src/metadata/tageditormodel.h           src/metadata/tageditormodel.cpp
         src/metadata/taglibmetadatabackend.h    src/metadata/taglibmetadatabackend.cpp
 )
 
@@ -129,6 +130,7 @@ qt_add_qml_module(AudioLibrarianUi
         # implementation remains in AudioLibrarianCore below.
         SOURCES
         src/library/audiofiletablemodel.h
+        src/metadata/tageditormodel.h
 
         QML_FILES
         qml/Main.qml
@@ -178,6 +180,7 @@ target_link_libraries(AudioLibrarianUi
 target_include_directories(AudioLibrarianUi PRIVATE
         src
         src/library
+        src/metadata
 )
 
 # ---------------------------------------------------------------------------

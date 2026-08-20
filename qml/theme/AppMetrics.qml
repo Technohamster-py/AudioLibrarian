@@ -16,6 +16,10 @@ QtObject {
     readonly property int libraryMinimumWidth: 300
     readonly property int libraryMaximumWidth: 1500
 
+    readonly property int editorMinimumWidth: 480
+    readonly property int editorWidth: 620
+    readonly property int editorMaximumWidth: 600
+
     readonly property int playerHeight: 80
 
     readonly property int navigationItemHeight: 50

@@ -107,16 +107,16 @@ ApplicationWindow {
                 id: navigationLayout
                 objectName: "navigationLayout"
 
+                SplitView.preferredWidth: AppMetrics.libraryWidth
+                SplitView.minimumWidth: AppMetrics.libraryMinimumWidth
+                SplitView.maximumWidth: AppMetrics.libraryMaximumWidth
+
                 StackLayout {
                     id: contentStack
                     objectName: "workspaceStack"
 
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-
-                    SplitView.preferredWidth: AppMetrics.libraryWidth
-                    SplitView.minimumWidth: AppMetrics.libraryMinimumWidth
-                    SplitView.maximumWidth: AppMetrics.libraryMaximumWidth
 
                     currentIndex: root.sectionIndex(root.activeSection)
 
@@ -177,6 +177,9 @@ ApplicationWindow {
             EditorView {
                 id: editorView
                 objectName: "editorView"
+
+                SplitView.minimumWidth: AppMetrics.editorMinimumWidth
+                SplitView.maximumWidth: AppMetrics.editorMaximumWidth
 
                 SplitView.fillWidth: true
 
