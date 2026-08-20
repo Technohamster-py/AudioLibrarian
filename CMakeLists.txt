@@ -271,3 +271,30 @@ add_test(
         NAME tst_AudioFileTableModel
         COMMAND tst_AudioFileTableModel
 )
+
+
+# ---------------------------------------------------------------------------
+# Windows / Qt deployment
+# ---------------------------------------------------------------------------
+#
+# Qt provides a CMake deployment API for desktop applications.
+# Since AudioLibrarian is a Qt Quick/QML application, use the QML-specific
+# deployment script. It invokes the appropriate deployment tool internally
+# and determines the required Qt libraries, plugins and QML modules from
+# the application target.
+#
+# The generated script is executed by "cmake --install", not during linking.
+# ---------------------------------------------------------------------------
+
+if (WIN32)
+    install(TARGETS AudioLibrarian
+            RUNTIME DESTINATION bin
+    )
+
+    qt_generate_deploy_qml_app_script(
+            TARGET AudioLibrarian
+            OUTPUT_SCRIPT deploy_script
+    )
+
+    install(SCRIPT ${deploy_script})
+endif()
