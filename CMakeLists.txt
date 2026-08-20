@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(AudioLibrarian VERSION 0.1 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -23,6 +23,7 @@ qt_standard_project_setup(REQUIRES 6.11)
 # ---------------------------------------------------------------------------
 
 add_library(AudioLibrarianCore STATIC
+        src/library/audiofiletablemodel.h       src/library/audiofiletablemodel.cpp
         src/metadata/audiometadata.h            src/metadata/audiometadata.cpp
         src/metadata/taglibmetadatabackend.h    src/metadata/taglibmetadatabackend.cpp
 )
@@ -31,6 +32,10 @@ target_link_libraries(AudioLibrarianCore
         PUBLIC
         Qt6::Core
         TagLib::tag
+)
+
+target_include_directories(AudioLibrarianCore PRIVATE
+    src
 )
 
 # ---------------------------------------------------------------------------
