@@ -110,12 +110,72 @@ Item {
             color: AppColors.separator
         }
 
-        /**
-         * @brief Audio file table.
+        /*
+         * Header and TableView are separate items.
          *
-         * TableView provides virtualization, which is important for a
-         * potentially large music library.
+         * This guarantees that the header occupies its own layout space and
+         * cannot overlap the first table row.
          */
+        Rectangle {
+            id: tableHeader
+
+            Layout.fillWidth: true
+            Layout.preferredHeight: 36
+
+            color: AppColors.surfaceElevated
+
+            clip: true
+
+            Row {
+                id: headerRow
+
+                x: -fileTable.contentX
+
+                height: parent.height
+
+                Repeater {
+                    model: libraryModel.columnCount()
+
+                    delegate: Rectangle {
+                        required property int index
+
+                        width: fileTable.columnWidthProvider(index)
+                        height: tableHeader.height
+
+                        color: AppColors.surfaceElevated
+
+                        Label {
+                            anchors.fill: parent
+
+                            anchors.leftMargin: 8
+                            anchors.rightMargin: 8
+
+                            verticalAlignment: Text.AlignVCenter
+
+                            text: libraryModel.headerData(
+                                index,
+                                Qt.Horizontal,
+                                Qt.DisplayRole
+                            )
+
+                            color: AppColors.textSecondary
+
+                            elide: Text.ElideRight
+                        }
+
+                        TapHandler {
+                            onTapped: {
+                                libraryModel.sort(
+                                    index,
+                                    Qt.AscendingOrder
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         TableView {
             id: fileTable
 
@@ -131,11 +191,6 @@ Item {
             columnSpacing: 0
             rowSpacing: 1
 
-            /**
-             * @brief Default column width.
-             *
-             * Individual columns override this value below.
-             */
             columnWidthProvider: function(column) {
                 switch (column) {
                     case AudioFileTableModel.Cover:
@@ -170,20 +225,10 @@ Item {
                 }
             }
 
-            /**
-             * @brief Row height.
-             */
             rowHeightProvider: function(row) {
                 return 56
             }
 
-            /**
-             * @brief Table cell delegate.
-             *
-             * The delegate is intentionally kept here instead of coupling
-             * the table to the old AudioFileDelegate. The latter represents
-             * a list item rather than a table cell.
-             */
             delegate: Rectangle {
                 required property int row
                 required property int column
@@ -195,11 +240,6 @@ Item {
                     ? AppColors.surfaceSelected
                     : AppColors.surface
 
-                border.width: 0
-
-                /**
-                 * @brief Cover column.
-                 */
                 Loader {
                     anchors.centerIn: parent
 
@@ -221,7 +261,6 @@ Item {
 
                         Image {
                             anchors.fill: parent
-
                             anchors.margins: 2
 
                             fillMode: Image.PreserveAspectFit
@@ -245,9 +284,6 @@ Item {
                     }
                 }
 
-                /**
-                 * @brief Textual table cell.
-                 */
                 Label {
                     anchors.fill: parent
 
@@ -256,7 +292,8 @@ Item {
 
                     verticalAlignment: Text.AlignVCenter
 
-                    visible: column !== AudioFileTableModel.Cover &&
+                    visible:
+                        column !== AudioFileTableModel.Cover &&
                         column !== AudioFileTableModel.HasLyrics
 
                     color: selected
@@ -294,9 +331,6 @@ Item {
                     }
                 }
 
-                /**
-                 * @brief Lyrics availability indicator.
-                 */
                 Label {
                     anchors.centerIn: parent
 
@@ -310,79 +344,8 @@ Item {
                     font.pixelSize: 18
                 }
 
-                /**
-                 * @brief Activates the corresponding audio file.
-                 */
                 TapHandler {
                     onTapped: root.selectFile(row)
-                }
-            }
-
-            /**
-             * @brief Enables sorting by clicking a table header.
-             *
-             * Qt's TableView does not provide a complete sortable-header
-             * implementation by itself, therefore the header delegates
-             * explicitly invoke QAbstractItemModel::sort().
-             */
-            topMargin: header.height
-
-            Rectangle {
-                id: header
-
-                z: 2
-
-                x: -fileTable.contentX
-                y: -fileTable.contentY
-
-                width: fileTable.width
-                height: 36
-
-                color: AppColors.surfaceElevated
-
-                Row {
-                    anchors.fill: parent
-
-                    Repeater {
-                        model: libraryModel.columnCount()
-
-                        delegate: Rectangle {
-                            required property int index
-
-                            width: fileTable.columnWidthProvider(index)
-                            height: parent.height
-
-                            color: AppColors.surfaceElevated
-
-                            Label {
-                                anchors.fill: parent
-
-                                anchors.leftMargin: 8
-                                anchors.rightMargin: 8
-
-                                verticalAlignment: Text.AlignVCenter
-
-                                text: libraryModel.headerData(
-                                    index,
-                                    Qt.Horizontal,
-                                    Qt.DisplayRole
-                                )
-
-                                color: AppColors.textSecondary
-
-                                elide: Text.ElideRight
-                            }
-
-                            TapHandler {
-                                onTapped: {
-                                    libraryModel.sort(
-                                        index,
-                                        Qt.AscendingOrder
-                                    )
-                                }
-                            }
-                        }
-                    }
                 }
             }
 
@@ -395,7 +358,6 @@ Item {
             }
         }
     }
-
     /**
      * @brief Select the first file after the initial scan.
      *
