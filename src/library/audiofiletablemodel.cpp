@@ -234,19 +234,19 @@ QString AudioFileTableModel::makeCoverUrl(const QByteArray &imageBytes) const {
         mimeType = QStringLiteral("image/jpeg");
     }
     else if (format.compare("png", Qt::CaseInsensitive) == 0) {
-            mimeType = QStringLiteral("image/png");
+        mimeType = QStringLiteral("image/png");
     }
     else if (format.compare("webp", Qt::CaseInsensitive) == 0) {
-            mimeType = QStringLiteral("image/webp");
+        mimeType = QStringLiteral("image/webp");
     }
     else if (format.compare("bmp", Qt::CaseInsensitive) == 0) {
-            mimeType = QStringLiteral("image/bmp");
+        mimeType = QStringLiteral("image/bmp");
     }
     else if (format.compare("gif", Qt::CaseInsensitive) == 0) {
-            mimeType = QStringLiteral("image/gif");
+        mimeType = QStringLiteral("image/gif");
     }
     else {
-            mimeType = QStringLiteral("image/%1").arg(QString::fromLatin1(format));
+        mimeType = QStringLiteral("image/%1").arg(QString::fromLatin1(format));
     }
     return QStringLiteral("data:%1;base64,%2").arg(mimeType, QString::fromLatin1(imageBytes.toBase64()));
 }

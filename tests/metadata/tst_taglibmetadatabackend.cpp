@@ -3,6 +3,7 @@
 #include "../../src/metadata/audiometadata.h"
 #include "../../src/metadata/taglibmetadatabackend.h"
 
+#include <QDataStream>
 #include <QFile>
 #include <QTemporaryDir>
 
@@ -66,12 +67,15 @@ static bool createTestWav(const QString &filePath) {
     stream.writeRawData("data", 4);
     stream << dataSize;
 
-    QByteArray silence(
+    const QByteArray silence(
         static_cast<qsizetype>(dataSize),
         '\0'
     );
 
-    stream.writeRawData(silence.constData(), silence.size());
+    stream.writeRawData(
+        silence.constData(),
+        silence.size()
+    );
 
     return stream.status() == QDataStream::Ok;
 }
@@ -105,10 +109,7 @@ void TagLibMetadataBackendTest::readInvalidFile() {
 
     QString error;
 
-    const auto metadata = backend.read(
-        QStringLiteral("/this/file/does/not/exist.mp3"),
-        &error
-    );
+    const auto metadata = backend.read(QStringLiteral("/this/file/does/not/exist.mp3"), &error);
 
     QVERIFY(!metadata.has_value());
     QVERIFY(!error.isEmpty());
@@ -116,31 +117,69 @@ void TagLibMetadataBackendTest::readInvalidFile() {
 
 void TagLibMetadataBackendTest::readWriteRoundTrip() {
     QTemporaryDir temporaryDirectory;
-    QVERIFY(temporaryDirectory.isValid());
+
+    QVERIFY(
+        temporaryDirectory.isValid()
+    );
 
     const QString filePath =
-        temporaryDirectory.filePath(QStringLiteral("test.wav"));
+        temporaryDirectory.filePath(
+            QStringLiteral("test.wav")
+        );
 
-    QVERIFY(createTestWav(filePath));
+    QVERIFY(
+        createTestWav(filePath)
+    );
 
     const TagLibMetadataBackend backend;
 
     AudioMetadata metadata;
 
-    metadata.setTitle(QStringLiteral("Test title"));
-    metadata.setArtist(QStringLiteral("Test artist"));
-    metadata.setAlbum(QStringLiteral("Test album"));
-    metadata.setGenre(QStringLiteral("Test genre"));
-    metadata.setTrackNumber(QStringLiteral("3/12"));
+    metadata.setTitle(
+        QStringLiteral("Test title")
+    );
+
+    metadata.setArtist(
+        QStringLiteral("Test artist")
+    );
+
+    metadata.setAlbum(
+        QStringLiteral("Test album")
+    );
+
+    metadata.setGenre(
+        QStringLiteral("Test genre")
+    );
+
+    metadata.setTrackNumber(
+        QStringLiteral("3/12")
+    );
 
     QString error;
 
-    QVERIFY(backend.write(filePath, metadata, &error));
-    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(
+        backend.write(
+            filePath,
+            metadata,
+            &error
+        )
+    );
 
-    const auto loadedMetadata = backend.read(filePath, &error);
+    QVERIFY2(
+        error.isEmpty(),
+        qPrintable(error)
+    );
 
-    QVERIFY2(loadedMetadata.has_value(), qPrintable(error));
+    const auto loadedMetadata =
+        backend.read(
+            filePath,
+            &error
+        );
+
+    QVERIFY2(
+        loadedMetadata.has_value(),
+        qPrintable(error)
+    );
 
     QCOMPARE(
         loadedMetadata->title(),
@@ -170,12 +209,19 @@ void TagLibMetadataBackendTest::readWriteRoundTrip() {
 
 void TagLibMetadataBackendTest::multipleValues() {
     QTemporaryDir temporaryDirectory;
-    QVERIFY(temporaryDirectory.isValid());
+
+    QVERIFY(
+        temporaryDirectory.isValid()
+    );
 
     const QString filePath =
-        temporaryDirectory.filePath(QStringLiteral("test.wav"));
+        temporaryDirectory.filePath(
+            QStringLiteral("test.wav")
+        );
 
-    QVERIFY(createTestWav(filePath));
+    QVERIFY(
+        createTestWav(filePath)
+    );
 
     const TagLibMetadataBackend backend;
 
@@ -191,12 +237,29 @@ void TagLibMetadataBackendTest::multipleValues() {
 
     QString error;
 
-    QVERIFY(backend.write(filePath, metadata, &error));
-    QVERIFY2(error.isEmpty(), qPrintable(error));
+    QVERIFY(
+        backend.write(
+            filePath,
+            metadata,
+            &error
+        )
+    );
 
-    const auto loadedMetadata = backend.read(filePath, &error);
+    QVERIFY2(
+        error.isEmpty(),
+        qPrintable(error)
+    );
 
-    QVERIFY2(loadedMetadata.has_value(), qPrintable(error));
+    const auto loadedMetadata =
+        backend.read(
+            filePath,
+            &error
+        );
+
+    QVERIFY2(
+        loadedMetadata.has_value(),
+        qPrintable(error)
+    );
 
     const QStringList expectedArtists{
         QStringLiteral("Artist One"),
@@ -204,7 +267,9 @@ void TagLibMetadataBackendTest::multipleValues() {
     };
 
     QCOMPARE(
-        loadedMetadata->values(QStringLiteral("ARTIST")),
+        loadedMetadata->values(
+            QStringLiteral("ARTIST")
+        ),
         expectedArtists
     );
 }

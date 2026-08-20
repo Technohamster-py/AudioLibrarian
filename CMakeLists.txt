@@ -245,3 +245,26 @@ add_test(
         NAME tst_TagLibMetadataBackend
         COMMAND tst_TagLibMetadataBackend
 )
+
+# ---------------------------------------------------------------------------
+# Library model tests
+# ---------------------------------------------------------------------------
+
+add_executable(tst_AudioFileTableModel
+        tests/library/tst_audiofiletablemodel.cpp
+)
+
+target_link_libraries(tst_AudioFileTableModel
+        PRIVATE
+        AudioLibrarianCore
+        Qt6::Test
+)
+
+target_include_directories(tst_AudioFileTableModel PRIVATE
+        src
+)
+
+add_test(
+        NAME tst_AudioFileTableModel
+        COMMAND tst_AudioFileTableModel
+)
