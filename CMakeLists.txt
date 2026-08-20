@@ -123,6 +123,12 @@ qt_add_qml_module(AudioLibrarianUi
         URI AudioLibrarian
         VERSION 0.1
 
+        # QML_ELEMENT types must be listed as SOURCES of the QML module so
+        # qmltyperegistrar generates their module registration.  The model's
+        # implementation remains in AudioLibrarianCore below.
+        SOURCES
+        src/library/audiofiletablemodel.h
+
         QML_FILES
         qml/Main.qml
 
@@ -163,8 +169,14 @@ qt_add_qml_module(AudioLibrarianUi
 
 target_link_libraries(AudioLibrarianUi
         PRIVATE
+        AudioLibrarianCore
         Qt6::Quick
         Qt6::QuickControls2
+)
+
+target_include_directories(AudioLibrarianUi PRIVATE
+        src
+        src/library
 )
 
 # ---------------------------------------------------------------------------

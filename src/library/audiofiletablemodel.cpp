@@ -49,6 +49,10 @@ void AudioFileTableModel::setRootPath(const QUrl &path) {
     reload();
 }
 
+bool AudioFileTableModel::isLoading() const {
+    return m_loading;
+}
+
 void AudioFileTableModel::reload() {
     ++m_scanGeneration;
 
@@ -193,6 +197,13 @@ void AudioFileTableModel::sort(int column, Qt::SortOrder order) {
     layoutChanged();
 }
 
+QString AudioFileTableModel::makeCoverUrl(const QByteArray &imageBytes, QString &mimeType) {
+    if (imageBytes.isEmpty()) return {};
+
+    const QByteArray base64 = imageBytes.toBase64();
+    return QStringLiteral("data:%1;base64,%2").arg(mimeType, QString::fromLatin1(base64));
+}
+
 void AudioFileTableModel::handleScanFinished() {
     const QVector<AudioFileRecord> files = m_scanWatcher.result();
 
@@ -325,6 +336,5 @@ void AudioFileTableModel::setLoading(const bool loading) {
     m_loading = loading;
     emit loadingChanged();
 }
-
 
 

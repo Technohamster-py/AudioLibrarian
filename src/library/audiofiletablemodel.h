@@ -7,6 +7,7 @@
 #include <QVector>
 
 #include <QFutureWatcher>
+#include <QtQmlIntegration/qqmlintegration.h>
 
 /**
  * @brief Represents one audio file in the library.
@@ -50,6 +51,8 @@ class AudioFileTableModel : public QAbstractTableModel {
         READ isLoading
         NOTIFY loadingChanged
     )
+
+    QML_ELEMENT
 
 public:
     /**
@@ -159,6 +162,8 @@ public:
      * @param order Sort direction.
      */
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
+
+    QString makeCoverUrl(const QByteArray& imageBytes, QString& mimeType);
 
 signals:
     /**

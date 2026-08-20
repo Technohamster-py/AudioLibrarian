@@ -16,6 +16,11 @@ QtObject {
     readonly property color panelElevated: "#303030"
     readonly property color separator: "#454545"
 
+    // Semantic aliases used by table and editor surfaces.
+    readonly property color surface: panel
+    readonly property color surfaceElevated: panelElevated
+    readonly property color surfaceSelected: selection
+
     readonly property color textPrimary: "#f2f2f2"
     readonly property color textSecondary: "#a8a8a8"
     readonly property color textDisabled: "#686868"
