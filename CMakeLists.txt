@@ -127,7 +127,7 @@ qt_add_qml_module(AudioLibrarianUi
 
         # QML_ELEMENT types must be listed as SOURCES of the QML module so
         # qmltyperegistrar generates their module registration.  The model's
-        # implementation remains in AudioLibrarianCore below.
+        # implementation remains in AudioLibrarianCore above.
         SOURCES
         src/library/audiofiletablemodel.h
         src/metadata/tageditormodel.h

@@ -9,21 +9,11 @@ import QtQuick
 Item {
     id: root
 
-    property string fileName: ""
-    property string artist: ""
-    property string album: ""
-    property string genre: ""
-    property int year: 0
-    property string duration: ""
+    property string filePath: ""
 
     TagEditorView {
         anchors.fill: parent
 
-        fileName: root.fileName
-        artist: root.artist
-        album: root.album
-        genre: root.genre
-        year: root.year
-        duration: root.duration
+       filePath: root.filePath
     }
 }

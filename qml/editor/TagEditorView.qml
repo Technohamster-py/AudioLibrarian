@@ -14,12 +14,20 @@ import QtQuick.Layouts
 Item {
     id: root
 
-    property string fileName: ""
-    property string artist: ""
-    property string album: ""
-    property string genre: ""
-    property int year: 0
-    property string duration: ""
+    property string filePath: ""
+    // Keep the display label derived from the path supplied by MainWindow.
+    property string fileName: filePath.length > 0 ? filePath.substring(filePath.lastIndexOf("/") + 1) : ""
+
+    TagEditorModel {
+        id: tagModel
+        objectName: "tagModel"
+
+        filePath: root.filePath
+
+        onErrorOccurred: function (message) {
+            console.warn("Unable to read metadata:", message)
+        }
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -28,7 +36,6 @@ Item {
 
         ColumnLayout {
             anchors.fill: parent
-
             anchors.margins: AppMetrics.spacingLarge
 
             spacing: AppMetrics.spacingLarge
@@ -39,27 +46,84 @@ Item {
                 text: qsTr("Tag Editor")
 
                 color: AppColors.textPrimary
-
                 font.pixelSize: 28
             }
 
             Label {
                 Layout.fillWidth: true
 
-                text: root.fileName.length > 0
-                    ? root.fileName
-                    : qsTr("No file selected")
+                text: root.fileName.length > 0 ? root.fileName : qsTr("No file selected")
 
                 color: AppColors.textSecondary
-
                 elide: Text.ElideMiddle
             }
 
+            ListView {
+                id: tagList
+
+                objectName: "tagList"
+
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                clip: true
+
+                spacing: 1
+
+                model: tagModel
+
+                delegate: Rectangle {
+                    // These names must match TagEditorModel::roleNames().
+                    required property string key
+                    required property string value
+
+                    width: tagList.width
+                    height: 48
+
+                    color: AppColors.surface
+
+                    RowLayout {
+                        anchors.fill: parent
+
+                        anchors.leftMargin: AppMetrics.spacingMedium
+                        anchors.rightMargin: AppMetrics.spacingMedium
+
+                        spacing: AppMetrics.spacingLarge
+
+                        Label {
+                            Layout.preferredWidth: 180
+
+                            text: key
+
+                            color: AppColors.textSecondary
+
+                            elide: Text.ElideRight
+                        }
+
+                        Label {
+                            Layout.fillWidth: true
+
+                            text: value
+
+                            color: AppColors.textPrimary
+
+                            wrapMode: Text.Wrap
+
+                            elide: Text.ElideRight
+                        }
+                    }
+                }
+
+                ScrollBar.vertical: ScrollBar {
+                    policy: ScrollBar.AsNeeded
+                }
+            }
+
+            /*
             Rectangle {
                 Layout.fillWidth: true
 
                 height: 1
-
                 color: AppColors.separator
             }
 
@@ -191,6 +255,8 @@ Item {
                     Layout.fillWidth: true
                 }
             }
+
+             */
         }
     }
 }

@@ -37,12 +37,7 @@ ApplicationWindow {
     /**
      * @brief Currently selected audio file metadata.
      */
-    property string selectedFileName: ""
-    property string selectedArtist: ""
-    property string selectedAlbum: ""
-    property string selectedGenre: ""
-    property int selectedYear: 0
-    property string selectedDuration: ""
+    property string selectedFilePath: ""
 
     /**
      * @brief Converts a navigation section name into StackLayout index.
@@ -99,7 +94,7 @@ ApplicationWindow {
             orientation: Qt.Horizontal
 
             handle: Rectangle {
-                implicitWidth: 1
+                implicitWidth: 3
                 color: SplitHandle.pressed ? AppColors.accent : AppColors.separator
             }
 
@@ -143,13 +138,8 @@ ApplicationWindow {
 
                         objectName: "libraryPane"
 
-                        onFileSelected: function (fileName, artist, album, genre, year, duration) {
-                            root.selectedFileName = fileName
-                            root.selectedArtist = artist
-                            root.selectedAlbum = album
-                            root.selectedGenre = genre
-                            root.selectedYear = year
-                            root.selectedDuration = duration
+                        onFileSelected: function (filePath) {
+                            root.selectedFilePath = filePath
                         }
                     }
 
@@ -183,12 +173,7 @@ ApplicationWindow {
 
                 SplitView.fillWidth: true
 
-                fileName: root.selectedFileName
-                artist: root.selectedArtist
-                album: root.selectedAlbum
-                genre: root.selectedGenre
-                year: root.selectedYear
-                duration: root.selectedDuration
+                filePath: root.selectedFilePath
             }
         }
     }

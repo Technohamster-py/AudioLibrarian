@@ -14,14 +14,7 @@ import QtQuick.Layouts
 Item {
     id: root
 
-    signal fileSelected(
-        string fileName,
-        string artist,
-        string album,
-        string genre,
-        int year,
-        string duration
-    )
+    signal fileSelected(string filePath)
 
     implicitWidth: AppMetrics.libraryWidth
 
@@ -37,15 +30,8 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            onFileSelected: function(fileName, artist, album, genre, year, duration) {
-                root.fileSelected(
-                    fileName,
-                    artist,
-                    album,
-                    genre,
-                    year,
-                    duration
-                )
+            onFileSelected: function(filePath) {
+                root.fileSelected(filePath)
             }
         }
     }
