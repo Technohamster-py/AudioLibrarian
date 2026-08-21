@@ -73,12 +73,38 @@ Item {
                 model: tagModel
 
                 delegate: Rectangle {
-                    // These names must match TagEditorModel::roleNames().
+                    /**
+                     * @brief Metadata property name.
+                     *
+                     * The property is provided by TagEditorModel::KeyRole.
+                     */
                     required property string key
+
+                    /**
+                     * @brief Metadata property value.
+                     *
+                     * The property is provided by TagEditorModel::ValueRole.
+                     */
                     required property string value
 
+                    /**
+                     * @brief Indicates whether this property contains lyrics.
+                     *
+                     * Lyrics are potentially much longer than ordinary metadata values,
+                     * therefore they use a dedicated scrollable presentation.
+                     */
+                    readonly property bool isLyrics:
+                        key.toUpperCase().startsWith("LYRICS")
+
                     width: tagList.width
-                    height: 48
+
+                    /*
+                     * Ordinary metadata remains compact.
+                     *
+                     * Lyrics receive a fixed larger area. The actual text can be
+                     * arbitrarily long and is therefore displayed inside a ScrollView.
+                     */
+                    height: isLyrics ? 220 : 48
 
                     color: AppColors.surface
 
@@ -92,6 +118,14 @@ Item {
 
                         Label {
                             Layout.preferredWidth: 180
+                            Layout.alignment: Qt.AlignTop
+
+                            /*
+                             * Keep the tag name vertically aligned with the beginning
+                             * of the value. This is especially important for lyrics,
+                             * where the value occupies multiple lines.
+                             */
+                            topPadding: isLyrics ? 12 : 0
 
                             text: key
 
@@ -100,16 +134,78 @@ Item {
                             elide: Text.ElideRight
                         }
 
+                        /*
+                         * Ordinary metadata values.
+                         *
+                         * These values are short enough to be displayed directly.
+                         */
                         Label {
                             Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
+
+                            visible: !isLyrics
 
                             text: value
 
                             color: AppColors.textPrimary
 
-                            wrapMode: Text.Wrap
-
                             elide: Text.ElideRight
+                        }
+
+                        /*
+                         * Lyrics value.
+                         *
+                         * ScrollView prevents a long lyrics field from increasing the
+                         * delegate height or painting over subsequent metadata rows.
+                         */
+                        ScrollView {
+                            id: lyricsScrollView
+
+                            objectName: "lyricsScrollView"
+
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+
+                            Layout.alignment: Qt.AlignTop
+
+                            visible: isLyrics
+
+                            clip: true
+
+                            /*
+                             * The vertical scrollbar is displayed only when the lyrics
+                             * do not fit into the available height.
+                             */
+                            ScrollBar.vertical: ScrollBar {
+                                policy: ScrollBar.AsNeeded
+
+                            }
+
+                            Text {
+                                id: lyricsText
+
+                                objectName: "lyricsText"
+
+                                width: lyricsScrollView.availableWidth
+
+                                text: value
+
+                                color: AppColors.textPrimary
+
+                                /*
+                                 * Explicitly place the text at the top-left corner.
+                                 */
+                                verticalAlignment: Text.AlignTop
+                                horizontalAlignment: Text.AlignLeft
+
+                                wrapMode: Text.Wrap
+
+                                /*
+                                 * Let the text determine its actual content height.
+                                 * ScrollView will then provide vertical scrolling.
+                                 */
+                                height: implicitHeight
+                            }
                         }
                     }
                 }
