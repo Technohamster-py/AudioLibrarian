@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QObject>
 #include <QString>
 
 #define ORGANIZATION_NAME "Technohamster"
@@ -12,6 +13,11 @@
 #define VERSION "0.1"
 #define SETTINGS_VERSION "2.0"
 
+struct SettingsEntry {
+    QString displayName;
+    QString key;
+};
+
 struct Settings {
     struct AppState {
         QString windowWidth = "state/windowWidth";
@@ -22,5 +28,23 @@ struct Settings {
         QString navigationWidth = "state/navigationWidth";
         QString activeSection = "state/activeSection";
     };
-    AppState appState;
+    AppState appState; ///< Hidden from user
+
+    struct General {
+        SettingsEntry language{
+            QObject::tr("Language"),
+            "common/language"
+        };
+
+        SettingsEntry theme{
+            QObject::tr("Theme"),
+            "common/theme"
+        };
+
+        SettingsEntry baseDir{
+            QObject::tr("Library default directory"),
+            "common/baseDir"
+        };
+    };
+    General general;
 };
