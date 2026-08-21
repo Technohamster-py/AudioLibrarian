@@ -94,8 +94,10 @@ Item {
                          * Key column
                          */
                         ColumnLayout {
-                            Layout.preferredWidth: 180
-                            Layout.alignment: Qt.AlignTop
+                            Layout.minimumWidth: AppMetrics.editorKeyWidth
+                            Layout.preferredWidth: AppMetrics.editorKeyWidth
+                            Layout.maximumWidth: AppMetrics.editorKeyWidth
+                            Layout.alignment: Qt.AlignVCenter
 
                             spacing: 2
 
@@ -133,7 +135,7 @@ Item {
                          */
                         Label {
                             Layout.fillWidth: true
-                            Layout.alignment: Qt.AlignVCenter
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
                             visible: !isLyrics
 
@@ -142,6 +144,7 @@ Item {
                             color: AppColors.textPrimary
 
                             horizontalAlignment: Text.AlignLeft
+                            verticalAlignment: Text.AlignVCenter
                             elide: Text.ElideRight
                         }
 

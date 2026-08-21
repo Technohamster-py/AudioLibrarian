@@ -31,4 +31,6 @@ QtObject {
 
     readonly property int radiusSmall: 4
     readonly property int radiusMedium: 8
+
+    readonly property int editorKeyWidth: 180
 }
