@@ -28,6 +28,7 @@ add_library(AudioLibrarianCore STATIC
         src/metadata/audiometadata.h            src/metadata/audiometadata.cpp
         src/metadata/tageditormodel.h           src/metadata/tageditormodel.cpp
         src/metadata/taglibmetadatabackend.h    src/metadata/taglibmetadatabackend.cpp
+        src/settings/settingsstruct.h
 )
 
 target_link_libraries(AudioLibrarianCore
