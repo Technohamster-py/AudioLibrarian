@@ -128,6 +128,11 @@ set_source_files_properties(
         PROPERTIES QT_RESOURCE_ALIAS "SettingsView.qml"
 )
 
+set_source_files_properties(
+        qml/settings/SettingsRow.qml
+        PROPERTIES QT_RESOURCE_ALIAS "SettingsRow.qml"
+)
+
 qt_add_qml_module(AudioLibrarianUi
         URI AudioLibrarian
         VERSION 0.1
@@ -162,6 +167,7 @@ qt_add_qml_module(AudioLibrarianUi
         qml/navigation/NavigationPlaceholderView.qml
 
         qml/settings/SettingsView.qml
+        qml/settings/SettingsRow.qml
 
         qml/theme/AppColors.qml
         qml/theme/AppMetrics.qml

@@ -1,14 +1,23 @@
 #include "settingsmanager.h"
+
+#include <QStandardPaths>
+
 #include "settingsstruct.h"
 
 SettingsManager::SettingsManager(QObject *parent) : QObject(parent), m_settings() {
-    m_windowWidth = m_settings.value(Settings{}.appState.windowWidth, 1080).toInt();
-    m_windowHeight = m_settings.value(Settings{}.appState.windowHeight, 1920).toInt();
-    m_windowX = m_settings.value(Settings{}.appState.windowX, 0).toInt();
-    m_windowY = m_settings.value(Settings{}.appState.windowY, 0).toInt();
+    m_windowWidth = m_settings.value(m_settingsStruct.appState.windowWidth, 1080).toInt();
+    m_windowHeight = m_settings.value(m_settingsStruct.appState.windowHeight, 1920).toInt();
+    m_windowX = m_settings.value(m_settingsStruct.appState.windowX, 0).toInt();
+    m_windowY = m_settings.value(m_settingsStruct.appState.windowY, 0).toInt();
 
-    m_navigationWidth = m_settings.value(Settings{}.appState.navigationWidth, 500.0).toDouble();
-    m_activeSection = m_settings.value(Settings{}.appState.activeSection, QStringLiteral("files")).toString();
+    m_navigationWidth = m_settings.value(m_settingsStruct.appState.navigationWidth, 500.0).toDouble();
+    m_activeSection = m_settings.value(m_settingsStruct.appState.activeSection, QStringLiteral("files")).toString();
+
+    m_language = m_settings.value(m_settingsStruct.general.language.key,QStringLiteral("system")).toString();
+
+    m_theme = m_settings.value(m_settingsStruct.general.theme.key,QStringLiteral("dark")).toString();
+
+    m_baseDir = m_settings.value(m_settingsStruct.general.baseDir.key, QStandardPaths::writableLocation(QStandardPaths::MusicLocation)).toString();
 }
 
 /**
@@ -29,8 +38,7 @@ void SettingsManager::setWindowWidth(const int value)
 
     m_windowWidth = value;
 
-    const Settings settings;
-    m_settings.setValue(settings.appState.windowWidth, value);
+    m_settings.setValue(m_settingsStruct.appState.windowWidth, value);
 
     emit windowWidthChanged(m_windowWidth);
 }
@@ -53,8 +61,7 @@ void SettingsManager::setWindowHeight(const int value)
 
     m_windowHeight = value;
 
-    const Settings settings;
-    m_settings.setValue(settings.appState.windowHeight, value);
+    m_settings.setValue(m_settingsStruct.appState.windowHeight, value);
 
     emit windowHeightChanged(m_windowHeight);
 }
@@ -77,8 +84,7 @@ void SettingsManager::setWindowX(const int value)
 
     m_windowX = value;
 
-    const Settings settings;
-    m_settings.setValue(settings.appState.windowX, value);
+    m_settings.setValue(m_settingsStruct.appState.windowX, value);
 
     emit windowXChanged(m_windowX);
 }
@@ -101,8 +107,7 @@ void SettingsManager::setWindowY(const int value)
 
     m_windowY = value;
 
-    const Settings settings;
-    m_settings.setValue(settings.appState.windowY, value);
+    m_settings.setValue(m_settingsStruct.appState.windowY, value);
 
     emit windowYChanged(m_windowY);
 }
@@ -125,8 +130,7 @@ void SettingsManager::setNavigationWidth(const double value)
 
     m_navigationWidth = value;
 
-    const Settings settings;
-    m_settings.setValue(settings.appState.navigationWidth, value);
+    m_settings.setValue(m_settingsStruct.appState.navigationWidth, value);
 
     emit navigationWidthChanged(m_navigationWidth);
 }
@@ -152,4 +156,64 @@ void SettingsManager::setActiveSection(const QString &value)
     m_settings.setValue(m_settingsStruct.appState.activeSection, value);
 
     emit activeSectionChanged(m_activeSection);
+}
+
+/**
+ * @brief Returns the selected application language.
+ */
+QString SettingsManager::language() const
+{
+    return m_language;
+}
+
+/**
+ * @brief Updates and persists the application language.
+ */
+void SettingsManager::setLanguage(const QString &value)
+{
+    if (m_language == value)
+        return;
+
+    m_language = value;
+
+    m_settings.setValue(
+        m_settingsStruct.general.language.key,
+        value
+    );
+
+    emit languageChanged(m_language);
+}
+
+QString SettingsManager::theme() const
+{
+    return m_theme;
+}
+
+void SettingsManager::setTheme(const QString &value)
+{
+    if (m_theme == value)
+        return;
+
+    m_theme = value;
+
+    m_settings.setValue(m_settingsStruct.general.theme.key,value);
+
+    emit themeChanged(m_theme);
+}
+
+QString SettingsManager::baseDir() const
+{
+    return m_baseDir;
+}
+
+void SettingsManager::setBaseDir(const QString &value)
+{
+    if (m_baseDir == value)
+        return;
+
+    m_baseDir = value;
+
+    m_settings.setValue(m_settingsStruct.general.baseDir.key,value);
+
+    emit baseDirChanged(m_baseDir);
 }

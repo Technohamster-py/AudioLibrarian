@@ -64,6 +64,30 @@ class SettingsManager : public QObject{
                WRITE setActiveSection
                NOTIFY activeSectionChanged)
 
+    /**
+     * @brief Currently selected application language.
+     */
+    Q_PROPERTY(QString language
+               READ language
+               WRITE setLanguage
+               NOTIFY languageChanged)
+
+    /**
+     * @brief Currently selected application theme.
+     */
+    Q_PROPERTY(QString theme
+               READ theme
+               WRITE setTheme
+               NOTIFY themeChanged)
+
+    /**
+     * @brief Default directory used as the root of the music library.
+     */
+    Q_PROPERTY(QString baseDir
+               READ baseDir
+               WRITE setBaseDir
+               NOTIFY baseDirChanged)
+
 public:
     explicit SettingsManager(QObject *parent = nullptr);
     ~SettingsManager() = default;
@@ -86,6 +110,15 @@ public:
     QString activeSection() const;
     void setActiveSection(const QString &value);
 
+    QString language() const;
+    void setLanguage(const QString &value);
+
+    QString theme() const;
+    void setTheme(const QString &value);
+
+    QString baseDir() const;
+    void setBaseDir(const QString &value);
+
 signals:
     void windowWidthChanged(int value);
     void windowHeightChanged(int value);
@@ -93,6 +126,9 @@ signals:
     void windowYChanged(int value);
     void navigationWidthChanged(double value);
     void activeSectionChanged(QString value);
+    void languageChanged(const QString &value);
+    void themeChanged(const QString &value);
+    void baseDirChanged(const QString &value);
 
 private:
     SettingsManager(const SettingsManager &) = delete;
@@ -107,4 +143,7 @@ private:
     int m_windowY;
     double m_navigationWidth;
     QString m_activeSection;
+    QString m_language;
+    QString m_theme;
+    QString m_baseDir;
 };
