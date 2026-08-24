@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
+import AudioLibrarian
 
 /**
  * @brief Main application window.
@@ -17,8 +18,8 @@ import QtQuick.Layouts
 ApplicationWindow {
     id: root
 
-    width: 1440
-    height: 900
+    width: SettingsManager.windowWidth
+    height: SettingsManager.windowHeight
 
     minimumWidth: 960
     minimumHeight: 600
@@ -102,7 +103,7 @@ ApplicationWindow {
                 id: navigationLayout
                 objectName: "navigationLayout"
 
-                SplitView.preferredWidth: AppMetrics.libraryWidth
+                SplitView.preferredWidth: SettingsManager.navigationWidth
                 SplitView.minimumWidth: AppMetrics.libraryMinimumWidth
                 SplitView.maximumWidth: AppMetrics.libraryMaximumWidth
 
@@ -149,10 +150,8 @@ ApplicationWindow {
                         iconSource: "qrc:/qt/qml/AudioLibrarian/assets/duplicate.svg"
                     }
 
-                    NavigationPlaceholderView {
+                    SettingsView {
                         objectName: "settingsView"
-                        title: qsTr("Settings")
-                        iconSource: "qrc:/qt/qml/AudioLibrarian/assets/settings.svg"
                     }
                 }
 

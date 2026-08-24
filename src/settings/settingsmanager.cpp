@@ -1,7 +1,7 @@
 #include "settingsmanager.h"
 #include "settingsstruct.h"
 
-SettingsManager::SettingsManager(QObject *parent) : QObject(parent), m_settings(ORGANIZATION_NAME, APPLICATION_NAME) {
+SettingsManager::SettingsManager(QObject *parent) : QObject(parent), m_settings() {
     m_windowWidth = m_settings.value(Settings{}.appState.windowWidth, 1080).toInt();
     m_windowHeight = m_settings.value(Settings{}.appState.windowHeight, 1920).toInt();
     m_windowX = m_settings.value(Settings{}.appState.windowX, 0).toInt();
@@ -149,8 +149,7 @@ void SettingsManager::setActiveSection(const QString &value)
 
     m_activeSection = value;
 
-    const Settings settings;
-    m_settings.setValue(settings.appState.activeSection, value);
+    m_settings.setValue(m_settingsStruct.appState.activeSection, value);
 
     emit activeSectionChanged(m_activeSection);
 }

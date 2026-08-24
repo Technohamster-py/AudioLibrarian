@@ -123,6 +123,11 @@ set_source_files_properties(
         QT_RESOURCE_ALIAS "AppMetrics.qml"
 )
 
+set_source_files_properties(
+        qml/settings/SettingsView.qml
+        PROPERTIES QT_RESOURCE_ALIAS "SettingsView.qml"
+)
+
 qt_add_qml_module(AudioLibrarianUi
         URI AudioLibrarian
         VERSION 0.1
@@ -133,6 +138,7 @@ qt_add_qml_module(AudioLibrarianUi
         SOURCES
         src/library/audiofiletablemodel.h
         src/metadata/tageditormodel.h
+        src/settings/settingsmanager.h
 
         QML_FILES
         qml/Main.qml
@@ -154,6 +160,8 @@ qt_add_qml_module(AudioLibrarianUi
         qml/navigation/NavigationBar.qml
         qml/navigation/NavigationItem.qml
         qml/navigation/NavigationPlaceholderView.qml
+
+        qml/settings/SettingsView.qml
 
         qml/theme/AppColors.qml
         qml/theme/AppMetrics.qml
@@ -183,6 +191,7 @@ target_include_directories(AudioLibrarianUi PRIVATE
         src
         src/library
         src/metadata
+        src/settings
 )
 
 # ---------------------------------------------------------------------------

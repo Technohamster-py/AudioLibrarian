@@ -5,6 +5,8 @@
 #include <QString>
 #include <QtQmlIntegration/qqmlintegration.h>
 
+#include "settingsstruct.h"
+
 class SettingsManager : public QObject{
     Q_OBJECT
 
@@ -64,6 +66,7 @@ class SettingsManager : public QObject{
 
 public:
     explicit SettingsManager(QObject *parent = nullptr);
+    ~SettingsManager() = default;
 
     int windowWidth() const;
     void setWindowWidth(int value);
@@ -92,7 +95,11 @@ signals:
     void activeSectionChanged(QString value);
 
 private:
+    SettingsManager(const SettingsManager &) = delete;
+    SettingsManager &operator=(const SettingsManager &) = delete;
+
     QSettings m_settings;
+    const Settings m_settingsStruct;
 
     int m_windowWidth;
     int m_windowHeight;
