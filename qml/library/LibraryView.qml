@@ -253,7 +253,7 @@ Item {
 
                             cursorShape: Qt.ArrowCursor
 
-                            onClicked: {
+                            onClicked: function(mouse) {
                                 /*
                                  * The resize area handles its own clicks.
                                  * This check is kept as an additional guard
