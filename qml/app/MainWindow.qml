@@ -33,12 +33,16 @@ ApplicationWindow {
     /**
      * @brief Currently active top-level application section.
      */
-    property string activeSection: "files"
+    property string activeSection: SettingsManager.activeSection
 
     /**
      * @brief Currently selected audio file metadata.
      */
     property string selectedFilePath: ""
+
+    onClosing: {
+        SettingsManager.saveApplicationState(width, height, x, y, navigationLayout.width, activeSection)
+    }
 
     /**
      * @brief Converts a navigation section name into StackLayout index.

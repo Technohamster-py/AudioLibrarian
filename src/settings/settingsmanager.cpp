@@ -29,41 +29,11 @@ int SettingsManager::windowWidth() const
 }
 
 /**
- * @brief Updates and persists the window width.
- */
-void SettingsManager::setWindowWidth(const int value)
-{
-    if (m_windowWidth == value)
-        return;
-
-    m_windowWidth = value;
-
-    m_settings.setValue(m_settingsStruct.appState.windowWidth, value);
-
-    emit windowWidthChanged(m_windowWidth);
-}
-
-/**
  * @brief Returns the current window height.
  */
 int SettingsManager::windowHeight() const
 {
     return m_windowHeight;
-}
-
-/**
- * @brief Updates and persists the window height.
- */
-void SettingsManager::setWindowHeight(const int value)
-{
-    if (m_windowHeight == value)
-        return;
-
-    m_windowHeight = value;
-
-    m_settings.setValue(m_settingsStruct.appState.windowHeight, value);
-
-    emit windowHeightChanged(m_windowHeight);
 }
 
 /**
@@ -75,41 +45,11 @@ int SettingsManager::windowX() const
 }
 
 /**
- * @brief Updates and persists the window X position.
- */
-void SettingsManager::setWindowX(const int value)
-{
-    if (m_windowX == value)
-        return;
-
-    m_windowX = value;
-
-    m_settings.setValue(m_settingsStruct.appState.windowX, value);
-
-    emit windowXChanged(m_windowX);
-}
-
-/**
  * @brief Returns the current window Y position.
  */
 int SettingsManager::windowY() const
 {
     return m_windowY;
-}
-
-/**
- * @brief Updates and persists the window Y position.
- */
-void SettingsManager::setWindowY(const int value)
-{
-    if (m_windowY == value)
-        return;
-
-    m_windowY = value;
-
-    m_settings.setValue(m_settingsStruct.appState.windowY, value);
-
-    emit windowYChanged(m_windowY);
 }
 
 /**
@@ -121,41 +61,11 @@ double SettingsManager::navigationWidth() const
 }
 
 /**
- * @brief Updates and persists the navigation/workspace width.
- */
-void SettingsManager::setNavigationWidth(const double value)
-{
-    if (qFuzzyCompare(m_navigationWidth, value))
-        return;
-
-    m_navigationWidth = value;
-
-    m_settings.setValue(m_settingsStruct.appState.navigationWidth, value);
-
-    emit navigationWidthChanged(m_navigationWidth);
-}
-
-/**
  * @brief Returns the current navigation section.
  */
 QString SettingsManager::activeSection() const
 {
     return m_activeSection;
-}
-
-/**
- * @brief Updates and persists the active navigation section.
- */
-void SettingsManager::setActiveSection(const QString &value)
-{
-    if (m_activeSection == value)
-        return;
-
-    m_activeSection = value;
-
-    m_settings.setValue(m_settingsStruct.appState.activeSection, value);
-
-    emit activeSectionChanged(m_activeSection);
 }
 
 /**
@@ -216,4 +126,15 @@ void SettingsManager::setBaseDir(const QString &value)
     m_settings.setValue(m_settingsStruct.general.baseDir.key,value);
 
     emit baseDirChanged(m_baseDir);
+}
+
+void SettingsManager::saveApplicationState(int windowWidth, int windowHeight, int windowX, int windowY, double navigationWidth, const QString &activeSection) {
+    m_settings.setValue(m_settingsStruct.appState.windowWidth, windowWidth);
+    m_settings.setValue(m_settingsStruct.appState.windowHeight, windowHeight);
+    m_settings.setValue(m_settingsStruct.appState.windowX, windowX);
+    m_settings.setValue(m_settingsStruct.appState.windowY, windowY);
+    m_settings.setValue(m_settingsStruct.appState.navigationWidth, navigationWidth);
+    m_settings.setValue(m_settingsStruct.appState.activeSection, activeSection);
+
+    m_settings.sync();
 }

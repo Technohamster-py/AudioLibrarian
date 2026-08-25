@@ -18,7 +18,6 @@ class SettingsManager : public QObject{
      */
     Q_PROPERTY(int windowWidth
                READ windowWidth
-               WRITE setWindowWidth
                NOTIFY windowWidthChanged)
 
     /**
@@ -26,7 +25,6 @@ class SettingsManager : public QObject{
      */
     Q_PROPERTY(int windowHeight
                READ windowHeight
-               WRITE setWindowHeight
                NOTIFY windowHeightChanged)
 
     /**
@@ -34,7 +32,6 @@ class SettingsManager : public QObject{
      */
     Q_PROPERTY(int windowX
                READ windowX
-               WRITE setWindowX
                NOTIFY windowXChanged)
 
     /**
@@ -42,7 +39,6 @@ class SettingsManager : public QObject{
      */
     Q_PROPERTY(int windowY
                READ windowY
-               WRITE setWindowY
                NOTIFY windowYChanged)
 
     /**
@@ -50,7 +46,6 @@ class SettingsManager : public QObject{
      */
     Q_PROPERTY(double navigationWidth
                READ navigationWidth
-               WRITE setNavigationWidth
                NOTIFY navigationWidthChanged)
 
     /**
@@ -61,7 +56,6 @@ class SettingsManager : public QObject{
      */
     Q_PROPERTY(QString activeSection
                READ activeSection
-               WRITE setActiveSection
                NOTIFY activeSectionChanged)
 
     /**
@@ -69,7 +63,6 @@ class SettingsManager : public QObject{
      */
     Q_PROPERTY(QString language
                READ language
-               WRITE setLanguage
                NOTIFY languageChanged)
 
     /**
@@ -77,7 +70,6 @@ class SettingsManager : public QObject{
      */
     Q_PROPERTY(QString theme
                READ theme
-               WRITE setTheme
                NOTIFY themeChanged)
 
     /**
@@ -85,39 +77,46 @@ class SettingsManager : public QObject{
      */
     Q_PROPERTY(QString baseDir
                READ baseDir
-               WRITE setBaseDir
                NOTIFY baseDirChanged)
-
 public:
     explicit SettingsManager(QObject *parent = nullptr);
     ~SettingsManager() = default;
 
     int windowWidth() const;
-    void setWindowWidth(int value);
-
     int windowHeight() const;
-    void setWindowHeight(int value);
-
     int windowX() const;
-    void setWindowX(int value);
-
     int windowY() const;
-    void setWindowY(int value);
-
     double navigationWidth() const;
-    void setNavigationWidth(double value);
-
     QString activeSection() const;
-    void setActiveSection(const QString &value);
 
     QString language() const;
-    void setLanguage(const QString &value);
+    Q_INVOKABLE void setLanguage(const QString &value);
 
     QString theme() const;
-    void setTheme(const QString &value);
+    Q_INVOKABLE void setTheme(const QString &value);
 
     QString baseDir() const;
-    void setBaseDir(const QString &value);
+    Q_INVOKABLE void setBaseDir(const QString &value);
+
+    /**
+     * @brief Persists the current application state.
+     *
+     * This method is intended to be called when the main window is closed.
+     *
+     * @param windowWidth Current main window width.
+     * @param windowHeight Current main window height.
+     * @param windowX Current main window X position.
+     * @param windowY Current main window Y position.
+     * @param navigationWidth
+     * @param navigationWidth
+     * @param activeSection Currently selected navigation section.
+     */
+    Q_INVOKABLE void saveApplicationState(
+        int windowWidth,
+        int windowHeight,
+        int windowX,
+        int windowY,
+        double navigationWidth, const QString &activeSection);
 
 signals:
     void windowWidthChanged(int value);
