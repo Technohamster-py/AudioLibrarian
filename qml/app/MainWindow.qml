@@ -154,7 +154,7 @@ ApplicationWindow {
                     NavigationPlaceholderView {
                         objectName: "duplicatesView"
                         title: qsTr("Duplicates")
-                        iconSource: AppAssets.dublicate
+                        iconSource: AppAssets.duplicate
                     }
 
                     SettingsView {

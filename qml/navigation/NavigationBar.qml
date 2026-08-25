@@ -77,7 +77,7 @@ Item {
             NavigationItem {
                 section: "duplicates"
 
-                iconSource: AppAssets.dublicate
+                iconSource: AppAssets.duplicate
                 tooltipText: qsTr("Duplicates")
                 checked: root.currentSection === section
                 onSelected: root.sectionSelected(section)
