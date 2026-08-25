@@ -20,6 +20,8 @@ void TagEditorModel::setFilePath(const QString &filePath) {
     m_entries.clear();
     endResetModel();
 
+    setDirty(false);
+
     if (m_filePath.isEmpty())
         return;
 
@@ -57,8 +59,96 @@ QVariant TagEditorModel::data(const QModelIndex &index, int role) const {
         case ValuesRole: return entry.values;
         case DisplayNameRole: return displayNameForKey(entry.key);
         case IsLyricsRole: return isLyricsKey(entry.key);
+        case IsEditableRole: return isKeyEditable(entry.key);
         default: return {};
     }
+}
+
+Qt::ItemFlags TagEditorModel::flags(const QModelIndex &index) const {
+    if (!index.isValid())
+        return Qt::NoItemFlags;
+
+    Qt::ItemFlags result = QAbstractListModel::flags(index);
+
+    const QString key = m_entries.at(index.row()).key;
+    if (isKeyEditable(key))
+        result |= Qt::ItemIsEditable;
+
+    return result;
+}
+
+bool TagEditorModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if (!index.isValid())
+        return false;
+
+    if (index.row() < 0 || index.row() >= m_entries.size())
+        return false;
+
+    if (role != Qt::EditRole)
+        return false;
+
+    const QString newValue = value.toString();
+
+    TagEntry &entry = m_entries[index.row()];
+
+    if (entry.values.size() == 1 && entry.values.first() == newValue) {
+        return false;
+    }
+
+    entry.values = {newValue};
+
+    m_metadata.setValue(entry.key, newValue);
+
+    setDirty(true);
+
+    emit dataChanged(index, index,{ValueRole, ValuesRole});
+
+    return true;
+}
+
+bool TagEditorModel::save() {
+    if (m_filePath.isEmpty()) {
+        emit errorOccurred(QStringLiteral("No file is selected."));
+        return false;
+    }
+
+    if (!m_dirty)
+        return true;
+
+    QString errorMessage;
+
+    if (!m_backend.write(m_filePath, m_metadata, &errorMessage)) {
+        emit errorOccurred(errorMessage);
+        return false;
+    }
+
+    setDirty(false);
+    return true;
+}
+
+bool TagEditorModel::discardChanges() {
+    if (m_filePath.isEmpty())
+        return false;
+
+    QString errorMessage;
+
+    const auto result = m_backend.read(m_filePath, &errorMessage);
+
+    if (!result.has_value()) {
+        Q_EMIT errorOccurred(errorMessage);
+        return false;
+    }
+
+    setMetadata(*result);
+    setDirty(false);
+    return true;
+}
+
+void TagEditorModel::setDirty(const bool dirty) {
+    if (m_dirty == dirty)
+        return;
+    m_dirty = dirty;
+    emit dirtyChanged();
 }
 
 QHash<int, QByteArray> TagEditorModel::roleNames() const {
@@ -67,7 +157,8 @@ QHash<int, QByteArray> TagEditorModel::roleNames() const {
         {ValueRole, "value"},
         {ValuesRole, "values"},
         {DisplayNameRole, "displayName"},
-        {IsLyricsRole, "isLyrics"}
+        {IsLyricsRole, "isLyrics"},
+        {IsEditableRole, "isEditable"}
     };
 }
 
@@ -216,6 +307,10 @@ bool TagEditorModel::isLyricsKey(const QString &key) {
            normalized == QStringLiteral("UNSYNCEDLYRICS") ||
            normalized == QStringLiteral("UNSYNCED_LYRICS") ||
            normalized == QStringLiteral("USLT");
+}
+
+bool TagEditorModel::isKeyEditable(const QString &key) {
+    return key.compare(QStringLiteral("LENGTH"), Qt::CaseInsensitive) != 0;
 }
 
 QString TagEditorModel::formatDuration(quint64 milliseconds) {

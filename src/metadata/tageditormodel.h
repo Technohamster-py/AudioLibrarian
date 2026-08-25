@@ -5,6 +5,7 @@
 
 #include <QAbstractListModel>
 #include <QString>
+#include <QVector>
 
 #include <QtQmlIntegration/qqmlintegration.h>
 
@@ -28,6 +29,12 @@ class TagEditorModel : public QAbstractListModel {
         NOTIFY filePathChanged
     )
 
+    Q_PROPERTY(
+        bool dirty
+        READ isDirty
+        NOTIFY dirtyChanged
+    )
+
     QML_ELEMENT
 
 public:
@@ -40,6 +47,7 @@ public:
         ValueRole,
         DisplayNameRole,
         IsLyricsRole,
+        IsEditableRole
     };
 
     Q_ENUM(Role)
@@ -69,6 +77,11 @@ public:
     void setFilePath(const QString &filePath);
 
     /**
+     * @brief Returns whether the model contains unsaved changes.
+     */
+    [[nodiscard]] bool isDirty() const {return m_dirty;};
+
+    /**
      * @brief Returns the number of metadata properties.
      */
     [[nodiscard]] int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -76,7 +89,44 @@ public:
     /**
      * @brief Returns metadata data for a model index.
      */
-    [[nodiscard]] QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    [[nodiscard]] QVariant data(const QModelIndex &index,int role = Qt::DisplayRole) const override;
+
+    /**
+     * @brief Returns item flags for a model index.
+     *
+     * Every metadata value is currently editable.
+     */
+    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+    /**
+     * @brief Changes a metadata value in memory.
+     *
+     * The change is not written to disk. save() must be called explicitly.
+     *
+     * @param index Model index.
+     * @param value New value.
+     * @param role Data role. Qt::EditRole is supported.
+     * @return true if the value was changed.
+     */
+    bool setData(const QModelIndex &index,const QVariant &value,int role = Qt::EditRole) override;
+
+    /**
+     * @brief Saves the current metadata to the selected file.
+     *
+     * On success the dirty state is cleared.
+     *
+     * @return true if the metadata was written successfully.
+     */
+    Q_INVOKABLE bool save();
+
+    /**
+     * @brief Discards all unsaved changes.
+     *
+     * The metadata is read from the file again.
+     *
+     * @return true if the metadata was successfully reloaded.
+     */
+    Q_INVOKABLE bool discardChanges();
 
     /**
      * @brief Returns role names exposed to QML.
@@ -90,7 +140,12 @@ signals:
     void filePathChanged();
 
     /**
-     * @brief Emitted when metadata could not be loaded.
+     * @brief Emitted when the dirty state changes.
+     */
+    void dirtyChanged();
+
+    /**
+     * @brief Emitted when metadata could not be loaded or saved.
      *
      * @param message Human-readable error description.
      */
@@ -112,6 +167,8 @@ private:
      * @param metadata Metadata read from the audio file.
      */
     void setMetadata(const AudioMetadata &metadata);
+
+    void setDirty(bool dirty);
 
     /**
      * @brief Converts an internal metadata key into a user-readable name.
@@ -155,6 +212,7 @@ private:
      */
     static bool isLyricsKey(const QString &key);
 
+    static bool isKeyEditable(const QString &key);
     /**
     * @brief Formats a duration in milliseconds.
     *
@@ -176,4 +234,6 @@ private:
     QVector<TagEntry> m_entries;
 
     TagLibMetadataBackend m_backend; ///< Backend used to read metadata.
+
+    bool m_dirty = false;
 };

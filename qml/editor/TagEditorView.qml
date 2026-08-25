@@ -71,10 +71,14 @@ Item {
                 model: tagModel
 
                 delegate: Rectangle {
+                    id: tagDelegate
                     required property string key
                     required property string value
                     required property string displayName
                     required property bool isLyrics
+                    required property bool isEditable
+
+                    readonly property string delegateValue: value
 
                     width: tagList.width
 
@@ -133,19 +137,34 @@ Item {
                         /**
                          * Value Column
                          */
-                        Label {
+                        TextField {
+                            id: valueField
+                            enabled: isEditable
+
+                            objectName: "valueField"
+
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
                             visible: !isLyrics
 
-                            text: value
-
                             color: AppColors.textPrimary
 
-                            horizontalAlignment: Text.AlignLeft
-                            verticalAlignment: Text.AlignVCenter
-                            elide: Text.ElideRight
+                            horizontalAlignment: TextInput.AlignLeft
+                            verticalAlignment: TextInput.AlignVCenter
+
+                            Component.onCompleted: {
+                                text = value
+                            }
+
+                            onTextChanged: {
+                                if (!activeFocus)
+                                    text = value
+                            }
+
+                            onEditingFinished: {
+                                tagModel.setData(tagModel.index(tagDelegate.index, 0), text, Qt.EditRole)
+                            }
                         }
 
 
@@ -159,144 +178,78 @@ Item {
 
                             Layout.fillWidth: true
                             Layout.fillHeight: true
-                            Layout.alignment: Qt.AlignTop
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
 
                             visible: isLyrics
 
                             clip: true
 
-                            Text {
-                                id: lyricsText
+                            TextArea {
+                                id: lyricsEditor
 
-                                objectName: "lyricsText"
+                                objectName: "lyricsEditor"
 
                                 width: lyricsScrollView.availableWidth
 
-                                text: value
-
                                 color: AppColors.textPrimary
 
-                                horizontalAlignment: Text.AlignLeft
-                                verticalAlignment: Text.AlignTop
+                                wrapMode: TextEdit.Wrap
 
-                                wrapMode: Text.Wrap
+                                horizontalAlignment: TextEdit.AlignLeft
+                                verticalAlignment: TextEdit.AlignTop
 
-                                height: implicitHeight
-                            }
+                                selectByMouse: true
 
-                            ScrollBar.vertical: ScrollBar {
-                                policy: ScrollBar.AsNeeded
+                                background: null
+
+                                Component.onCompleted: {
+                                    text = value
+                                }
+
+                                onTextChanged: {
+                                    if (!activeFocus)
+                                        text = value
+                                }
+
+                                onEditingFinished: {
+                                    tagModel.setData(tagModel.index(tagDelegate.index, 0), text, Qt.EditRole)
+                                }
                             }
                         }
+                    }
+                }
+            }
 
-                        /*
-                        Rectangle {
-                            Layout.fillWidth: true
+            RowLayout {
+                Layout.fillWidth: true
 
-                            height: 1
-                            color: AppColors.separator
-                        }
+                spacing: AppMetrics.spacingMedium
 
-                        GridLayout {
-                            Layout.fillWidth: true
+                Item {
+                    Layout.fillWidth: true
+                }
 
-                            columns: 2
+                Button {
+                    objectName: "discardButton"
 
-                            columnSpacing: AppMetrics.spacingLarge
-                            rowSpacing: AppMetrics.spacingMedium
+                    text: qsTr("Discard")
 
-                            Label {
-                                text: qsTr("Title")
-                                color: AppColors.textSecondary
-                            }
+                    enabled: tagModel.dirty
 
-                            TextField {
-                                objectName: "titleField"
+                    onClicked: {
+                        tagModel.discardChanges()
+                    }
+                }
 
-                                Layout.fillWidth: true
+                Button {
+                    objectName: "saveButton"
 
-                                text: root.fileName
+                    text: qsTr("Save")
 
-                                placeholderText: qsTr("Title")
-                            }
+                    enabled: tagModel.dirty
 
-                            Label {
-                                text: qsTr("Artist")
-                                color: AppColors.textSecondary
-                            }
-
-                            TextField {
-                                objectName: "artistField"
-
-                                Layout.fillWidth: true
-
-                                text: root.artist
-
-                                placeholderText: qsTr("Artist")
-                            }
-
-                            Label {
-                                text: qsTr("Album")
-                                color: AppColors.textSecondary
-                            }
-
-                            TextField {
-                                objectName: "albumField"
-
-                                Layout.fillWidth: true
-
-                                text: root.album
-
-                                placeholderText: qsTr("Album")
-                            }
-
-                            Label {
-                                text: qsTr("Genre")
-                                color: AppColors.textSecondary
-                            }
-
-                            TextField {
-                                objectName: "genreField"
-
-                                Layout.fillWidth: true
-
-                                text: root.genre
-
-                                placeholderText: qsTr("Genre")
-                            }
-
-                            Label {
-                                text: qsTr("Year")
-                                color: AppColors.textSecondary
-                            }
-
-                            SpinBox {
-                                objectName: "yearField"
-
-                                Layout.fillWidth: true
-
-                                from: 0
-                                to: 9999
-
-                                value: root.year
-                            }
-
-                            Label {
-                                text: qsTr("Duration")
-                                color: AppColors.textSecondary
-                            }
-
-                            Label {
-                                Layout.fillWidth: true
-
-                                text: root.duration
-
-                                color: AppColors.textPrimary
-                            }
-
-                            ScrollBar.vertical: ScrollBar {
-                                policy: ScrollBar.AsNeeded
-                            }*/
+                    onClicked: {
+                        tagModel.save()
                     }
                 }
             }
