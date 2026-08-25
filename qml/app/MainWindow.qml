@@ -21,8 +21,11 @@ ApplicationWindow {
     width: SettingsManager.windowWidth
     height: SettingsManager.windowHeight
 
-    minimumWidth: 960
-    minimumHeight: 600
+    minimumWidth: AppMetrics.appMinimumWidth
+    minimumHeight: AppMetrics.appMinimumHeight
+
+    maximumWidth: AppMetrics.appMaximumWidth
+    maximumHeight: AppMetrics.appMaximumHeight
 
     visible: true
 

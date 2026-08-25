@@ -82,20 +82,20 @@ public:
     explicit SettingsManager(QObject *parent = nullptr);
     ~SettingsManager() = default;
 
-    int windowWidth() const;
-    int windowHeight() const;
-    int windowX() const;
-    int windowY() const;
-    double navigationWidth() const;
-    QString activeSection() const;
+    int windowWidth() const {return m_settings.value(m_settingsStruct.appState.windowWidth, 1080).toInt();};
+    int windowHeight() const {return m_settings.value(m_settingsStruct.appState.windowHeight, 1920).toInt();};
+    int windowX() const {return m_settings.value(m_settingsStruct.appState.windowX, 0).toInt();};
+    int windowY() const {return m_settings.value(m_settingsStruct.appState.windowY, 0).toInt();};
+    double navigationWidth() const {return m_settings.value(m_settingsStruct.appState.navigationWidth, 500.0).toDouble();};
+    QString activeSection() const {return m_settings.value(m_settingsStruct.appState.activeSection, QStringLiteral("files")).toString();};
 
-    QString language() const;
+    QString language() const {return m_language;};
     Q_INVOKABLE void setLanguage(const QString &value);
 
-    QString theme() const;
+    QString theme() const {return m_theme;};
     Q_INVOKABLE void setTheme(const QString &value);
 
-    QString baseDir() const;
+    QString baseDir() const {return m_baseDir;};
     Q_INVOKABLE void setBaseDir(const QString &value);
 
     /**
@@ -136,12 +136,6 @@ private:
     QSettings m_settings;
     const Settings m_settingsStruct;
 
-    int m_windowWidth;
-    int m_windowHeight;
-    int m_windowX;
-    int m_windowY;
-    double m_navigationWidth;
-    QString m_activeSection;
     QString m_language;
     QString m_theme;
     QString m_baseDir;
