@@ -213,24 +213,50 @@ Item {
                     delegate: Rectangle {
                         required property int index
 
+                        readonly property bool sorted: root.sortColumn === index
+
                         width: root.columnWidth(index)
                         height: tableHeader.height
 
-                        color: AppColors.surfaceElevated
+                        color: sorted ? AppColors.surfaceSelected : sortArea.containsMouse ? AppColors.hover : AppColors.surfaceElevated
 
+                        /**
+                         * @brief Sorts the table when the header is clicked.
+                         */
+                        MouseArea {
+                            id: sortArea
+
+                            anchors.fill: parent
+
+                            anchors.rightMargin: resizeArea.width
+
+                            hoverEnabled: true
+
+                            cursorShape: Qt.ArrowCursor
+
+                            onClicked: {
+                                if (root.sortColumn === index) {
+                                    root.sortOrder = root.sortOrder === Qt.AscendingOrder ? Qt.DescendingOrder : Qt.AscendingOrder
+                                } else {
+                                    root.sortColumn = index
+                                    root.sortOrder = Qt.AscendingOrder
+                                }
+                                libraryModel.sort(index, root.sortOrder)
+                            }
+                        }
+
+                        /**
+                         * @brief Header text.
+                         */
                         Label {
                             anchors.fill: parent
 
-                            anchors.leftMargin: 8
-                            anchors.rightMargin: 8
+                            anchors.leftMargin: AppMetrics.spacingMedium
+                            anchors.rightMargin: AppMetrics.spacingMedium + resizeArea.width + sortIndicator.width
 
                             verticalAlignment: Text.AlignVCenter
 
-                            text: libraryModel.headerData(
-                                index,
-                                Qt.Horizontal,
-                                Qt.DisplayRole
-                            )
+                            text: libraryModel.headerData(index, Qt.Horizontal, Qt.DisplayRole)
 
                             color: AppColors.textSecondary
 
@@ -238,57 +264,32 @@ Item {
                         }
 
                         /**
-                         * @brief Sort area of the header.
+                         * @brief Indicates the current sorting direction.
                          *
-                         * The resize area is placed on top of this area.
-                         * Consequently a resize operation never reaches
-                         * this MouseArea.
+                         * The indicator is displayed only for the column currently used for
+                         * sorting.
                          */
-                        MouseArea {
-                            id: sortArea
+                        Image {
+                            id: sortIndicator
 
-                            anchors.fill: parent
+                            anchors.right: resizeArea.left
+                            anchors.rightMargin: 6
+                            anchors.verticalCenter: parent.verticalCenter
 
-                            hoverEnabled: true
+                            width: AppMetrics.sortIconSize
+                            height: AppMetrics.sortIconSize
 
-                            cursorShape: Qt.ArrowCursor
+                            visible: sorted
 
-                            onClicked: function(mouse) {
-                                /*
-                                 * The resize area handles its own clicks.
-                                 * This check is kept as an additional guard
-                                 * against accidental sorting at the edge.
-                                 */
-                                if (mouse.x > width - resizeArea.width)
-                                    return
+                            fillMode: Image.PreserveAspectFit
 
-                                if (root.sortColumn === index) {
-                                    root.sortOrder =
-                                            root.sortOrder ===
-                                        Qt.AscendingOrder
-                                        ? Qt.DescendingOrder
-                                        : Qt.AscendingOrder
-                                } else {
-                                    root.sortColumn = index
-                                    root.sortOrder =
-                                        Qt.AscendingOrder
-                                }
-
-                                libraryModel.sort(
-                                    index,
-                                    root.sortOrder
-                                )
-                            }
+                            source: root.sortOrder === Qt.AscendingOrder ? "qrc:/qt/qml/AudioLibrarian/assets/sort-ascending.svg" : "qrc:/qt/qml/AudioLibrarian/assets/sort-descending.svg"
                         }
 
                         /**
-                         * @brief Interactive resize area.
-                         *
-                         * DragHandler captures the pointer when resizing
-                         * starts. Therefore the column continues to resize
-                         * even when the cursor leaves this narrow area.
+                         * @brief Interactive column resize area.
                          */
-                        Item {
+                        MouseArea {
                             id: resizeArea
 
                             width: 8
@@ -296,6 +297,10 @@ Item {
 
                             anchors.right: parent.right
                             anchors.top: parent.top
+
+                            hoverEnabled: true
+
+                            cursorShape: Qt.SizeHorCursor
 
                             DragHandler {
                                 id: resizeHandler
@@ -308,58 +313,29 @@ Item {
                                 property real initialWidth: 0
 
                                 onActiveChanged: {
-                                    if (active) {
-                                        initialWidth =
-                                            root.columnWidth(index)
-                                    }
+                                    if (active)
+                                        initialWidth = root.columnWidth(index)
                                 }
 
                                 onTranslationChanged: {
                                     if (!active)
                                         return
 
-                                    root.setColumnWidth(
-                                        index,
-                                        initialWidth + translation.x
-                                    )
+                                    root.setColumnWidth(index, initialWidth + translation.x)
                                 }
                             }
+                        }
 
-                            /**
-                             * @brief Visual indicator of the resize handle.
-                             */
-                            Rectangle {
-                                anchors.centerIn: parent
+                        /**
+                         * @brief Visual resize indicator.
+                         */
+                        Rectangle {
+                            anchors.centerIn: resizeArea
 
-                                width: 1
-                                height: parent.height * 0.45
+                            width: 1
+                            height: parent.height * 0.45
 
-                                color:
-                                        resizeHandler.active ||
-                                    resizeAreaMouse.containsMouse
-                                    ? AppColors.textPrimary
-                                    : "transparent"
-                            }
-
-                            /**
-                             * @brief Provides hover state for the resize
-                             *        handle.
-                             *
-                             * This MouseArea does not handle clicks or
-                             * movement. DragHandler remains responsible
-                             * for resizing.
-                             */
-                            MouseArea {
-                                id: resizeAreaMouse
-
-                                anchors.fill: parent
-
-                                hoverEnabled: true
-
-                                acceptedButtons: Qt.NoButton
-
-                                cursorShape: Qt.SizeHorCursor
-                            }
+                            color: resizeArea.containsMouse ? AppColors.textPrimary : "transparent"
                         }
                     }
                 }

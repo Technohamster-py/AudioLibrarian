@@ -37,6 +37,8 @@ QtObject {
     readonly property real minimumLibraryColumnWidth: 60
     readonly property real minimumCoverColumnWidth: 48
 
+    readonly property int sortIconSize: 24
+
     // Editor
     readonly property int editorMinimumWidth: 480
     readonly property int editorWidth: 620

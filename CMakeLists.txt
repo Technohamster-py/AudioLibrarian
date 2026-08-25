@@ -184,6 +184,8 @@ qt_add_qml_module(AudioLibrarianUi
         assets/pause.svg
         assets/play.svg
         assets/settings.svg
+        assets/sort-ascending.svg
+        assets/sort-descending.svg
 )
 
 target_link_libraries(AudioLibrarianUi
