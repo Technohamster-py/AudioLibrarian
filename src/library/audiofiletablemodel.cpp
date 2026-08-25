@@ -184,19 +184,19 @@ QVariant AudioFileTableModel::headerData(int section, Qt::Orientation orientatio
     }
 }
 
-void AudioFileTableModel::sort(int column, Qt::SortOrder order) {
+void AudioFileTableModel::sort(const int column, const Qt::SortOrder order) {
     if (column < 0 || column >= ColumnCount) return;
     if (m_files.size() < 2) return;
 
-    layoutAboutToBeChanged();
+    beginResetModel();
 
     std::stable_sort(m_files.begin(), m_files.end(), [column, order](const AudioFileRecord &left, const AudioFileRecord &right) {
-        const bool result = lessThan(left, right, column);
-
-        return order == Qt::AscendingOrder ? result : !result && !lessThan(right, left, column);
-    });
-
-    layoutChanged();
+            if (order == Qt::AscendingOrder)
+                return lessThan(left, right, column);
+            return lessThan(right, left, column);
+        }
+    );
+    endResetModel();
 }
 
 /**

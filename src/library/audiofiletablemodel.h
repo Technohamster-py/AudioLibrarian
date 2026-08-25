@@ -161,7 +161,7 @@ public:
      * @param column Logical column index.
      * @param order Sort direction.
      */
-    void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
+    Q_INVOKABLE void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
     /**
      * @brief Converts embedded image data into a QML-compatible data URL.
