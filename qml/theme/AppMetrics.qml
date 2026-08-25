@@ -10,6 +10,7 @@ import QtQuick
  * can be tuned without editing every component.
  */
 QtObject {
+    // App
     readonly property int appMinimumWidth: 960
     readonly property int appMinimumHeight: 600
 
@@ -18,16 +19,6 @@ QtObject {
 
     readonly property int navigationBarWidth: 80
 
-    readonly property int libraryWidth: 900
-    readonly property int libraryMinimumWidth: 600
-    readonly property int libraryMaximumWidth: 2000
-
-    readonly property int editorMinimumWidth: 480
-    readonly property int editorWidth: 620
-    readonly property int editorMaximumWidth: 1880
-
-    readonly property int playerHeight: 80
-    readonly property int navigationItemHeight: 50
     readonly property int iconButtonSize: 45
 
     readonly property int spacingSmall: 4
@@ -37,5 +28,22 @@ QtObject {
     readonly property int radiusSmall: 4
     readonly property int radiusMedium: 8
 
+    // Library
+    readonly property int libraryWidth: 900
+    readonly property int libraryMinimumWidth: 600
+    readonly property int libraryMaximumWidth: 2000
+
+    readonly property int navigationItemHeight: 50
+    readonly property real minimumLibraryColumnWidth: 60
+    readonly property real minimumCoverColumnWidth: 48
+
+    // Editor
+    readonly property int editorMinimumWidth: 480
+    readonly property int editorWidth: 620
+    readonly property int editorMaximumWidth: 1880
+
     readonly property int editorKeyWidth: 180
+
+    // Player
+    readonly property int playerHeight: 80
 }
