@@ -28,8 +28,7 @@ TestCase {
     function test_source_can_be_set() {
         const icon = createTemporaryObject(component, testCase)
 
-        icon.source =
-            "qrc:/qt/qml/AudioLibrarian/assets/files.svg"
+        icon.source = "qrc:/qt/qml/AudioLibrarian/assets/files.svg"
 
         compare(
             icon.source.toString(),

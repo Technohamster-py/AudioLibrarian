@@ -40,7 +40,7 @@ Item {
                 Layout.preferredWidth: 28
                 Layout.preferredHeight: 28
 
-                source: "qrc:/qt/qml/AudioLibrarian/assets/music.svg"
+                source: AppAssets.music
             }
 
             ColumnLayout {

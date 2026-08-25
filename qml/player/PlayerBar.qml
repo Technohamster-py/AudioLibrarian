@@ -35,7 +35,7 @@ Item {
                     Layout.preferredWidth: 36
                     Layout.preferredHeight: 32
 
-                    iconSource: "qrc:/qt/qml/AudioLibrarian/assets/backward.svg"
+                    iconSource: AppAssets.backward
                     tooltipText: qsTr("Previous")
                     onClicked: root.progress = 0
                 }
@@ -46,7 +46,7 @@ Item {
                     Layout.preferredWidth: 40
                     Layout.preferredHeight: 32
 
-                    iconSource: root.playing ? "qrc:/qt/qml/AudioLibrarian/assets/pause.svg" : "qrc:/qt/qml/AudioLibrarian/assets/play.svg"
+                    iconSource: root.playing ? AppAssets.pause : AppAssets.play
                     tooltipText: root.playing ? qsTr("Pause") : qsTr("Play")
                     onClicked: root.playing = !root.playing
                 }
@@ -57,7 +57,7 @@ Item {
                     Layout.preferredWidth: 36
                     Layout.preferredHeight: 32
 
-                    iconSource: "qrc:/qt/qml/AudioLibrarian/assets/forward.svg"
+                    iconSource: AppAssets.forward
                     tooltipText: qsTr("Next")
                     onClicked: root.progress = 0
                 }

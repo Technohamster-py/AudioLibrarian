@@ -126,19 +126,19 @@ ApplicationWindow {
                     NavigationPlaceholderView {
                         objectName: "filesView"
                         title: qsTr("Files")
-                        iconSource: "qrc:/qt/qml/AudioLibrarian/assets/files.svg"
+                        iconSource: AppAssets.files
                     }
 
                     NavigationPlaceholderView {
                         objectName: "albumsView"
                         title: qsTr("Albums")
-                        iconSource: "qrc:/qt/qml/AudioLibrarian/assets/albums.svg"
+                        iconSource: AppAssets.albums
                     }
 
                     NavigationPlaceholderView {
                         objectName: "artistsView"
                         title: qsTr("Artists")
-                        iconSource: "qrc:/qt/qml/AudioLibrarian/assets/artists.svg"
+                        iconSource: AppAssets.artists
                     }
 
                     LibraryPane {
@@ -154,7 +154,7 @@ ApplicationWindow {
                     NavigationPlaceholderView {
                         objectName: "duplicatesView"
                         title: qsTr("Duplicates")
-                        iconSource: "qrc:/qt/qml/AudioLibrarian/assets/duplicate.svg"
+                        iconSource: AppAssets.dublicate
                     }
 
                     SettingsView {

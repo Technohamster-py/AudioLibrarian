@@ -41,7 +41,7 @@ Item {
             NavigationItem {
                 section: "files"
 
-                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/files.svg"
+                iconSource: AppAssets.files
                 tooltipText: qsTr("Files")
                 checked: root.currentSection === section
                 onSelected: root.sectionSelected(section)
@@ -50,7 +50,7 @@ Item {
             NavigationItem {
                 section: "albums"
 
-                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/albums.svg"
+                iconSource: AppAssets.albums
                 tooltipText: qsTr("Albums")
                 checked: root.currentSection === section
                 onSelected: root.sectionSelected(section)
@@ -59,7 +59,7 @@ Item {
             NavigationItem {
                 section: "artists"
 
-                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/artists.svg"
+                iconSource: AppAssets.artists
                 tooltipText: qsTr("Artists")
                 checked: root.currentSection === section
                 onSelected: root.sectionSelected(section)
@@ -68,7 +68,7 @@ Item {
             NavigationItem {
                 section: "library"
 
-                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/music-library.svg"
+                iconSource: AppAssets.library
                 tooltipText: qsTr("Library")
                 checked: root.currentSection === section
                 onSelected: root.sectionSelected(section)
@@ -77,7 +77,7 @@ Item {
             NavigationItem {
                 section: "duplicates"
 
-                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/duplicate.svg"
+                iconSource: AppAssets.dublicate
                 tooltipText: qsTr("Duplicates")
                 checked: root.currentSection === section
                 onSelected: root.sectionSelected(section)
@@ -90,7 +90,7 @@ Item {
             NavigationItem {
                 section: "settings"
 
-                iconSource: "qrc:/qt/qml/AudioLibrarian/assets/settings.svg"
+                iconSource: AppAssets.settings
                 tooltipText: qsTr("Settings")
                 checked: root.currentSection === section
                 onSelected: root.sectionSelected(section)

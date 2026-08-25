@@ -110,17 +110,24 @@ set_source_files_properties(
 )
 
 set_source_files_properties(
-        qml/theme/AppColors.qml
+        qml/constants/AppColors.qml
         PROPERTIES
         QT_QML_SINGLETON_TYPE TRUE
         QT_RESOURCE_ALIAS "AppColors.qml"
 )
 
 set_source_files_properties(
-        qml/theme/AppMetrics.qml
+        qml/constants/AppMetrics.qml
         PROPERTIES
         QT_QML_SINGLETON_TYPE TRUE
         QT_RESOURCE_ALIAS "AppMetrics.qml"
+)
+
+set_source_files_properties(
+        qml/constants/AppAssets.qml
+        PROPERTIES
+        QT_QML_SINGLETON_TYPE TRUE
+        QT_RESOURCE_ALIAS "AppAssets.qml"
 )
 
 set_source_files_properties(
@@ -169,8 +176,9 @@ qt_add_qml_module(AudioLibrarianUi
         qml/settings/SettingsView.qml
         qml/settings/SettingsRow.qml
 
-        qml/theme/AppColors.qml
-        qml/theme/AppMetrics.qml
+        qml/constants/AppAssets.qml
+        qml/constants/AppColors.qml
+        qml/constants/AppMetrics.qml
 
         RESOURCES
         assets/albums.svg

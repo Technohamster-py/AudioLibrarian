@@ -283,7 +283,7 @@ Item {
 
                             fillMode: Image.PreserveAspectFit
 
-                            source: root.sortOrder === Qt.AscendingOrder ? "qrc:/qt/qml/AudioLibrarian/assets/sort-ascending.svg" : "qrc:/qt/qml/AudioLibrarian/assets/sort-descending.svg"
+                            source: root.sortOrder === Qt.AscendingOrder ? AppAssets.sortAscending : AppAssets.sortDescending
                         }
 
                         /**
@@ -417,7 +417,7 @@ Item {
 
                             fillMode: Image.PreserveAspectFit
 
-                            source: "qrc:/qt/qml/AudioLibrarian/assets/music.svg"
+                            source: AppAssets.music
 
                         }
                     }
