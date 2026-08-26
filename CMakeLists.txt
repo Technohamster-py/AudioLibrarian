@@ -10,6 +10,7 @@ find_package(Qt6 REQUIRED COMPONENTS
         Core
         Gui
         Concurrent
+        Multimedia
         Quick
         QuickControls2
         QuickTest
@@ -28,6 +29,7 @@ add_library(AudioLibrarianCore STATIC
         src/metadata/audiometadata.h            src/metadata/audiometadata.cpp
         src/metadata/tageditormodel.h           src/metadata/tageditormodel.cpp
         src/metadata/taglibmetadatabackend.h    src/metadata/taglibmetadatabackend.cpp
+        src/player/playercontroller.h           src/player/playercontroller.cpp
         src/settings/settingsmanager.h          src/settings/settingsmanager.cpp
         src/settings/settingsstruct.h
 )
@@ -37,6 +39,7 @@ target_link_libraries(AudioLibrarianCore
         Qt6::Core
         Qt6::Gui
         Qt6::Concurrent
+        Qt6::Multimedia
         TagLib::tag
 )
 
@@ -151,6 +154,7 @@ qt_add_qml_module(AudioLibrarianUi
         src/library/audiofiletablemodel.h
         src/metadata/tageditormodel.h
         src/settings/settingsmanager.h
+        src/player/playercontroller.h
 
         QML_FILES
         qml/Main.qml
@@ -207,6 +211,7 @@ target_include_directories(AudioLibrarianUi PRIVATE
         src
         src/library
         src/metadata
+        src/player
         src/settings
 )
 
