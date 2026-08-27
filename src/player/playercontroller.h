@@ -140,6 +140,8 @@ public:
     QString album() const {return m_album;};
     QUrl coverUrl() const {return m_coverUrl;};
 
+    Q_INVOKABLE void setFilePath(const QString& path);
+
 public slots:
     void setSource(const QUrl& source);
     void play();

@@ -11,9 +11,8 @@ import QtQuick.Layouts
  */
 Item {
     id: root
-    //TODO: Implement audio service
-    property bool playing: false
-    property real progress: 0.35
+
+    required property PlayerController player
 
     Rectangle {
         anchors.fill: parent
@@ -46,9 +45,9 @@ Item {
                     Layout.preferredWidth: 40
                     Layout.preferredHeight: 32
 
-                    iconSource: root.playing ? AppAssets.pause : AppAssets.play
-                    tooltipText: root.playing ? qsTr("Pause") : qsTr("Play")
-                    onClicked: root.playing = !root.playing
+                    iconSource: root.player.playing ? AppAssets.pause : AppAssets.play
+                    tooltipText: root.player.playing ? qsTr("Pause") : qsTr("Play")
+                    onClicked: root.player.togglePlayback()
                 }
 
                 AppToolButton {
@@ -65,7 +64,17 @@ Item {
                 Label {
                     Layout.fillWidth: true
 
-                    text: qsTr("Example Artist — Example Track")
+                    text: {
+                        if (root.player.artist.length > 0 && root.player.title.length > 0) {
+                            return root.player.artist + " - " + root.player.title
+                        }
+
+                        if (root.player.title.length > 0) {
+                            return root.player.title
+                        }
+
+                        return qsTr("No track selected")
+                    }
 
                     color: AppColors.playerForeground
 
@@ -80,11 +89,11 @@ Item {
                 Layout.fillWidth: true
 
                 from: 0
-                to: 1
+                to: root.player.duration
 
-                value: root.progress
+                value: root.player.position
 
-                onMoved: root.progress = value
+                onMoved: root.player.position = value
             }
         }
     }

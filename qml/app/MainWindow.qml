@@ -75,6 +75,10 @@ ApplicationWindow {
         }
     }
 
+    PlayerController{
+        id: playerController
+    }
+
     RowLayout {
         anchors.fill: parent
         spacing: 0
@@ -148,6 +152,7 @@ ApplicationWindow {
 
                         onFileSelected: function (filePath) {
                             root.selectedFilePath = filePath
+                            playerController.setFilePath(filePath)
                         }
                     }
 
@@ -167,6 +172,7 @@ ApplicationWindow {
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: AppMetrics.playerHeight
+                    player: playerController
                 }
             }
 

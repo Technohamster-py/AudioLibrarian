@@ -54,6 +54,10 @@ void PlayerController::setMuted(const bool muted) {
     emit mutedChanged(muted);
 }
 
+void PlayerController::setFilePath(const QString &path) {
+    setSource(QUrl::fromLocalFile(path));
+}
+
 void PlayerController::setSource(const QUrl& source)
 {
     if (source == m_player.source())
@@ -68,11 +72,7 @@ void PlayerController::setSource(const QUrl& source)
 
         QString errorMessage;
 
-        const auto fileInfo =
-            backend.readFile(
-                source.toLocalFile(),
-                &errorMessage
-            );
+        const auto fileInfo = backend.readFile(source.toLocalFile(), &errorMessage);
 
         if (fileInfo.has_value()) {
             m_title = fileInfo->metadata.title();
