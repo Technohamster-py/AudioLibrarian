@@ -134,6 +134,7 @@ public:
     int volume() const;
     void setVolume(const int volume);
     bool isMuted() const {return m_audioOutput.isMuted();};
+    void setMuted(const bool muted);
     QString title() const {return m_title;};
     QString artist() const {return m_artist;};
     QString album() const {return m_album;};

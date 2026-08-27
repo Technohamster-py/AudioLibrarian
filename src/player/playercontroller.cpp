@@ -46,6 +46,14 @@ void PlayerController::setVolume(const int volume)
     emit volumeChanged(clampedVolume);
 }
 
+void PlayerController::setMuted(const bool muted) {
+    if (muted == m_audioOutput.isMuted())
+        return;
+
+    m_audioOutput.setMuted(muted);
+    emit mutedChanged(muted);
+}
+
 void PlayerController::setSource(const QUrl& source)
 {
     if (source == m_player.source())
