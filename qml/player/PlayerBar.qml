@@ -103,7 +103,6 @@ Item {
 
                         iconSource: AppAssets.backward
                         tooltipText: qsTr("Previous")
-                        onClicked: root.progress = 0
 
                         /*
                          * Previous-track functionality is not implemented yet.
@@ -130,7 +129,6 @@ Item {
 
                         iconSource: AppAssets.forward
                         tooltipText: qsTr("Next")
-                        onClicked: root.progress = 0
 
                         /*
                          * Next-track functionality is not implemented yet.
