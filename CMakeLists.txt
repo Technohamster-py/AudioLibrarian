@@ -193,12 +193,14 @@ qt_add_qml_module(AudioLibrarianUi
         assets/files.svg
         assets/forward.svg
         assets/music-library.svg
+        assets/mute.svg
         assets/music.svg
         assets/pause.svg
         assets/play.svg
         assets/settings.svg
         assets/sort-ascending.svg
         assets/sort-descending.svg
+        assets/unmute.svg
 )
 
 target_link_libraries(AudioLibrarianUi

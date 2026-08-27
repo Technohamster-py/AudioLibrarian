@@ -14,86 +14,249 @@ Item {
 
     required property PlayerController player
 
+    /**
+     * @brief Formats milliseconds as MM:SS or HH:MM:SS.
+     *
+     * @param milliseconds Duration in milliseconds.
+     * @return Formatted time string.
+     */
+    function formatTime(milliseconds) {
+        if (milliseconds <= 0)
+            return "00:00"
+
+        const totalSeconds = Math.floor(milliseconds / 1000)
+        const seconds = totalSeconds % 60
+        const totalMinutes = Math.floor(totalSeconds / 60)
+        const minutes = totalMinutes % 60
+        const hours = Math.floor(totalMinutes / 60)
+
+        const paddedSeconds = seconds.toString().padStart(2, "0")
+
+        const paddedMinutes = minutes.toString().padStart(2, "0")
+
+        if (hours > 0) {
+            const paddedHours = hours.toString().padStart(2, "0")
+            return paddedHours + ":" + paddedMinutes + ":" + paddedSeconds
+        }
+        return paddedMinutes + ":" + paddedSeconds
+    }
+
     Rectangle {
         anchors.fill: parent
         color: AppColors.playerBackground
 
-        ColumnLayout {
+        RowLayout {
             anchors.fill: parent
-            anchors.margins: 8
+            anchors.margins: AppMetrics.spacingMedium
 
-            spacing: 4
+            Image {
+                id: coverImage
 
-            RowLayout {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 32
+                Layout.preferredWidth: parent.height
+                Layout.preferredHeight: parent.height
 
-                AppToolButton {
-                    objectName: "previousButton"
+                fillMode: Image.PreserveAspectFit
 
-                    Layout.preferredWidth: 36
-                    Layout.preferredHeight: 32
+                source: root.player.coverUrl
 
-                    iconSource: AppAssets.backward
-                    tooltipText: qsTr("Previous")
-                    onClicked: root.progress = 0
-                }
+                asynchronous: true
+                cache: false
 
-                AppToolButton {
-                    objectName: "playPauseButton"
+                visible: source.toString().length > 0
+            }
 
-                    Layout.preferredWidth: 40
-                    Layout.preferredHeight: 32
+            Rectangle {
+                Layout.preferredWidth: coverImage.width
+                Layout.preferredHeight: coverImage.height
 
-                    iconSource: root.player.playing ? AppAssets.pause : AppAssets.play
-                    tooltipText: root.player.playing ? qsTr("Pause") : qsTr("Play")
-                    onClicked: root.player.togglePlayback()
-                }
+                visible: !coverImage.visible
 
-                AppToolButton {
-                    objectName: "nextButton"
+                color: AppColors.background
 
-                    Layout.preferredWidth: 36
-                    Layout.preferredHeight: 32
+                Image {
+                    anchors.centerIn: parent
 
-                    iconSource: AppAssets.forward
-                    tooltipText: qsTr("Next")
-                    onClicked: root.progress = 0
-                }
+                    width: parent.width * 0.45
+                    height: parent.height * 0.45
 
-                Label {
-                    Layout.fillWidth: true
+                    source: AppAssets.music
 
-                    text: {
-                        if (root.player.artist.length > 0 && root.player.title.length > 0) {
-                            return root.player.artist + " - " + root.player.title
-                        }
-
-                        if (root.player.title.length > 0) {
-                            return root.player.title
-                        }
-
-                        return qsTr("No track selected")
-                    }
-
-                    color: AppColors.playerForeground
-
-                    elide: Text.ElideRight
-                    verticalAlignment: Text.AlignVCenter
+                    fillMode: Image.PreserveAspectFit
                 }
             }
 
-            Slider {
-                id: progressSlider
 
-                Layout.fillWidth: true
+            ColumnLayout {
+                anchors.margins: 8
 
-                from: 0
-                to: root.player.duration
+                spacing: AppMetrics.spacingSmall
 
-                value: root.player.position
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: AppMetrics.iconButtonSize
 
-                onMoved: root.player.position = value
+                    AppToolButton {
+                        objectName: "previousButton"
+
+                        Layout.preferredWidth: AppMetrics.iconButtonSize - AppMetrics.spacingMedium
+                        Layout.preferredHeight: AppMetrics.iconButtonSize - AppMetrics.spacingMedium
+
+                        iconSource: AppAssets.backward
+                        tooltipText: qsTr("Previous")
+                        onClicked: root.progress = 0
+
+                        /*
+                         * Previous-track functionality is not implemented yet.
+                         */
+                        enabled: false
+                    }
+
+                    AppToolButton {
+                        objectName: "playPauseButton"
+
+                        Layout.preferredWidth: AppMetrics.iconButtonSize
+                        Layout.preferredHeight: AppMetrics.iconButtonSize
+
+                        iconSource: root.player.playing ? AppAssets.pause : AppAssets.play
+                        tooltipText: root.player.playing ? qsTr("Pause") : qsTr("Play")
+                        onClicked: root.player.togglePlayback()
+                    }
+
+                    AppToolButton {
+                        objectName: "nextButton"
+
+                        Layout.preferredWidth: AppMetrics.iconButtonSize - AppMetrics.spacingMedium
+                        Layout.preferredHeight: AppMetrics.iconButtonSize - AppMetrics.spacingMedium
+
+                        iconSource: AppAssets.forward
+                        tooltipText: qsTr("Next")
+                        onClicked: root.progress = 0
+
+                        /*
+                         * Next-track functionality is not implemented yet.
+                         */
+                        enabled: false
+                    }
+
+                    /**
+                     * Title and artist label
+                     */
+                    Label {
+                        Layout.fillWidth: true
+
+                        text: {
+                            if (root.player.artist.length > 0 && root.player.title.length > 0) {
+                                return root.player.artist + " - " + root.player.title
+                            }
+
+                            if (root.player.title.length > 0) {
+                                return root.player.title
+                            }
+
+                            return qsTr("No track selected")
+                        }
+
+                        color: AppColors.playerForeground
+
+                        elide: Text.ElideRight
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    RowLayout {
+                        Layout.alignment: Qt.AlignVCenter
+
+                        spacing: AppMetrics.spacingSmall
+
+                        AppToolButton {
+                            objectName: "muteButton"
+                            Layout.preferredWidth: AppMetrics.iconButtonSize - AppMetrics.spacingLarge
+
+                            iconSource: root.player.muted ? AppAssets.mute : AppAssets.unmute
+                            tooltipText: root.player.muted ? qsTr("Unmute") : qsTr("Mute")
+                            onClicked: {
+                                root.player.muted = !root.player.muted
+                            }
+                        }
+
+                        Slider {
+                            id: volumeSlider
+                            objectName: "volumeSlider"
+
+                            Layout.preferredWidth: 100
+
+                            from: 0
+                            to: 100
+
+                            value: root.player.volume
+                            onMoved: {
+                                root.player.volume = Math.round(value)
+                            }
+                        }
+                    }
+                }
+
+
+
+                // /**
+                //  * Album label
+                //  */
+                // Label {
+                //     Layout.fillWidth: true
+                //     text: root.player.album
+                //     color: AppColors.playerForeground
+                //
+                //     opacity: 0.75
+                //
+                //     elide: Text.ElideRight
+                //     verticalAlignment: Text.AlignVCenter
+                //
+                //     visible: text.length > 0
+                // }
+
+                Item {
+                    Layout.fillHeight: true
+                }
+
+                /**
+                 * Progress
+                 */
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: AppMetrics.spacingMedium
+
+                    Label {
+                        text: formatTime(root.player.position)
+                        color: AppColors.playerForeground
+
+                        Layout.preferredWidth: implicitWidth
+                        horizontalAlignment: Text.AlignRight
+                    }
+
+                    Slider {
+                        id: progressSlider
+
+                        Layout.fillWidth: true
+
+                        from: 0
+                        to: root.player.duration
+
+                        value: root.player.position
+
+                        onMoved: root.player.position = value
+                    }
+
+                    Label {
+                        text: formatTime(root.player.duration)
+                        color: AppColors.playerForeground
+
+                        Layout.preferredWidth: implicitWidth
+                        horizontalAlignment: Text.AlignLeft
+                    }
+                }
             }
         }
     }
