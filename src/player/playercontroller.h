@@ -160,7 +160,6 @@ signals:
     void errorOccurred(QMediaPlayer::Error error, const QString& errorString);
 
 private:
-    static QUrl makeCoverUrl(const QByteArray& data);
     void clearMetadata();
 
     QMediaPlayer m_player;

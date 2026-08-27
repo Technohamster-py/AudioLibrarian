@@ -4,8 +4,8 @@
 
 #include "metadata/taglibmetadatabackend.h"
 
-#include <QImage>
-#include <QMimeDatabase>
+
+#include "utils/datautils.h"
 
 PlayerController::PlayerController(QObject *parent) : QObject(parent)
 {
@@ -79,8 +79,7 @@ void PlayerController::setSource(const QUrl& source)
             m_artist = fileInfo->metadata.artist();
             m_album = fileInfo->metadata.album();
 
-            m_coverUrl =
-                makeCoverUrl(fileInfo->coverData);
+            m_coverUrl = DataUrl::makeDataUrl(fileInfo->coverData);
         }
     }
     m_player.setSource(source);
@@ -107,32 +106,6 @@ void PlayerController::togglePlayback() {
     } else {
         play();
     }
-}
-
-QUrl PlayerController::makeCoverUrl(const QByteArray &imageData) {
-    if (imageData.isEmpty())
-        return {};
-
-    QImage image;
-
-    if (!image.loadFromData(imageData))
-        return {};
-
-    QBuffer buffer;
-
-    /*
-     * Re-encode the image into a predictable format so that QML receives
-     * valid image data regardless of the original embedded format.
-     */
-    const bool hasAlpha = image.hasAlphaChannel();
-
-    if (!image.save(&buffer, hasAlpha ? "PNG" : "JPEG")) {
-        return {};
-    }
-
-    const QString mimeType = hasAlpha ? QStringLiteral("image/png") : QStringLiteral("image/jpeg");
-
-    return QUrl(QStringLiteral("data:%1;base64,%2").arg(mimeType, QString::fromLatin1(buffer.data().toBase64())));
 }
 
 void PlayerController::clearMetadata() {

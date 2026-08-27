@@ -399,12 +399,7 @@ Item {
 
                             fillMode: Image.PreserveAspectFit
 
-                            source: {
-                                if (!model.cover || model.cover.length === 0)
-                                    return ""
-
-                                return libraryModel.makeCoverUrl(model.cover)
-                            }
+                            source: model.cover
                         }
 
                         Image {
