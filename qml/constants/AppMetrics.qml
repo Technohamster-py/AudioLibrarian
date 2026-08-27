@@ -47,5 +47,11 @@ QtObject {
     readonly property int editorKeyWidth: 180
 
     // Player
-    readonly property int playerHeight: 120
+    readonly property int playerHeight: 140
+    readonly property int playerButtonsSize: 60
+
+    // Text
+    readonly property int fontSizeSmall: 12
+    readonly property int fontSizeMedium: 16
+    readonly property int fontSizeLarge: 24
 }

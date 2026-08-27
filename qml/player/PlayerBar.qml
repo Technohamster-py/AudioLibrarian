@@ -85,6 +85,46 @@ Item {
                 }
             }
 
+            AppToolButton {
+                objectName: "previousButton"
+
+                Layout.preferredWidth: AppMetrics.playerButtonsSize - AppMetrics.spacingMedium
+                Layout.preferredHeight: AppMetrics.playerButtonsSize - AppMetrics.spacingMedium
+
+                iconSource: AppAssets.backward
+                tooltipText: qsTr("Previous")
+
+                /*
+                 * Previous-track functionality is not implemented yet.
+                 */
+                enabled: false
+            }
+
+            AppToolButton {
+                objectName: "playPauseButton"
+
+                Layout.preferredWidth: AppMetrics.playerButtonsSize
+                Layout.preferredHeight: AppMetrics.playerButtonsSize
+
+                iconSource: root.player.playing ? AppAssets.pause : AppAssets.play
+                tooltipText: root.player.playing ? qsTr("Pause") : qsTr("Play")
+                onClicked: root.player.togglePlayback()
+            }
+
+            AppToolButton {
+                objectName: "nextButton"
+
+                Layout.preferredWidth: AppMetrics.playerButtonsSize - AppMetrics.spacingMedium
+                Layout.preferredHeight: AppMetrics.playerButtonsSize - AppMetrics.spacingMedium
+
+                iconSource: AppAssets.forward
+                tooltipText: qsTr("Next")
+
+                /*
+                 * Next-track functionality is not implemented yet.
+                 */
+                enabled: false
+            }
 
             ColumnLayout {
                 anchors.margins: 8
@@ -93,54 +133,16 @@ Item {
 
                 RowLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: AppMetrics.iconButtonSize
+                    spacing: AppMetrics.spacingSmall
 
-                    AppToolButton {
-                        objectName: "previousButton"
-
-                        Layout.preferredWidth: AppMetrics.iconButtonSize - AppMetrics.spacingMedium
-                        Layout.preferredHeight: AppMetrics.iconButtonSize - AppMetrics.spacingMedium
-
-                        iconSource: AppAssets.backward
-                        tooltipText: qsTr("Previous")
-
-                        /*
-                         * Previous-track functionality is not implemented yet.
-                         */
-                        enabled: false
+                    Item {
+                        Layout.fillWidth: true
                     }
-
-                    AppToolButton {
-                        objectName: "playPauseButton"
-
-                        Layout.preferredWidth: AppMetrics.iconButtonSize
-                        Layout.preferredHeight: AppMetrics.iconButtonSize
-
-                        iconSource: root.player.playing ? AppAssets.pause : AppAssets.play
-                        tooltipText: root.player.playing ? qsTr("Pause") : qsTr("Play")
-                        onClicked: root.player.togglePlayback()
-                    }
-
-                    AppToolButton {
-                        objectName: "nextButton"
-
-                        Layout.preferredWidth: AppMetrics.iconButtonSize - AppMetrics.spacingMedium
-                        Layout.preferredHeight: AppMetrics.iconButtonSize - AppMetrics.spacingMedium
-
-                        iconSource: AppAssets.forward
-                        tooltipText: qsTr("Next")
-
-                        /*
-                         * Next-track functionality is not implemented yet.
-                         */
-                        enabled: false
-                    }
-
                     /**
                      * Title and artist label
                      */
                     Label {
-                        Layout.fillWidth: true
+                        // Layout.fillWidth: true
 
                         text: {
                             if (root.player.artist.length > 0 && root.player.title.length > 0) {
@@ -152,52 +154,23 @@ Item {
                             }
 
                             return qsTr("No track selected")
+
                         }
+
+                        font.pointSize: AppMetrics.fontSizeMedium
 
                         color: AppColors.playerForeground
 
                         elide: Text.ElideRight
                         verticalAlignment: Text.AlignVCenter
+
+
                     }
 
                     Item {
                         Layout.fillWidth: true
                     }
-
-                    RowLayout {
-                        Layout.alignment: Qt.AlignVCenter
-
-                        spacing: AppMetrics.spacingSmall
-
-                        AppToolButton {
-                            objectName: "muteButton"
-                            Layout.preferredWidth: AppMetrics.iconButtonSize - AppMetrics.spacingLarge
-
-                            iconSource: root.player.muted ? AppAssets.mute : AppAssets.unmute
-                            tooltipText: root.player.muted ? qsTr("Unmute") : qsTr("Mute")
-                            onClicked: {
-                                root.player.muted = !root.player.muted
-                            }
-                        }
-
-                        Slider {
-                            id: volumeSlider
-                            objectName: "volumeSlider"
-
-                            Layout.preferredWidth: 100
-
-                            from: 0
-                            to: 100
-
-                            value: root.player.volume
-                            onMoved: {
-                                root.player.volume = Math.round(value)
-                            }
-                        }
-                    }
                 }
-
-
 
                 // /**
                 //  * Album label
@@ -214,10 +187,6 @@ Item {
                 //
                 //     visible: text.length > 0
                 // }
-
-                Item {
-                    Layout.fillHeight: true
-                }
 
                 /**
                  * Progress
@@ -253,6 +222,40 @@ Item {
 
                         Layout.preferredWidth: implicitWidth
                         horizontalAlignment: Text.AlignLeft
+                    }
+                }
+            }
+
+            RowLayout {
+                id: volumeColumn
+                Layout.alignment: Qt.AlignVCenter
+
+                spacing: AppMetrics.spacingSmall
+
+                AppToolButton {
+                    id: muteButton
+                    objectName: "muteButton"
+                    Layout.preferredWidth: AppMetrics.iconButtonSize
+
+                    iconSource: root.player.muted ? AppAssets.mute : AppAssets.unmute
+                    tooltipText: root.player.muted ? qsTr("Unmute") : qsTr("Mute")
+                    onClicked: {
+                        root.player.muted = !root.player.muted
+                    }
+                }
+
+                Slider {
+                    id: volumeSlider
+                    objectName: "volumeSlider"
+
+                    Layout.preferredWidth: 150
+
+                    from: 0
+                    to: 100
+
+                    value: root.player.volume
+                    onMoved: {
+                        root.player.volume = Math.round(value)
                     }
                 }
             }
