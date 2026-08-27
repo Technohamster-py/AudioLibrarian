@@ -3,7 +3,7 @@ import QtTest
 import AudioLibrarian
 
 /**
- * @brief Tests for SVG icon rendering component.
+ * @brief Tests for AppIcon.
  */
 TestCase {
     id: testCase
@@ -20,19 +20,22 @@ TestCase {
     }
 
     function test_default_source_is_empty() {
-        const icon = createTemporaryObject(component, testCase)
+        const icon =
+            createTemporaryObject(component, testCase)
+
+        verify(icon !== null)
 
         compare(icon.source.toString(), "")
     }
 
     function test_source_can_be_set() {
-        const icon = createTemporaryObject(component, testCase)
+        const icon =
+            createTemporaryObject(component, testCase)
 
-        icon.source = "qrc:/qt/qml/AudioLibrarian/assets/files.svg"
+        const source = "qrc:/qt/qml/AudioLibrarian/assets/files.svg"
 
-        compare(
-            icon.source.toString(),
-            "qrc:/qt/qml/AudioLibrarian/assets/files.svg"
-        )
+        icon.source = source
+
+        compare(icon.source.toString(), source)
     }
 }

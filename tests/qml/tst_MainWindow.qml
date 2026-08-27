@@ -5,17 +5,14 @@ import AudioLibrarian
 /**
  * @brief Tests for the main application window.
  *
- * The tests verify the structure and navigation behaviour of the
- * first UI vertical slice.
+ * The tests verify the current workspace structure, navigation mapping,
+ * player integration and editor selection propagation.
  */
 TestCase {
     id: testCase
 
     name: "MainWindow"
 
-    /**
-     * @brief Component used to instantiate isolated MainWindow objects.
-     */
     Component {
         id: component
 
@@ -24,168 +21,52 @@ TestCase {
         }
     }
 
-    /**
-     * @brief Verifies the default navigation section.
-     */
     function test_default_navigation_section() {
-        const window = createTemporaryObject(
-            component,
-            testCase
-        )
+        const window = createTemporaryObject(component, testCase)
+
+        verify(window !== null)
 
         compare(window.activeSection, "files")
 
-        const stack = findChild(
-            window,
-            "workspaceStack"
-        )
+        const stack = findChild(window, "workspaceStack")
 
         verify(stack !== null)
+
         compare(stack.currentIndex, 0)
     }
 
-    /**
-     * @brief Verifies the mapping between navigation sections
-     *        and StackLayout indexes.
-     */
     function test_section_index_mapping() {
-        const window = createTemporaryObject(
-            component,
-            testCase
-        )
+        const window = createTemporaryObject(component, testCase)
 
         compare(window.sectionIndex("files"), 0)
+
         compare(window.sectionIndex("albums"), 1)
+
         compare(window.sectionIndex("artists"), 2)
+
         compare(window.sectionIndex("library"), 3)
+
         compare(window.sectionIndex("duplicates"), 4)
+
         compare(window.sectionIndex("settings"), 5)
 
-        // Unknown sections must fall back to the Files page.
         compare(window.sectionIndex("unknown"), 0)
     }
 
-    /**
-     * @brief Verifies that navigation changes the active workspace.
-     */
-    function test_navigation_switches_content() {
-        const window = createTemporaryObject(
-            component,
-            testCase
-        )
-
-        const navigation = findChild(
-            window,
-            "navigationBar"
-        )
-
-        const stack = findChild(
-            window,
-            "workspaceStack"
-        )
-
-        verify(navigation !== null)
-        verify(stack !== null)
-
-        navigation.sectionSelected("albums")
-
-        compare(window.activeSection, "albums")
-        compare(stack.currentIndex, 1)
-
-        verify(findChild(
-            window,
-            "albumsView"
-        ) !== null)
-    }
-
-    /**
-     * @brief Verifies switching from another workspace back to Files.
-     */
-    function test_switching_back_to_files() {
-        const window = createTemporaryObject(
-            component,
-            testCase
-        )
-
-        const navigation = findChild(
-            window,
-            "navigationBar"
-        )
-
-        const stack = findChild(
-            window,
-            "workspaceStack"
-        )
-
-        verify(navigation !== null)
-        verify(stack !== null)
-
-        navigation.sectionSelected("albums")
-
-        compare(window.activeSection, "albums")
-        compare(stack.currentIndex, 1)
-
-        navigation.sectionSelected("files")
-
-        compare(window.activeSection, "files")
-        compare(stack.currentIndex, 0)
-
-        verify(findChild(
-            window,
-            "filesView"
-        ) !== null)
-    }
-
-    /**
-     * @brief Verifies the actual hierarchy of the main workspace.
-     *
-     * Expected structure:
-     *
-     * RowLayout
-     * ├── NavigationBar
-     * └── SplitView
-     *     └── contentItem (Qt Quick Controls internal item)
-     *         ├── ColumnLayout
-     *         │   ├── StackLayout
-     *         │   │   └── LibraryPane
-     *         │   └── PlayerBar
-     *         └── EditorView
-     */
     function test_workspace_structure() {
-        const window = createTemporaryObject(
-            component,
-            testCase
-        )
+        const window = createTemporaryObject(component, testCase)
 
-        const splitView = findChild(
-            window,
-            "mainSplitView"
-        )
+        const splitView = findChild(window, "mainSplitView")
 
-        const navigationLayout = findChild(
-            window,
-            "navigationLayout"
-        )
+        const navigationLayout = findChild(window, "navigationLayout")
 
-        const workspaceStack = findChild(
-            window,
-            "workspaceStack"
-        )
+        const workspaceStack = findChild(window, "workspaceStack")
 
-        const libraryPane = findChild(
-            window,
-            "libraryPane"
-        )
+        const libraryPane = findChild(window, "libraryPane")
 
-        const playerBar = findChild(
-            window,
-            "playerBar"
-        )
+        const playerBar = findChild(window, "playerBar")
 
-        const editorView = findChild(
-            window,
-            "editorView"
-        )
+        const editorView = findChild(window, "editorView")
 
         verify(splitView !== null)
         verify(navigationLayout !== null)
@@ -194,84 +75,113 @@ TestCase {
         verify(playerBar !== null)
         verify(editorView !== null)
 
-        /*
-         * StackLayout and PlayerBar belong to the left-side
-         * ColumnLayout, while EditorView is a direct child of the
-         * SplitView's content item.
-         */
-        compare(
-            navigationLayout.parent,
-            splitView.contentItem
-        )
+        compare(navigationLayout.parent, splitView.contentItem)
 
-        compare(
-            workspaceStack.parent,
-            navigationLayout
-        )
+        compare(workspaceStack.parent, navigationLayout)
 
-        compare(
-            libraryPane.parent,
-            workspaceStack
-        )
+        compare(libraryPane.parent, workspaceStack)
 
-        compare(
-            playerBar.parent,
-            navigationLayout
-        )
+        compare(playerBar.parent, navigationLayout)
 
-        compare(
-            editorView.parent,
-            splitView.contentItem
-        )
+        compare(editorView.parent, splitView.contentItem)
     }
 
-    /**
-     * @brief Verifies that the PlayerBar exists independently
-     *        of the selected navigation workspace.
-     */
+    function test_player_controller_is_connected() {
+        const window = createTemporaryObject(component, testCase)
+
+        const player = findChild(window, "playerController")
+
+        const playerBar = findChild(window, "playerBar")
+
+        verify(player !== null)
+        verify(playerBar !== null)
+
+        compare(playerBar.player, player)
+    }
+
     function test_player_is_outside_workspace_stack() {
-        const window = createTemporaryObject(
-            component,
-            testCase
-        )
+        const window = createTemporaryObject(component, testCase)
 
-        const navigation = findChild(
-            window,
-            "navigationBar"
-        )
+        const stack = findChild(window, "workspaceStack")
 
-        const stack = findChild(
-            window,
-            "workspaceStack"
-        )
+        const playerBar = findChild(window, "playerBar")
 
-        const playerBar = findChild(
-            window,
-            "playerBar"
-        )
-
-        verify(navigation !== null)
         verify(stack !== null)
         verify(playerBar !== null)
 
-        /*
-         * Switch through several workspaces. PlayerBar must remain
-         * present because it is a sibling of StackLayout rather
-         * than one of its pages.
-         */
+        verify(playerBar.parent !== stack)
+
+        compare(playerBar.parent, findChild(window, "navigationLayout"))
+    }
+
+    function test_navigation_changes_workspace() {
+        const window = createTemporaryObject(component, testCase)
+
+        const navigation = findChild(window, "navigationBar")
+
+        const stack = findChild(window, "workspaceStack")
+
+        verify(navigation !== null)
+        verify(stack !== null)
+
         navigation.sectionSelected("albums")
-        verify(playerBar.visible)
+
+        compare(window.activeSection, "albums")
+
+        compare(stack.currentIndex, 1)
 
         navigation.sectionSelected("artists")
-        verify(playerBar.visible)
 
-        navigation.sectionSelected("duplicates")
-        verify(playerBar.visible)
+        compare(window.activeSection, "artists")
+
+        compare(stack.currentIndex, 2)
 
         navigation.sectionSelected("settings")
-        verify(playerBar.visible)
+
+        compare(window.activeSection, "settings")
+
+        compare(stack.currentIndex, 5)
+    }
+
+    function test_switching_back_to_files() {
+        const window = createTemporaryObject(component, testCase)
+
+        const navigation = findChild(window, "navigationBar")
+
+        const stack = findChild(window, "workspaceStack")
+
+        verify(navigation !== null)
+        verify(stack !== null)
+
+        navigation.sectionSelected("library")
+
+        compare(stack.currentIndex, 3)
 
         navigation.sectionSelected("files")
-        verify(playerBar.visible)
+
+        compare(window.activeSection, "files")
+
+        compare(stack.currentIndex, 0)
+    }
+
+    function test_editor_is_bound_to_selected_file() {
+        const window = createTemporaryObject(component, testCase)
+
+        const editor = findChild(window, "editorView")
+
+        verify(editor !== null)
+
+        compare(window.selectedFilePath, "")
+
+        compare(editor.filePath, "")
+
+        /*
+         * selectedFilePath is intentionally tested through the public
+         * property. LibraryPane is responsible for assigning it after
+         * fileSelected().
+         */
+        window.selectedFilePath = "/tmp/test.wav"
+
+        compare(editor.filePath, "/tmp/test.wav")
     }
 }

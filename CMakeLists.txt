@@ -14,6 +14,7 @@ find_package(Qt6 REQUIRED COMPONENTS
         Quick
         QuickControls2
         QuickTest
+        Test
 )
 
 find_package(TagLib 2.0 REQUIRED)
@@ -307,6 +308,51 @@ add_test(
         COMMAND tst_AudioFileTableModel
 )
 
+
+# ---------------------------------------------------------------------------
+# Player tests
+# ---------------------------------------------------------------------------
+
+add_executable(tst_PlayerController
+        tests/player/tst_playercontroller.cpp
+)
+
+target_link_libraries(tst_PlayerController
+        PRIVATE
+        AudioLibrarianCore
+        Qt6::Test
+)
+
+target_include_directories(tst_PlayerController PRIVATE
+        src
+)
+
+add_test(
+        NAME tst_PlayerController
+        COMMAND tst_PlayerController
+)
+
+# ---------------------------------------------------------------------------
+# Settings tests
+# ---------------------------------------------------------------------------
+add_executable(tst_SettingsManager
+        tests/settings/tst_settingsmanager.cpp
+)
+
+target_link_libraries(tst_SettingsManager
+        PRIVATE
+        AudioLibrarianCore
+        Qt6::Test
+)
+
+target_include_directories(tst_SettingsManager PRIVATE
+        src
+)
+
+add_test(
+        NAME tst_SettingsManager
+        COMMAND tst_SettingsManager
+)
 
 # ---------------------------------------------------------------------------
 # Windows / Qt deployment

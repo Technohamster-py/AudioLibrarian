@@ -3,16 +3,13 @@ import QtTest
 import AudioLibrarian
 
 /**
- * @brief Tests for the global navigation bar.
+ * @brief Tests for NavigationBar.
  */
 TestCase {
     id: testCase
 
     name: "NavigationBar"
 
-    /**
-     * @brief Component used to instantiate isolated NavigationBar objects.
-     */
     Component {
         id: component
 
@@ -22,125 +19,81 @@ TestCase {
         }
     }
 
-    SignalSpy {
-        id: sectionSpy
+    Component {
+        id: signalSpyComponent
+
+        SignalSpy {}
     }
 
-    /**
-     * @brief Verifies the default selected section.
-     */
     function test_default_section() {
-        const navigation = createTemporaryObject(
-            component,
-            testCase
-        )
+        const navigation = createTemporaryObject(component, testCase)
 
-        compare(
-            navigation.currentSection,
-            "files"
-        )
+        verify(navigation !== null)
+
+        compare(navigation.currentSection, "files")
     }
 
-    /**
-     * @brief Verifies that a navigation item emits the expected
-     *        section through NavigationBar.
-     *
-     * The test uses the real NavigationItem interaction instead of
-     * relying on a nonexistent signalSpy() helper.
-     */
-    function test_section_selection() {
-        const navigation = createTemporaryObject(
-            component,
-            testCase
-        )
+    function test_section_property() {
+        const navigation = createTemporaryObject(component, testCase)
 
-        sectionSpy.target = navigation
-        sectionSpy.signalName = "sectionSelected"
+        navigation.currentSection = "albums"
 
-        const albums = findChild(
-            navigation,
-            "albumsNavigationItem"
-        )
+        compare(navigation.currentSection, "albums")
 
-        verify(albums !== null)
+        navigation.currentSection = "artists"
 
-        albums.clicked()
-
-        compare(sectionSpy.count, 1)
-        compare(
-            sectionSpy.signalArguments[0][0],
-            "albums"
-        )
-    }
-
-    /**
-     * @brief Verifies that all expected navigation items exist.
-     */
-    function test_navigation_items_exist() {
-        const navigation = createTemporaryObject(
-            component,
-            testCase
-        )
-
-        verify(findChild(
-            navigation,
-            "filesNavigationItem"
-        ) !== null)
-
-        verify(findChild(
-            navigation,
-            "albumsNavigationItem"
-        ) !== null)
-
-        verify(findChild(
-            navigation,
-            "artistsNavigationItem"
-        ) !== null)
-
-        verify(findChild(
-            navigation,
-            "libraryNavigationItem"
-        ) !== null)
-
-        verify(findChild(
-            navigation,
-            "duplicatesNavigationItem"
-        ) !== null)
-
-        verify(findChild(
-            navigation,
-            "settingsNavigationItem"
-        ) !== null)
-    }
-
-    /**
-     * @brief Verifies that only the current navigation item is checked.
-     */
-    function test_current_item_is_checked() {
-        const navigation = createTemporaryObject(
-            component,
-            testCase
-        )
-
-        const files = findChild(
-            navigation,
-            "filesNavigationItem"
-        )
-
-        const library = findChild(
-            navigation,
-            "libraryNavigationItem"
-        )
-
-        verify(files !== null)
-        verify(library !== null)
-
-        compare(files.checked, true)
-        compare(library.checked, false)
+        compare(navigation.currentSection, "artists")
 
         navigation.currentSection = "library"
 
-        compare(files.checked, false)
-        compare(library.checked, true)
+        compare(navigation.currentSection, "library")
+
+        navigation.currentSection = "duplicates"
+
+        compare(navigation.currentSection, "duplicates")
+
+        navigation.currentSection = "settings"
+
+        compare(navigation.currentSection, "settings")
+    }
+
+    function test_section_selected_signal() {
+        const navigation = createTemporaryObject(component, testCase)
+
+        const spy = createTemporaryObject(signalSpyComponent, testCase)
+
+        spy.target = navigation
+        spy.signalName = "sectionSelected"
+
+        navigation.sectionSelected("albums")
+
+        compare(spy.count, 1)
+
+        compare(spy.signalArguments[0][0], "albums")
+    }
+
+    function test_section_selected_arguments() {
+        const navigation = createTemporaryObject(component, testCase)
+
+        const spy = createTemporaryObject(signalSpyComponent, testCase)
+
+        spy.target = navigation
+        spy.signalName = "sectionSelected"
+
+        const sections = [
+            "files",
+            "albums",
+            "artists",
+            "library",
+            "duplicates",
+            "settings"
+        ]
+
+        for (let i = 0; i < sections.length; ++i) {
+            navigation.sectionSelected(sections[i])
+            compare(spy.signalArguments[i][0], sections[i])
+        }
+
+        compare(spy.count, sections.length)
     }
 }

@@ -151,6 +151,11 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     /**
+     * @brief Returns one role name for QML-facing model contract checks.
+     */
+    Q_INVOKABLE QString roleName(int role) const;
+
+    /**
      * @brief Returns column header data.
      */
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;

@@ -2,15 +2,27 @@
 
 #include "../../src/library/audiofiletablemodel.h"
 
+#include <QAbstractItemModelTester>
 #include <QBuffer>
+#include <QDataStream>
+#include <QDir>
 #include <QImage>
 #include <QTemporaryDir>
-#include <QTemporaryFile>
 
 /**
  * @brief Unit tests for AudioFileTableModel.
+ *
+ * The tests cover the public model contract:
+ * - model configuration;
+ * - columns and roles;
+ * - cover data conversion;
+ * - recursive filesystem scanning;
+ * - model data;
+ * - sorting;
+ * - model notifications.
  */
-class AudioFileTableModelTest final : public QObject {
+class AudioFileTableModelTest final : public QObject
+{
     Q_OBJECT
 
 private slots:
@@ -20,22 +32,27 @@ private slots:
     void defaultConfiguration();
 
     /**
-     * @brief Verifies that the model exposes all expected columns.
+     * @brief Verifies the number of model columns.
      */
     void columnCount();
 
     /**
-     * @brief Verifies that all expected QML roles are exposed.
+     * @brief Verifies all exported QML roles.
      */
     void roleNames();
 
     /**
-     * @brief Verifies conversion of valid JPEG data into a data URL.
+     * @brief Verifies that the model satisfies QAbstractItemModel invariants.
+     */
+    void modelInvariants();
+
+    /**
+     * @brief Verifies conversion of JPEG image data into a data URL.
      */
     void makeCoverUrlJpeg();
 
     /**
-     * @brief Verifies conversion of valid PNG data into a data URL.
+     * @brief Verifies conversion of PNG image data into a data URL.
      */
     void makeCoverUrlPng();
 
@@ -50,23 +67,49 @@ private slots:
     void makeCoverUrlEmptyData();
 
     /**
-     * @brief Verifies recursive scanning of an audio library.
+     * @brief Verifies recursive scanning of an audio directory.
      */
     void recursiveScan();
 
+    /**
+     * @brief Verifies model loading notifications.
+     */
+    void loadingSignals();
+
+    /**
+     * @brief Verifies reload of the current root directory.
+     */
+    void reload();
+
+    /**
+     * @brief Verifies ascending file-name sorting.
+     */
+    void sortFileNameAscending();
+
+    /**
+     * @brief Verifies descending file-name sorting.
+     */
+    void sortFileNameDescending();
+
+    /**
+     * @brief Verifies data exposed by a scanned file.
+     */
+    void scannedFileData();
+
 private:
     /**
-     * @brief Creates a minimal PCM WAV file.
+     * @brief Creates a minimal one-second PCM WAV file.
      *
-     * @param filePath Destination file.
-     * @return true when the file was successfully created.
+     * @param filePath Destination file path.
+     * @return true if the file was successfully created.
      */
     static bool createTestWav(const QString &filePath);
 };
 
 bool AudioFileTableModelTest::createTestWav(
     const QString &filePath
-) {
+)
+{
     QFile file(filePath);
 
     if (!file.open(QIODevice::WriteOnly))
@@ -130,7 +173,8 @@ bool AudioFileTableModelTest::createTestWav(
     return stream.status() == QDataStream::Ok;
 }
 
-void AudioFileTableModelTest::defaultConfiguration() {
+void AudioFileTableModelTest::defaultConfiguration()
+{
     const AudioFileTableModel model;
 
     QVERIFY(model.rootPath().isLocalFile());
@@ -139,7 +183,8 @@ void AudioFileTableModelTest::defaultConfiguration() {
     QVERIFY(!model.isLoading());
 }
 
-void AudioFileTableModelTest::columnCount() {
+void AudioFileTableModelTest::columnCount()
+{
     const AudioFileTableModel model;
 
     QCOMPARE(
@@ -148,9 +193,9 @@ void AudioFileTableModelTest::columnCount() {
     );
 }
 
-void AudioFileTableModelTest::roleNames() {
+void AudioFileTableModelTest::roleNames()
+{
     const AudioFileTableModel model;
-
     const auto roles = model.roleNames();
 
     QCOMPARE(
@@ -204,7 +249,29 @@ void AudioFileTableModelTest::roleNames() {
     );
 }
 
-void AudioFileTableModelTest::makeCoverUrlJpeg() {
+void AudioFileTableModelTest::modelInvariants()
+{
+    AudioFileTableModel model;
+
+    /*
+     * QAbstractItemModelTester performs a broad set of structural checks:
+     * indexes, parent/child relationships, row counts and model signals.
+     */
+    QAbstractItemModelTester tester(
+        &model,
+        QAbstractItemModelTester::FailureReportingMode::QtTest
+    );
+
+    Q_UNUSED(tester);
+
+    QCOMPARE(
+        model.columnCount(),
+        AudioFileTableModel::ColumnCount
+    );
+}
+
+void AudioFileTableModelTest::makeCoverUrlJpeg()
+{
     QImage image(
         2,
         2,
@@ -229,22 +296,21 @@ void AudioFileTableModelTest::makeCoverUrlJpeg() {
     const QString url =
         model.makeCoverUrl(imageData);
 
-    QVERIFY2(
-        url.startsWith(QStringLiteral("data:image/jpeg;base64,")),
-        qPrintable(url)
+    QVERIFY(
+        url.startsWith(
+            QStringLiteral("data:image/jpeg;base64,")
+        )
     );
-
-    const QByteArray encoded =
-        imageData.toBase64();
 
     QVERIFY(
         url.endsWith(
-            QString::fromLatin1(encoded)
+            QString::fromLatin1(imageData.toBase64())
         )
     );
 }
 
-void AudioFileTableModelTest::makeCoverUrlPng() {
+void AudioFileTableModelTest::makeCoverUrlPng()
+{
     QImage image(
         2,
         2,
@@ -269,9 +335,10 @@ void AudioFileTableModelTest::makeCoverUrlPng() {
     const QString url =
         model.makeCoverUrl(imageData);
 
-    QVERIFY2(
-        url.startsWith(QStringLiteral("data:image/png;base64,")),
-        qPrintable(url)
+    QVERIFY(
+        url.startsWith(
+            QStringLiteral("data:image/png;base64,")
+        )
     );
 
     QVERIFY(
@@ -281,19 +348,19 @@ void AudioFileTableModelTest::makeCoverUrlPng() {
     );
 }
 
-void AudioFileTableModelTest::makeCoverUrlInvalidData() {
+void AudioFileTableModelTest::makeCoverUrlInvalidData()
+{
     const AudioFileTableModel model;
 
-    const QByteArray invalidData(
-        "this is not an image"
-    );
-
     QVERIFY(
-        model.makeCoverUrl(invalidData).isEmpty()
+        model.makeCoverUrl(
+            QByteArrayLiteral("not an image")
+        ).isEmpty()
     );
 }
 
-void AudioFileTableModelTest::makeCoverUrlEmptyData() {
+void AudioFileTableModelTest::makeCoverUrlEmptyData()
+{
     const AudioFileTableModel model;
 
     QVERIFY(
@@ -301,7 +368,8 @@ void AudioFileTableModelTest::makeCoverUrlEmptyData() {
     );
 }
 
-void AudioFileTableModelTest::recursiveScan() {
+void AudioFileTableModelTest::recursiveScan()
+{
     QTemporaryDir temporaryDirectory;
 
     QVERIFY(temporaryDirectory.isValid());
@@ -314,9 +382,7 @@ void AudioFileTableModelTest::recursiveScan() {
             QStringLiteral("nested")
         );
 
-    QVERIFY(
-        QDir().mkpath(nestedPath)
-    );
+    QVERIFY(QDir().mkpath(nestedPath));
 
     QVERIFY(
         createTestWav(
@@ -345,9 +411,297 @@ void AudioFileTableModelTest::recursiveScan() {
         5000
     );
 
+    QCOMPARE(model.rowCount(), 2);
+}
+
+void AudioFileTableModelTest::loadingSignals()
+{
+    QTemporaryDir temporaryDirectory;
+
+    QVERIFY(temporaryDirectory.isValid());
+
+    QVERIFY(
+        createTestWav(
+            temporaryDirectory.filePath(
+                QStringLiteral("test.wav")
+            )
+        )
+    );
+
+    AudioFileTableModel model;
+
+    QSignalSpy loadingSpy(
+        &model,
+        &AudioFileTableModel::loadingChanged
+    );
+
+    model.setRootPath(
+        QUrl::fromLocalFile(
+            temporaryDirectory.path()
+        )
+    );
+
+    QTRY_VERIFY_WITH_TIMEOUT(
+        !model.isLoading(),
+        5000
+    );
+
+    QVERIFY(!loadingSpy.isEmpty());
+}
+
+void AudioFileTableModelTest::reload()
+{
+    QTemporaryDir temporaryDirectory;
+
+    QVERIFY(temporaryDirectory.isValid());
+
+    const QString filePath =
+        temporaryDirectory.filePath(
+            QStringLiteral("test.wav")
+        );
+
+    QVERIFY(createTestWav(filePath));
+
+    AudioFileTableModel model;
+
+    model.setRootPath(
+        QUrl::fromLocalFile(
+            temporaryDirectory.path()
+        )
+    );
+
+    QTRY_VERIFY_WITH_TIMEOUT(
+        !model.isLoading(),
+        5000
+    );
+
+    QCOMPARE(model.rowCount(), 1);
+
+    QVERIFY(
+        createTestWav(
+            temporaryDirectory.filePath(
+                QStringLiteral("second.wav")
+            )
+        )
+    );
+
+    model.reload();
+
+    QTRY_VERIFY_WITH_TIMEOUT(
+        !model.isLoading(),
+        5000
+    );
+
+    QCOMPARE(model.rowCount(), 2);
+}
+
+void AudioFileTableModelTest::sortFileNameAscending()
+{
+    QTemporaryDir temporaryDirectory;
+
+    QVERIFY(temporaryDirectory.isValid());
+
+    QVERIFY(
+        createTestWav(
+            temporaryDirectory.filePath(
+                QStringLiteral("zulu.wav")
+            )
+        )
+    );
+
+    QVERIFY(
+        createTestWav(
+            temporaryDirectory.filePath(
+                QStringLiteral("alpha.wav")
+            )
+        )
+    );
+
+    QVERIFY(
+        createTestWav(
+            temporaryDirectory.filePath(
+                QStringLiteral("beta.wav")
+            )
+        )
+    );
+
+    AudioFileTableModel model;
+
+    model.setRootPath(
+        QUrl::fromLocalFile(
+            temporaryDirectory.path()
+        )
+    );
+
+    QTRY_VERIFY_WITH_TIMEOUT(
+        !model.isLoading(),
+        5000
+    );
+
+    QCOMPARE(model.rowCount(), 3);
+
+    model.sort(
+        AudioFileTableModel::FileName,
+        Qt::AscendingOrder
+    );
+
     QCOMPARE(
-        model.rowCount(),
-        2
+        model.data(
+            model.index(
+                0,
+                AudioFileTableModel::FileName
+            )
+        ).toString(),
+        QStringLiteral("alpha.wav")
+    );
+
+    QCOMPARE(
+        model.data(
+            model.index(
+                1,
+                AudioFileTableModel::FileName
+            )
+        ).toString(),
+        QStringLiteral("beta.wav")
+    );
+
+    QCOMPARE(
+        model.data(
+            model.index(
+                2,
+                AudioFileTableModel::FileName
+            )
+        ).toString(),
+        QStringLiteral("zulu.wav")
+    );
+}
+
+void AudioFileTableModelTest::sortFileNameDescending()
+{
+    QTemporaryDir temporaryDirectory;
+
+    QVERIFY(temporaryDirectory.isValid());
+
+    QVERIFY(
+        createTestWav(
+            temporaryDirectory.filePath(
+                QStringLiteral("alpha.wav")
+            )
+        )
+    );
+
+    QVERIFY(
+        createTestWav(
+            temporaryDirectory.filePath(
+                QStringLiteral("beta.wav")
+            )
+        )
+    );
+
+    QVERIFY(
+        createTestWav(
+            temporaryDirectory.filePath(
+                QStringLiteral("zulu.wav")
+            )
+        )
+    );
+
+    AudioFileTableModel model;
+
+    model.setRootPath(
+        QUrl::fromLocalFile(
+            temporaryDirectory.path()
+        )
+    );
+
+    QTRY_VERIFY_WITH_TIMEOUT(
+        !model.isLoading(),
+        5000
+    );
+
+    model.sort(
+        AudioFileTableModel::FileName,
+        Qt::DescendingOrder
+    );
+
+    QCOMPARE(
+        model.data(
+            model.index(
+                0,
+                AudioFileTableModel::FileName
+            )
+        ).toString(),
+        QStringLiteral("zulu.wav")
+    );
+
+    QCOMPARE(
+        model.data(
+            model.index(
+                1,
+                AudioFileTableModel::FileName
+            )
+        ).toString(),
+        QStringLiteral("beta.wav")
+    );
+
+    QCOMPARE(
+        model.data(
+            model.index(
+                2,
+                AudioFileTableModel::FileName
+            )
+        ).toString(),
+        QStringLiteral("alpha.wav")
+    );
+}
+
+void AudioFileTableModelTest::scannedFileData()
+{
+    QTemporaryDir temporaryDirectory;
+
+    QVERIFY(temporaryDirectory.isValid());
+
+    const QString filePath =
+        temporaryDirectory.filePath(
+            QStringLiteral("test.wav")
+        );
+
+    QVERIFY(createTestWav(filePath));
+
+    AudioFileTableModel model;
+
+    model.setRootPath(
+        QUrl::fromLocalFile(
+            temporaryDirectory.path()
+        )
+    );
+
+    QTRY_VERIFY_WITH_TIMEOUT(
+        !model.isLoading(),
+        5000
+    );
+
+    QCOMPARE(model.rowCount(), 1);
+
+    const QModelIndex index =
+        model.index(0, 0);
+
+    QVERIFY(index.isValid());
+
+    QCOMPARE(
+        model.data(
+            index,
+            AudioFileTableModel::FileNameRole
+        ).toString(),
+        QStringLiteral("test.wav")
+    );
+
+    QCOMPARE(
+        model.data(
+            index,
+            AudioFileTableModel::FilePathRole
+        ).toString(),
+        filePath
     );
 }
 

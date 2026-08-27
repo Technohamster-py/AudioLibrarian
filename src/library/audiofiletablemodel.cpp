@@ -157,6 +157,10 @@ QHash<int, QByteArray> AudioFileTableModel::roleNames() const {
     };
 }
 
+QString AudioFileTableModel::roleName(const int role) const {
+    return QString::fromLatin1(roleNames().value(role));
+}
+
 QVariant AudioFileTableModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (role != Qt:: DisplayRole) return {};
     if (orientation != Qt::Horizontal) return section + 1;
@@ -334,5 +338,3 @@ void AudioFileTableModel::setLoading(const bool loading) {
     m_loading = loading;
     emit loadingChanged();
 }
-
-

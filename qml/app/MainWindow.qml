@@ -77,6 +77,7 @@ ApplicationWindow {
 
     PlayerController{
         id: playerController
+        objectName: "playerController"
     }
 
     RowLayout {
