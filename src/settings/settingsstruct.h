@@ -30,6 +30,11 @@ struct Settings {
     };
     AppState appState; ///< Hidden from user
 
+    struct PlayerState {
+        const QString volume = "player/volume";
+    };
+    PlayerState playerState;
+
     struct General {
         SettingsEntry language{
             QObject::tr("Language"),
@@ -47,4 +52,6 @@ struct Settings {
         };
     };
     General general;
+
+
 };

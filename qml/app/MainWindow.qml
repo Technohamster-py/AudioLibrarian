@@ -44,7 +44,7 @@ ApplicationWindow {
     property string selectedFilePath: ""
 
     onClosing: {
-        SettingsManager.saveApplicationState(width, height, x, y, navigationLayout.width, activeSection)
+        SettingsManager.saveApplicationState(width, height, x, y, navigationLayout.width, activeSection, playerBar.volume)
     }
 
     /**
@@ -169,6 +169,7 @@ ApplicationWindow {
                 }
 
                 PlayerBar {
+                    id: playerBar
                     objectName: "playerBar"
 
                     Layout.fillWidth: true

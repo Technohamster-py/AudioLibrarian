@@ -78,6 +78,10 @@ class SettingsManager : public QObject{
     Q_PROPERTY(QString baseDir
                READ baseDir
                NOTIFY baseDirChanged)
+
+    Q_PROPERTY(double volume
+                READ volume
+                NOTIFY volumeChanged)
 public:
     explicit SettingsManager(QObject *parent = nullptr);
     ~SettingsManager() = default;
@@ -88,6 +92,7 @@ public:
     int windowY() const {return m_settings.value(m_settingsStruct.appState.windowY, 0).toInt();};
     double navigationWidth() const {return m_settings.value(m_settingsStruct.appState.navigationWidth, 500.0).toDouble();};
     QString activeSection() const {return m_settings.value(m_settingsStruct.appState.activeSection, QStringLiteral("files")).toString();};
+    double volume() const {return m_settings.value(m_settingsStruct.playerState.volume, 1.0).toDouble();};
 
     QString language() const {return m_language;};
     Q_INVOKABLE void setLanguage(const QString &value);
@@ -116,7 +121,9 @@ public:
         int windowHeight,
         int windowX,
         int windowY,
-        double navigationWidth, const QString &activeSection);
+        double navigationWidth, const QString &activeSection,
+        double volume
+        );
 
 signals:
     void windowWidthChanged(int value);
@@ -128,6 +135,7 @@ signals:
     void languageChanged(const QString &value);
     void themeChanged(const QString &value);
     void baseDirChanged(const QString &value);
+    void volumeChanged(double value);
 
 private:
     SettingsManager(const SettingsManager &) = delete;

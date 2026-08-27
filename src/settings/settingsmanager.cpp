@@ -43,13 +43,16 @@ void SettingsManager::setBaseDir(const QString &value)
     emit baseDirChanged(m_baseDir);
 }
 
-void SettingsManager::saveApplicationState(int windowWidth, int windowHeight, int windowX, int windowY, double navigationWidth, const QString &activeSection) {
+void SettingsManager::saveApplicationState(int windowWidth, int windowHeight, int windowX, int windowY, double navigationWidth, const QString &activeSection, double volume) {
     m_settings.setValue(m_settingsStruct.appState.windowWidth, windowWidth);
     m_settings.setValue(m_settingsStruct.appState.windowHeight, windowHeight);
     m_settings.setValue(m_settingsStruct.appState.windowX, windowX);
     m_settings.setValue(m_settingsStruct.appState.windowY, windowY);
     m_settings.setValue(m_settingsStruct.appState.navigationWidth, navigationWidth);
     m_settings.setValue(m_settingsStruct.appState.activeSection, activeSection);
+
+    volume = std::clamp(volume, 0.0, 1.0);
+    m_settings.setValue(m_settingsStruct.playerState.volume, volume);
 
     m_settings.sync();
 }
