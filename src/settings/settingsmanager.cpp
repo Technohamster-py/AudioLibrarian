@@ -4,10 +4,17 @@
 
 #include "settingsstruct.h"
 
+#include <algorithm>
+
 SettingsManager::SettingsManager(QObject *parent) : QObject(parent), m_settings() {
     m_language = m_settings.value(m_settingsStruct.general.language.key,QStringLiteral("system")).toString();
     m_theme = m_settings.value(m_settingsStruct.general.theme.key,QStringLiteral("dark")).toString();
     m_baseDir = m_settings.value(m_settingsStruct.general.baseDir.key, QStandardPaths::writableLocation(QStandardPaths::MusicLocation)).toString();
+}
+
+double SettingsManager::volume() const {
+    const double value = m_settings.value(m_settingsStruct.playerState.volume, 1.0).toDouble();
+    return std::clamp(value, 0.0, 100.0);
 }
 
 /**
@@ -51,7 +58,7 @@ void SettingsManager::saveApplicationState(int windowWidth, int windowHeight, in
     m_settings.setValue(m_settingsStruct.appState.navigationWidth, navigationWidth);
     m_settings.setValue(m_settingsStruct.appState.activeSection, activeSection);
 
-    volume = std::clamp(volume, 0.0, 1.0);
+    volume = std::clamp(volume, 0.0, 100.0);
     m_settings.setValue(m_settingsStruct.playerState.volume, volume);
 
     m_settings.sync();

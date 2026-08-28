@@ -92,7 +92,7 @@ public:
     int windowY() const {return m_settings.value(m_settingsStruct.appState.windowY, 0).toInt();};
     double navigationWidth() const {return m_settings.value(m_settingsStruct.appState.navigationWidth, 500.0).toDouble();};
     QString activeSection() const {return m_settings.value(m_settingsStruct.appState.activeSection, QStringLiteral("files")).toString();};
-    double volume() const {return m_settings.value(m_settingsStruct.playerState.volume, 1.0).toDouble();};
+    double volume() const;
 
     QString language() const {return m_language;};
     Q_INVOKABLE void setLanguage(const QString &value);

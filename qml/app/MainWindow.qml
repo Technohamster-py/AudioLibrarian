@@ -44,7 +44,7 @@ ApplicationWindow {
     property string selectedFilePath: ""
 
     onClosing: {
-        SettingsManager.saveApplicationState(width, height, x, y, navigationLayout.width, activeSection, playerBar.volume)
+        SettingsManager.saveApplicationState(width, height, x, y, navigationLayout.width, activeSection, playerController.volume)
     }
 
     /**
@@ -78,6 +78,8 @@ ApplicationWindow {
     PlayerController{
         id: playerController
         objectName: "playerController"
+
+        volume: SettingsManager.volume
     }
 
     RowLayout {

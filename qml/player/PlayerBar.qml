@@ -13,8 +13,6 @@ Item {
     id: root
 
     required property PlayerController player
-    readonly property int volume: volumeSlider.value
-
     /**
      * @brief Formats milliseconds as MM:SS or HH:MM:SS.
      *
