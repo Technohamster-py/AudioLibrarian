@@ -81,6 +81,8 @@ bool TagEditorModel::setData(const QModelIndex &index, const QVariant &value, in
     if (!index.isValid())
         return false;
 
+    qDebug() << "setData" << index.row() << value.toString();
+
     if (index.row() < 0 || index.row() >= m_entries.size())
         return false;
 

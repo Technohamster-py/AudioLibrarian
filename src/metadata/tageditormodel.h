@@ -108,7 +108,7 @@ public:
      * @param role Data role. Qt::EditRole is supported.
      * @return true if the value was changed.
      */
-    bool setData(const QModelIndex &index,const QVariant &value,int role = Qt::EditRole) override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     /**
      * @brief Saves the current metadata to the selected file.

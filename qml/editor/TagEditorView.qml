@@ -158,12 +158,10 @@ Item {
                             }
 
                             onTextChanged: {
-                                if (!activeFocus)
+                                if (activeFocus)
+                                    tagModel.setData(tagModel.index(tagDelegate.index, 0), text, Qt.EditRole)
+                                else
                                     text = value
-                            }
-
-                            onEditingFinished: {
-                                tagModel.setData(tagModel.index(tagDelegate.index, 0), text, Qt.EditRole)
                             }
                         }
 
@@ -207,12 +205,10 @@ Item {
                                 }
 
                                 onTextChanged: {
-                                    if (!activeFocus)
+                                    if (activeFocus)
+                                        tagModel.setData(tagModel.index(tagDelegate.index, 0), text, Qt.EditRole)
+                                    else
                                         text = value
-                                }
-
-                                onEditingFinished: {
-                                    tagModel.setData(tagModel.index(tagDelegate.index, 0), text, Qt.EditRole)
                                 }
                             }
                         }
