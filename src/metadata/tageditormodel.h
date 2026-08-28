@@ -47,7 +47,8 @@ public:
         ValueRole,
         DisplayNameRole,
         IsLyricsRole,
-        IsEditableRole
+        IsEditableRole,
+        IndexRole
     };
 
     Q_ENUM(Role)
@@ -128,6 +129,8 @@ public:
      */
     Q_INVOKABLE bool discardChanges();
 
+    Q_INVOKABLE bool setValue(int row, const QString &value);
+
     /**
      * @brief Returns role names exposed to QML.
      */
@@ -150,6 +153,8 @@ signals:
      * @param message Human-readable error description.
      */
     void errorOccurred(const QString &message);
+
+    void metadataSaved(const QString &filePath);
 
 private:
     /**

@@ -204,6 +204,39 @@ void AudioFileTableModel::sort(const int column, const Qt::SortOrder order) {
     endResetModel();
 }
 
+bool AudioFileTableModel::reloadFile(const QString &filePath) {
+    if (filePath.isEmpty())
+        return false;
+
+    const auto iterator = std::find_if(m_files.begin(), m_files.end(), [&filePath](const AudioFileRecord &record) {return record.filePath == filePath;});
+
+    if (iterator == m_files.end())
+        return false;
+
+    const int row = std::distance(m_files.begin(), iterator);
+
+    TagLibMetadataBackend backend;
+
+    const auto fileInfo = backend.readFile(filePath);
+    m_files[row].fileInfo = *fileInfo;
+
+    const QModelIndex first = index(row, 0);
+    const QModelIndex last = index(row, ColumnCount - 1);
+    emit dataChanged(first, last, {FilePathRole,
+                                                                CoverRole,
+                                                                FileNameRole,
+                                                                TitleRole,
+                                                                ArtistRole,
+                                                                AlbumRole,
+                                                                YearRole,
+                                                                DurationRole,
+                                                                GenreRole,
+                                                                HasLyricsRole,
+                                                                Qt::DisplayRole}
+    );
+
+    return true;
+}
 
 
 void AudioFileTableModel::handleScanFinished() {

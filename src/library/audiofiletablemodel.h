@@ -168,6 +168,8 @@ public:
      */
     Q_INVOKABLE void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
+    Q_INVOKABLE bool reloadFile(const QString &filePath);
+
 signals:
     /**
     * @brief Emitted when rootPath changes.

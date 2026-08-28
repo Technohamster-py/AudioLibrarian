@@ -60,6 +60,7 @@ QVariant TagEditorModel::data(const QModelIndex &index, int role) const {
         case DisplayNameRole: return displayNameForKey(entry.key);
         case IsLyricsRole: return isLyricsKey(entry.key);
         case IsEditableRole: return isKeyEditable(entry.key);
+        case IndexRole: return index.row();
         default: return {};
     }
 }
@@ -125,6 +126,7 @@ bool TagEditorModel::save() {
     }
 
     setDirty(false);
+    emit metadataSaved(m_filePath);
     return true;
 }
 
@@ -146,6 +148,12 @@ bool TagEditorModel::discardChanges() {
     return true;
 }
 
+bool TagEditorModel::setValue(int row, const QString &value) {
+    if (row < 0 || row >= m_entries.size()) return false;
+
+    return setData(index(row, 0), value, Qt::EditRole);
+}
+
 void TagEditorModel::setDirty(const bool dirty) {
     if (m_dirty == dirty)
         return;
@@ -160,7 +168,8 @@ QHash<int, QByteArray> TagEditorModel::roleNames() const {
         {ValuesRole, "values"},
         {DisplayNameRole, "displayName"},
         {IsLyricsRole, "isLyrics"},
-        {IsEditableRole, "isEditable"}
+        {IsEditableRole, "isEditable"},
+        {IndexRole, "modelIndex"}
     };
 }
 

@@ -77,8 +77,7 @@ Item {
                     required property string displayName
                     required property bool isLyrics
                     required property bool isEditable
-
-                    readonly property string delegateValue: value
+                    required property int modelIndex
 
                     width: tagList.width
 
@@ -159,7 +158,7 @@ Item {
 
                             onTextChanged: {
                                 if (activeFocus)
-                                    tagModel.setData(tagModel.index(tagDelegate.index, 0), text, Qt.EditRole)
+                                    tagModel.setValue(tagDelegate.modelIndex, text)
                                 else
                                     text = value
                             }
@@ -206,7 +205,7 @@ Item {
 
                                 onTextChanged: {
                                     if (activeFocus)
-                                        tagModel.setData(tagModel.index(tagDelegate.index, 0), text, Qt.EditRole)
+                                        tagModel.setValue(tagDelegate.modelIndex, text)
                                     else
                                         text = value
                                 }
