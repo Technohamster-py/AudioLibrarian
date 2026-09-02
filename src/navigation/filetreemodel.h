@@ -43,7 +43,7 @@ public:
      * @brief Custom roles exposed to QML.
      */
     enum Roles {
-        FilePathRole = Qt::UserRole + 1,
+        FilePathRole = Qt::UserRole + 100,
         FileNameRole,
         TitleRole,
         ArtistRole,

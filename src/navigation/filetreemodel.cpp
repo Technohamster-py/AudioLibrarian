@@ -119,7 +119,9 @@ QVariant FileTreeModel::data(const QModelIndex &index, const int role) const {
             return QFileSystemModel::filePath(index);
 
         case FileNameRole:
-            return QFileSystemModel::fileName(index);
+            // QFileSystemModel::fileName() delegates to data(). Calling it
+            // from this override would recurse indefinitely for this role.
+            return QFileInfo(QFileSystemModel::filePath(index)).fileName();
 
         case TitleRole:
         case ArtistRole:
@@ -134,15 +136,15 @@ QVariant FileTreeModel::data(const QModelIndex &index, const int role) const {
     }
 
 
-    if (QFileSystemModel::isDir(index)) return {};
+    if (QFileSystemModel::isDir(index))return role == HasLyricsRole ? QVariant(false) : QVariant(QString());
 
     const QString path = QFileSystemModel::filePath(index);
 
-    if (path.isEmpty()) return {};
+    if (path.isEmpty()) return role == HasLyricsRole ? QVariant(false) : QVariant(QString());
 
     const auto iterator = m_metadataCache.constFind(path);
 
-    if (iterator == m_metadataCache.constEnd()) return {};
+    if (iterator == m_metadataCache.constEnd()) return role == HasLyricsRole ? QVariant(false) : QVariant(QString());
 
     const AudioFileInfo &fileInfo = iterator.value();
 
