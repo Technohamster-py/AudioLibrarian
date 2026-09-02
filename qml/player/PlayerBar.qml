@@ -210,9 +210,18 @@ Item {
                         from: 0
                         to: root.player.duration
 
-                        value: root.player.position
+                        // value: root.player.position
 
-                        onMoved: root.player.position = value
+                        value: pressed ? value : root.player.position
+
+                        onPressedChanged: {
+                            if (!pressed) {
+                                /*
+                                 * Perform exactly one seek after the user releases the slider.
+                                 */
+                                root.player.position = value
+                            }
+                        }
                     }
 
                     Label {
