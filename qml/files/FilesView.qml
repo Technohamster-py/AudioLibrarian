@@ -2,12 +2,7 @@ import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
 
-/**
- * @brief Hierarchical filesystem navigation.
- *
- * Displays the configured music directory and allows selecting
- * individual audio files.
- */
+
 Item {
     id: root
 
@@ -37,6 +32,7 @@ Item {
         treeView.currentIndex = fileIndex
     }
 
+
     Connections {
         target: fileModel
 
@@ -53,11 +49,6 @@ Item {
 
         objectName: "fileTreeModel"
 
-        /*
-         * SettingsManager is the authoritative source for the library
-         * directory. This also makes changing the directory in Settings
-         * immediately update the tree.
-         */
         rootPath: SettingsManager.baseDir
     }
 
@@ -74,16 +65,7 @@ Item {
         model: fileModel
 
         columnWidthProvider: function(column) {
-            switch (column) {
-                case 0: return 260   // Название
-                case 1: return 180   // Исполнитель
-                case 2: return 220   // Альбом
-                case 3: return 80    // Год
-                case 4: return 100   // Продолжительность
-                case 5: return 140   // Жанр
-                case 6: return 70    // Слова
-                default: return 0
-            }
+            return column === 0 ? 1 : 0
         }
 
         rowHeightProvider: function(row) {
@@ -93,33 +75,161 @@ Item {
         delegate: TreeViewDelegate {
             id: delegate
 
+            implicitHeight: 32
+
             background: Rectangle {
                 color: delegate.current ? AppColors.playerBackground : (delegate.row % 2 === 0 ? AppColors.surface : AppColors.surfaceElevated)
             }
+            contentItem: RowLayout {
+                spacing: 0
 
-            implicitHeight: 32
+                Label {
+                    Layout.preferredWidth: 260
+                    Layout.fillHeight: true
+
+                    verticalAlignment: Text.AlignVCenter
+
+                    text: model.fileName
+
+                    elide: Text.ElideRight
+
+                    color: AppColors.textPrimary
+                }
+
+                Label {
+                    Layout.preferredWidth: 100
+                    Layout.fillHeight: true
+
+                    verticalAlignment: Text.AlignVCenter
+
+                    text: fileModel.isDirectory(treeView.index(delegate.row, 0)) ? "" : formatFileSize(model.fileSize)
+
+                    elide: Text.ElideRight
+
+                    color: AppColors.textSecondary
+                }
+
+                Label {
+                    Layout.preferredWidth: 180
+                    Layout.fillHeight: true
+
+                    verticalAlignment: Text.AlignVCenter
+
+                    text: model.artist
+
+                    elide: Text.ElideRight
+
+                    color: AppColors.textPrimary
+                }
+
+                Label {
+                    Layout.preferredWidth: 220
+                    Layout.fillHeight: true
+
+                    verticalAlignment: Text.AlignVCenter
+
+                    text: model.album
+
+                    elide: Text.ElideRight
+
+                    color: AppColors.textPrimary
+                }
+
+                Label {
+                    Layout.preferredWidth: 80
+                    Layout.fillHeight: true
+
+                    verticalAlignment: Text.AlignVCenter
+
+                    text: model.year
+
+                    elide: Text.ElideRight
+
+                    color: AppColors.textSecondary
+                }
+
+                Label {
+                    Layout.preferredWidth: 100
+                    Layout.fillHeight: true
+
+                    verticalAlignment: Text.AlignVCenter
+
+                    text: model.duration
+
+                    elide: Text.ElideRight
+
+                    color: AppColors.textSecondary
+                }
+
+                Label {
+                    Layout.preferredWidth: 140
+                    Layout.fillHeight: true
+
+                    verticalAlignment: Text.AlignVCenter
+
+                    text: model.genre
+
+                    elide: Text.ElideRight
+
+                    color: AppColors.textPrimary
+                }
+
+                Label {
+                    Layout.preferredWidth: 70
+                    Layout.fillHeight: true
+
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+
+                    text: model.hasLyrics ? "✓" : ""
+
+                    color: AppColors.textSecondary
+                }
+            }
 
             onClicked: {
-                const modelIndex = treeView.index(row, column)
+                const modelIndex = treeView.index(row, 0)
 
-                if (!modelIndex.valid)
-                    return
+                if (!modelIndex.valid) return
 
-                /*
-                 * Directories are navigation elements and must not be
-                 * interpreted as audio files.
-                 */
-                if (fileModel.isDirectory(modelIndex))
-                    return
+                if (fileModel.isDirectory(modelIndex)) return
 
                 const path = fileModel.filePath(modelIndex)
 
-                if (path.length === 0)
-                    return
+                if (path.length === 0) return
 
+                root.currentFilePath = path
                 root.fileSelected(path)
             }
         }
+    }
+
+    /**
+     * @brief Converts a file size in bytes into a human-readable string.
+     *
+     * @param bytes File size in bytes.
+     * @return Formatted file size.
+     */
+    function formatFileSize(bytes) {
+        if (bytes <= 0)
+            return ""
+
+        if (bytes < 1024)
+            return qsTr("%1 B").arg(bytes)
+
+        if (bytes < 1024 * 1024)
+            return qsTr("%1 KB").arg(
+                        (bytes / 1024).toFixed(1)
+                    )
+
+        if (bytes < 1024 * 1024 * 1024)
+            return qsTr("%1 MB").arg(
+                        (bytes / (1024 * 1024)).toFixed(1)
+                    )
+
+        return qsTr("%1 GB").arg(
+                    (bytes / (1024 * 1024 * 1024)).toFixed(1)
+                )
     }
 
     /*
@@ -163,8 +273,7 @@ Item {
         target: SettingsManager
 
         function onBaseDirChanged() {
-            fileModel.rootPath =
-                SettingsManager.baseDir
+            fileModel.rootPath = SettingsManager.baseDir
         }
     }
 }
