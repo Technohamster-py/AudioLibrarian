@@ -200,21 +200,6 @@ private:
     static QVector<AudioFileRecord> scanDirectory(const QString &path);
 
     /**
-     * @brief Formats duration as MM:SS or H:MM:SS.
-     */
-    static QString formatDuration(int seconds);
-
-    /**
-     * @brief Extracts a four-digit year from a metadata date.
-     */
-    static QString extractYear(const QString &date);
-
-    /**
-     * @brief Checks whether embedded lyrics are present.
-     */
-    static bool hasLyrics(const AudioMetadata &metadata);
-
-    /**
      * @brief Compares two records according to a logical column.
      */
     static bool lessThan(const AudioFileRecord &left, const AudioFileRecord &right, int column);

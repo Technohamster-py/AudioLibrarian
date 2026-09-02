@@ -135,6 +135,8 @@ ApplicationWindow {
 
                         objectName: "filesView"
 
+                        currentFilePath: root.selectedFilePath
+
                         onFileSelected: function(filePath) {
                             root.selectedFilePath = filePath
                             playerController.setFilePath(filePath)
