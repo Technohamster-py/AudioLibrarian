@@ -8,6 +8,38 @@ Item {
 
     property string currentFilePath: ""
 
+    readonly property int nameColumnWidth: 260
+    readonly property int sizeColumnWidth: 100
+    readonly property int artistColumnWidth: 180
+    readonly property int albumColumnWidth: 220
+    readonly property int yearColumnWidth: 80
+    readonly property int durationColumnWidth: 100
+    readonly property int genreColumnWidth: 140
+    readonly property int lyricsColumnWidth: 70
+
+    readonly property int contentWidth:
+        nameColumnWidth
+        + sizeColumnWidth
+        + artistColumnWidth
+        + albumColumnWidth
+        + yearColumnWidth
+        + durationColumnWidth
+        + genreColumnWidth
+        + lyricsColumnWidth
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024)
+            return bytes + " B"
+
+        if (bytes < 1024 * 1024)
+            return (bytes / 1024).toFixed(1) + " KB"
+
+        if (bytes < 1024 * 1024 * 1024)
+            return (bytes / (1024 * 1024)).toFixed(1) + " MB"
+
+        return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB"
+    }
+
     function revealFile(filePath) {
         if (filePath.length === 0)
             return
@@ -17,19 +49,68 @@ Item {
         if (!fileIndex.valid)
             return
 
+        const rootIndex = fileModel.rootIndex
+
+        if (rootIndex.valid) {
+            let parentIndex = fileIndex.parent()
+            let belongsToRoot = fileIndex === rootIndex
+
+            while (parentIndex.valid) {
+                if (parentIndex === rootIndex) {
+                    belongsToRoot = true
+                    break
+                }
+
+                parentIndex = parentIndex.parent()
+            }
+
+            if (!belongsToRoot)
+                return
+        }
+
         const parents = []
 
         let parentIndex = fileIndex.parent()
 
         while (parentIndex.valid) {
             parents.push(parentIndex)
+
+            if (rootIndex.valid && parentIndex === rootIndex)
+                break
+
             parentIndex = parentIndex.parent()
         }
 
-        for (let i = parents.length - 1; i >= 0; --i)
-            treeView.expand(parents[i])
+        for (let i = parents.length - 1; i >= 0; --i) {
+            if (!rootIndex.valid || parents[i] !== rootIndex)
+                treeView.expand(parents[i])
+        }
 
-        treeView.currentIndex = fileIndex
+        treeView.currentColumn = 0
+        treeView.currentRow = treeView.rowAtIndex(fileIndex)
+    }
+
+    function processCurrentIndex(index) {
+        if (!index.valid) return
+
+        if (fileModel.isDirectory(index)) return
+
+        const path = fileModel.filePath(index)
+
+        if (path.length === 0) return
+
+        root.fileSelected(path)
+    }
+
+    signal fileSelected(string filePath)
+
+
+    FileTreeModel {
+        id: fileModel
+
+        objectName: "fileTreeModel"
+
+        rootPath: SettingsManager.baseDir
     }
 
 
@@ -40,16 +121,10 @@ Item {
             if (!fileModel.loading && root.currentFilePath.length > 0)
                 root.revealFile(root.currentFilePath)
         }
-    }
 
-    signal fileSelected(string filePath)
-
-    FileTreeModel {
-        id: fileModel
-
-        objectName: "fileTreeModel"
-
-        rootPath: SettingsManager.baseDir
+        function onRootPathChanged() {
+            treeView.rootIndex = fileModel.rootIndex
+        }
     }
 
     TreeView {
@@ -64,180 +139,192 @@ Item {
 
         model: fileModel
 
+        rootIndex: fileModel.rootIndex
+
         columnWidthProvider: function(column) {
-            return column === 0 ? 1 : 0
+            return column === 0 ? root.contentWidth : 0
         }
 
         rowHeightProvider: function(row) {
             return 32
         }
 
+        onCurrentRowChanged: {
+            if (currentRow < 0)
+                return
+
+            root.processCurrentIndex(treeView.index(currentRow, 0))
+        }
+
         delegate: TreeViewDelegate {
             id: delegate
 
             implicitHeight: 32
+            implicitWidth: root.contentWidth
 
             background: Rectangle {
-                color: delegate.current ? AppColors.playerBackground : (delegate.row % 2 === 0 ? AppColors.surface : AppColors.surfaceElevated)
+                color: delegate.current
+                       ? AppColors.playerBackground
+                       : (delegate.row % 2 === 0
+                          ? AppColors.surface
+                          : AppColors.surfaceElevated)
             }
-            contentItem: RowLayout {
+
+            contentItem: Row {
+                id: metadataRow
+
                 spacing: 0
 
                 Label {
-                    Layout.preferredWidth: 260
-                    Layout.fillHeight: true
+                    width: root.nameColumnWidth
 
-                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
 
                     text: model.fileName
 
-                    elide: Text.ElideRight
-
                     color: AppColors.textPrimary
-                }
 
-                Label {
-                    Layout.preferredWidth: 100
-                    Layout.fillHeight: true
+                    elide: Text.ElideRight
 
                     verticalAlignment: Text.AlignVCenter
+                }
 
-                    text: fileModel.isDirectory(treeView.index(delegate.row, 0)) ? "" : formatFileSize(model.fileSize)
+                /*
+                 * File size.
+                 *
+                 * QFileSystemModel provides the standard fileSize role.
+                 * Directories do not have a meaningful audio-file size here.
+                 */
+                Label {
+                    width: root.sizeColumnWidth
 
-                    elide: Text.ElideRight
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    text: fileModel.isDirectory(treeView.index(row, 0))
+                          ? ""
+                          : root.formatFileSize(model.fileSize)
 
                     color: AppColors.textSecondary
-                }
 
-                Label {
-                    Layout.preferredWidth: 180
-                    Layout.fillHeight: true
+                    elide: Text.ElideRight
 
                     verticalAlignment: Text.AlignVCenter
+                }
+
+                /*
+                 * Artist.
+                 */
+                Label {
+                    width: root.artistColumnWidth
+
+                    anchors.verticalCenter: parent.verticalCenter
 
                     text: model.artist
 
+                    color: AppColors.textPrimary
+
                     elide: Text.ElideRight
 
-                    color: AppColors.textPrimary
+                    verticalAlignment: Text.AlignVCenter
                 }
 
+                /*
+                 * Album.
+                 */
                 Label {
-                    Layout.preferredWidth: 220
-                    Layout.fillHeight: true
+                    width: root.albumColumnWidth
 
-                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
 
                     text: model.album
 
+                    color: AppColors.textPrimary
+
                     elide: Text.ElideRight
 
-                    color: AppColors.textPrimary
+                    verticalAlignment: Text.AlignVCenter
                 }
 
+                /*
+                 * Year.
+                 */
                 Label {
-                    Layout.preferredWidth: 80
-                    Layout.fillHeight: true
+                    width: root.yearColumnWidth
 
-                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
 
                     text: model.year
 
+                    color: AppColors.textSecondary
+
                     elide: Text.ElideRight
 
-                    color: AppColors.textSecondary
+                    verticalAlignment: Text.AlignVCenter
                 }
 
+                /*
+                 * Duration.
+                 */
                 Label {
-                    Layout.preferredWidth: 100
-                    Layout.fillHeight: true
+                    width: root.durationColumnWidth
 
-                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
 
                     text: model.duration
 
+                    color: AppColors.textSecondary
+
                     elide: Text.ElideRight
 
-                    color: AppColors.textSecondary
+                    verticalAlignment: Text.AlignVCenter
                 }
 
+                /*
+                 * Genre.
+                 */
                 Label {
-                    Layout.preferredWidth: 140
-                    Layout.fillHeight: true
+                    width: root.genreColumnWidth
 
-                    verticalAlignment: Text.AlignVCenter
+                    anchors.verticalCenter: parent.verticalCenter
 
                     text: model.genre
 
+                    color: AppColors.textPrimary
+
                     elide: Text.ElideRight
 
-                    color: AppColors.textPrimary
-                }
-
-                Label {
-                    Layout.preferredWidth: 70
-                    Layout.fillHeight: true
-
-                    horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-
-                    text: model.hasLyrics ? "✓" : ""
-
-                    color: AppColors.textSecondary
                 }
-            }
 
-            onClicked: {
-                const modelIndex = treeView.index(row, 0)
+                /*
+                 * Lyrics indicator.
+                 *
+                 * A small indicator is used instead of a Unicode character.
+                 * This avoids relying on font-specific glyphs.
+                 */
+                Item {
+                    width: root.lyricsColumnWidth
+                    height: parent.height
 
-                if (!modelIndex.valid) return
+                    Rectangle {
+                        width: 8
+                        height: 8
 
-                if (fileModel.isDirectory(modelIndex)) return
+                        anchors.centerIn: parent
 
-                const path = fileModel.filePath(modelIndex)
+                        radius: width / 2
 
-                if (path.length === 0) return
+                        visible: model.hasLyrics
 
-                root.currentFilePath = path
-                root.fileSelected(path)
+                        color: AppColors.textPrimary
+                    }
+                }
             }
         }
     }
 
     /**
-     * @brief Converts a file size in bytes into a human-readable string.
-     *
-     * @param bytes File size in bytes.
-     * @return Formatted file size.
-     */
-    function formatFileSize(bytes) {
-        if (bytes <= 0)
-            return ""
-
-        if (bytes < 1024)
-            return qsTr("%1 B").arg(bytes)
-
-        if (bytes < 1024 * 1024)
-            return qsTr("%1 KB").arg(
-                        (bytes / 1024).toFixed(1)
-                    )
-
-        if (bytes < 1024 * 1024 * 1024)
-            return qsTr("%1 MB").arg(
-                        (bytes / (1024 * 1024)).toFixed(1)
-                    )
-
-        return qsTr("%1 GB").arg(
-                    (bytes / (1024 * 1024 * 1024)).toFixed(1)
-                )
-    }
-
-    /*
-     * Loading overlay.
-     *
-     * The TreeView remains underneath the overlay so the user does not
-     * perceive the navigation pane as broken or empty while the filesystem
-     * model is being populated.
+     * @brief Loading overlay displayed while QFileSystemModel loads the root.
      */
     Rectangle {
         anchors.fill: parent
@@ -269,6 +356,10 @@ Item {
         }
     }
 
+    /**
+     * @brief Updates the model root when the configured library directory
+     * changes.
+     */
     Connections {
         target: SettingsManager
 
