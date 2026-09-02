@@ -52,11 +52,16 @@ Item {
         }
 
         delegate: TreeViewDelegate {
+            id: delegate
+
+            background: Rectangle {
+                color: delegate.current ? AppColors.playerBeckground : (delegate.row % 2 === 0 ? AppColors.surface : AppColors.surfaceElevated)
+            }
+
             implicitHeight: 32
 
             onClicked: {
-                const modelIndex =
-                    treeView.index(row, column)
+                const modelIndex = treeView.index(row, column)
 
                 if (!modelIndex.valid)
                     return
@@ -68,8 +73,7 @@ Item {
                 if (fileModel.isDirectory(modelIndex))
                     return
 
-                const path =
-                    fileModel.filePath(modelIndex)
+                const path = fileModel.filePath(modelIndex)
 
                 if (path.length === 0)
                     return
