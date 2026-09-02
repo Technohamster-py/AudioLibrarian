@@ -12,6 +12,41 @@ import QtQml.Models
 Item {
     id: root
 
+    property string currentFilePath: ""
+
+    function revealFile(filePath) {
+        if (filePath.length === 0)
+            return
+
+        const fileIndex = fileModel.indexForPath(filePath)
+
+        if (!fileIndex.valid)
+            return
+
+        const parents = []
+
+        let parentIndex = fileIndex.parent()
+
+        while (parentIndex.valid) {
+            parents.push(parentIndex)
+            parentIndex = parentIndex.parent()
+        }
+
+        for (let i = parents.length - 1; i >= 0; --i)
+            treeView.expand(parents[i])
+
+        treeView.currentIndex = fileIndex
+    }
+
+    Connections {
+        target: fileModel
+
+        function onLoadingChanged() {
+            if (!fileModel.loading && root.currentFilePath.length > 0)
+                root.revealFile(root.currentFilePath)
+        }
+    }
+
     signal fileSelected(string filePath)
 
     FileTreeModel {
@@ -46,13 +81,17 @@ Item {
         model: fileModel
         selectionModel: treeSelectionModel
 
-        /*
-         * Display only the first column of QFileSystemModel.
-         */
         columnWidthProvider: function(column) {
-            return column === 0
-                ? Math.max(200, treeView.width)
-                : 0
+            switch (column) {
+                case 0: return 260   // Название
+                case 1: return 180   // Исполнитель
+                case 2: return 220   // Альбом
+                case 3: return 80    // Год
+                case 4: return 100   // Продолжительность
+                case 5: return 140   // Жанр
+                case 6: return 70    // Слова
+                default: return 0
+            }
         }
 
         rowHeightProvider: function(row) {

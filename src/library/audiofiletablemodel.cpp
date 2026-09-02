@@ -9,6 +9,7 @@
 #include <algorithm>
 
 #include "utils/datautils.h"
+#include "metadata/metadatautils.h"
 
 /**
  * @brief Creates the audio library model.
@@ -101,13 +102,13 @@ QVariant AudioFileTableModel::data(const QModelIndex &index, int role) const {
         case AlbumRole:
             return metadata.album();
         case YearRole:
-            return extractYear(metadata.date());
+            return MetadataUtils::extractYear(metadata.date());
         case DurationRole:
-            return formatDuration(record.fileInfo.durationSeconds);
+            return MetadataUtils::formatDuration(record.fileInfo.durationSeconds);
         case GenreRole:
             return metadata.genre();
         case HasLyricsRole:
-            return hasLyrics(metadata);
+            return MetadataUtils::hasLyrics(metadata);
 
         case Qt::DisplayRole:
             switch (index.column()) {
@@ -122,13 +123,13 @@ QVariant AudioFileTableModel::data(const QModelIndex &index, int role) const {
                 case Album:
                     return metadata.album();
                 case Year:
-                    return extractYear(metadata.date());
+                    return MetadataUtils::extractYear(metadata.date());
                 case Duration:
-                    return formatDuration(record.fileInfo.durationSeconds);
+                    return MetadataUtils::formatDuration(record.fileInfo.durationSeconds);
                 case Genre:
                     return metadata.genre();
                 case HasLyrics:
-                    return hasLyrics(metadata);
+                    return MetadataUtils::hasLyrics(metadata);
 
                 default:
                     return "N/A";
@@ -283,60 +284,6 @@ QVector<AudioFileRecord> AudioFileTableModel::scanDirectory(const QString &path)
     return result;
 }
 
-QString AudioFileTableModel::formatDuration(int seconds) {
-    if (seconds <= 0)
-        return QStringLiteral("00:00");
-
-    const int hours = seconds / 3600;
-    const int minutes = (seconds % 3600) / 60;
-    const int remainingSeconds = seconds % 60;
-
-    if (hours > 0)
-        return QStringLiteral("%1:%2:%3").arg(hours).arg(minutes, 2, 10, QChar('0')).arg(remainingSeconds, 2, 10, QChar('0'));
-    return QStringLiteral("%1:%2").arg(minutes, 2, 10, QChar('0')).arg(remainingSeconds, 2, 10, QChar('0'));
-}
-
-QString AudioFileTableModel::extractYear(const QString &date) {
-    if (date.size() < 4)
-        return {};
-
-    const QString year = date.left(4);
-
-    bool ok = false;
-    year.toInt(&ok);
-
-    return ok? year : QString();
-}
-
-bool AudioFileTableModel::hasLyrics(const AudioMetadata &metadata) {
-    static const QStringList lyricsKeys = {
-        QStringLiteral("LYRICS"),
-        QStringLiteral("UNSYNCEDLYRICS"),
-        QStringLiteral("UNSYNCED_LYRICS"),
-        QStringLiteral("USLT"),
-    };
-
-    for (const QString &key : lyricsKeys) {
-        const QStringList values = metadata.values(key);
-
-        for (const QString &value : values) {
-            if (!value.trimmed().isEmpty())
-                return true;
-        }
-    }
-
-    for (auto iterator = metadata.properties().cbegin(); iterator != metadata.properties().cend(); ++iterator) {
-        if (!iterator.key().contains(QStringLiteral("LYRIC"), Qt::CaseInsensitive))
-            continue;
-
-        for (const QString &value : iterator.value()) {
-            if (!value.trimmed().isEmpty())
-                return true;
-        }
-    }
-    return false;
-}
-
 bool AudioFileTableModel::lessThan(const AudioFileRecord &left, const AudioFileRecord &right, int column) {
     const AudioMetadata leftMetadata = left.fileInfo.metadata;
     const AudioMetadata rightMetadata = right.fileInfo.metadata;
@@ -353,13 +300,13 @@ bool AudioFileTableModel::lessThan(const AudioFileRecord &left, const AudioFileR
         case Album:
             return QString::compare(leftMetadata.album(), rightMetadata.album(), Qt::CaseInsensitive) < 0;
         case Year:
-            return extractYear(leftMetadata.date()).toInt() < extractYear(rightMetadata.date()).toInt();
+            return MetadataUtils::extractYear(leftMetadata.date()).toInt() < MetadataUtils::extractYear(rightMetadata.date()).toInt();
         case Duration:
             return left.fileInfo.durationSeconds < right.fileInfo.durationSeconds;
         case Genre:
             return QString::compare(leftMetadata.genre(), rightMetadata.genre(), Qt::CaseInsensitive) < 0;
         case HasLyrics:
-            return hasLyrics(leftMetadata) < hasLyrics(rightMetadata);
+            return MetadataUtils::hasLyrics(leftMetadata) < MetadataUtils::hasLyrics(rightMetadata);
         default:
             return false;
     }
