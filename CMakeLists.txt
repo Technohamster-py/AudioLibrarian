@@ -30,6 +30,7 @@ add_library(AudioLibrarianCore STATIC
         src/metadata/audiometadata.h            src/metadata/audiometadata.cpp
         src/metadata/tageditormodel.h           src/metadata/tageditormodel.cpp
         src/metadata/taglibmetadatabackend.h    src/metadata/taglibmetadatabackend.cpp
+        src/navigation/filetreemodel.h          src/navigation/filetreemodel.cpp
         src/player/playercontroller.h           src/player/playercontroller.cpp
         src/settings/settingsmanager.h          src/settings/settingsmanager.cpp
         src/settings/settingsstruct.h
@@ -145,6 +146,11 @@ set_source_files_properties(
         PROPERTIES QT_RESOURCE_ALIAS "SettingsRow.qml"
 )
 
+set_source_files_properties(
+        qml/files/FilesView.qml
+        PROPERTIES QT_RESOURCE_ALIAS "FilesView.qml"
+)
+
 qt_add_qml_module(AudioLibrarianUi
         URI AudioLibrarian
         VERSION 0.1
@@ -155,6 +161,7 @@ qt_add_qml_module(AudioLibrarianUi
         SOURCES
         src/library/audiofiletablemodel.h
         src/metadata/tageditormodel.h
+        src/navigation/filetreemodel.h
         src/settings/settingsmanager.h
         src/player/playercontroller.h
 
@@ -168,6 +175,8 @@ qt_add_qml_module(AudioLibrarianUi
 
         qml/editor/EditorView.qml
         qml/editor/TagEditorView.qml
+
+        qml/files/FilesView.qml
 
         qml/library/AudioFileDelegate.qml
         qml/library/LibraryPane.qml
@@ -215,6 +224,7 @@ target_include_directories(AudioLibrarianUi PRIVATE
         src
         src/library
         src/metadata
+        src/navigation
         src/player
         src/settings
 )

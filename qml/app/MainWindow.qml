@@ -130,10 +130,15 @@ ApplicationWindow {
 
                     currentIndex: root.sectionIndex(root.activeSection)
 
-                    NavigationPlaceholderView {
+                    FilesView {
+                        id: filesView
+
                         objectName: "filesView"
-                        title: qsTr("Files")
-                        iconSource: AppAssets.files
+
+                        onFileSelected: function(filePath) {
+                            root.selectedFilePath = filePath
+                            playerController.setFilePath(filePath)
+                        }
                     }
 
                     NavigationPlaceholderView {
