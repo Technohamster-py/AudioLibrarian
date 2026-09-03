@@ -63,8 +63,7 @@ QUrl FileTreeModel::rootPath() const {
 }
 
 void FileTreeModel::setRootPathUrl(const QUrl &path) {
-    if (!path.isLocalFile())
-        return;
+    if (!path.isLocalFile()) return;
 
     const QString localPath = QDir::cleanPath(path.toLocalFile());
 

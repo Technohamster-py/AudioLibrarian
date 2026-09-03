@@ -340,8 +340,7 @@ Item {
         target: SettingsManager
 
         function onBaseDirChanged() {
-            fileModel.rootPath =
-                SettingsManager.baseDir
+            fileModel.rootPath = SettingsManager.baseDir
         }
     }
 }
