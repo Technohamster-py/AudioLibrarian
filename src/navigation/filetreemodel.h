@@ -66,9 +66,7 @@ public:
      * override recursively.
      */
     enum Roles {
-        FilePathRole = Qt::UserRole + 100,
-        FileNameRole,
-        TitleRole,
+        TitleRole = Qt::UserRole + 100,
         ArtistRole,
         AlbumRole,
         YearRole,

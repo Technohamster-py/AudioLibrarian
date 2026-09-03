@@ -57,106 +57,50 @@ int FileTreeModel::columnCount(const QModelIndex &parent) const{
 QVariant FileTreeModel::data(const QModelIndex &index, const int role) const{
     if (!index.isValid()) return {};
 
-    if (role == FilePathRole)
-        return QFileSystemModel::filePath(index);
-
-    if (role == FileNameRole)
-        return QFileSystemModel::fileName(index);
-
     if (role == Qt::DisplayRole) {
-        if (QFileSystemModel::isDir(index)) {
-            if (index.column() == FileName)
-                return QFileSystemModel::fileName(index);
-            return {};
-        }
-
-        const QString path = QFileSystemModel::filePath(index);
-
-        if (path.isEmpty()) return {};
         if (index.column() == FileName) return QFileSystemModel::fileName(index);
 
-        const auto iterator = m_metadataCache.constFind(path);
+        const QString path = QFileSystemModel::filePath(index);
+        if (path.isEmpty()) return {};
 
-        if (iterator == m_metadataCache.constEnd())
-            return {};
+        const auto iterator = m_metadataCache.constFind(path);
+        if (iterator == m_metadataCache.constEnd()) return {};
 
         const AudioMetadata &metadata = iterator.value().metadata;
 
         switch (index.column()) {
-            case Artist:
-                return metadata.artist();
-
-            case Album:
-                return metadata.album();
-
-            case Year:
-                return MetadataUtils::extractYear(metadata.date());
-
-            case Duration:
-                return MetadataUtils::formatDuration(iterator.value().durationSeconds);
-
-            case Genre:
-                return metadata.genre();
-
-            case HasLyrics:
-                return MetadataUtils::hasLyrics(metadata);
-
-            default:
-                return {};
+            case Artist: return metadata.artist();
+            case Album: return metadata.album();
+            case Year: return MetadataUtils::extractYear(metadata.date());
+            case Duration: return MetadataUtils::formatDuration(iterator.value().durationSeconds);
+            case Genre: return metadata.genre();
+            case HasLyrics: return MetadataUtils::hasLyrics(metadata);
+            default: return {};
         }
     }
 
-    /*
-     * Custom roles expose metadata independently of the current column.
-     * This is useful for QML delegates and keeps the model API consistent
-     * with AudioFileTableModel.
-     */
-    if (QFileSystemModel::isDir(index))
-        return {};
+    if (QFileSystemModel::isDir(index) ) return {};
 
-    const QString path =
-        QFileSystemModel::filePath(index);
+    const QString path = QFileSystemModel::filePath(index);
 
-    if (path.isEmpty())
-        return {};
+    if (path.isEmpty()) return {};
 
-    const auto iterator =
-        m_metadataCache.constFind(path);
+    const auto iterator = m_metadataCache.constFind(path);
 
     if (iterator == m_metadataCache.constEnd())
         return {};
 
-    const AudioMetadata &metadata =
-        iterator.value().metadata;
+    const AudioMetadata &metadata = iterator.value().metadata;
 
     switch (role) {
-        case TitleRole:
-            return metadata.title();
-
-        case ArtistRole:
-            return metadata.artist();
-
-        case AlbumRole:
-            return metadata.album();
-
-        case YearRole:
-            return MetadataUtils::extractYear(
-                metadata.date()
-            );
-
-        case DurationRole:
-            return MetadataUtils::formatDuration(
-                iterator.value().durationSeconds
-            );
-
-        case GenreRole:
-            return metadata.genre();
-
-        case HasLyricsRole:
-            return MetadataUtils::hasLyrics(metadata);
-
-        default:
-            return QFileSystemModel::data(index, role);
+        case TitleRole: return metadata.title();
+        case ArtistRole: return metadata.artist();
+        case AlbumRole: return metadata.album();
+        case YearRole: return MetadataUtils::extractYear(metadata.date());
+        case DurationRole: return MetadataUtils::formatDuration(iterator.value().durationSeconds);
+        case GenreRole: return metadata.genre();
+        case HasLyricsRole: return MetadataUtils::hasLyrics(metadata);
+        default: return QFileSystemModel::data(index, role);
     }
 }
 
@@ -198,8 +142,6 @@ QVariant FileTreeModel::headerData(const int section, const Qt::Orientation orie
 QHash<int, QByteArray> FileTreeModel::roleNames() const{
     QHash<int, QByteArray> roles = QFileSystemModel::roleNames();
 
-    roles.insert(FilePathRole, QByteArrayLiteral("filePath"));
-    roles.insert(FileNameRole, QByteArrayLiteral("fileName"));
     roles.insert(TitleRole, QByteArrayLiteral("title"));
     roles.insert(ArtistRole, QByteArrayLiteral("artist"));
     roles.insert(AlbumRole, QByteArrayLiteral("album"));

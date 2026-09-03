@@ -311,7 +311,9 @@ Item {
                         // missing value to an empty string at the QML boundary.
                         visible: column !== FileTreeModel.HasLyrics
 
-                        text: model.display ?? ""
+                        text: column === FileTreeModel.FileName
+                              ? (model.fileName ?? model.display ?? "")
+                              : (model.display ?? "")
 
                         color: AppColors.textPrimary
 
