@@ -300,20 +300,13 @@ Item {
                         anchors.fill: parent
 
                         anchors.leftMargin: AppMetrics.spacingMedium
-
                         anchors.rightMargin: AppMetrics.spacingMedium
 
                         verticalAlignment: Text.AlignVCenter
 
-                        // DisplayRole is unavailable while file metadata is
-                        // being loaded (and for non-name directory cells).
-                        // Label.text is a QString, so convert that expected
-                        // missing value to an empty string at the QML boundary.
                         visible: column !== FileTreeModel.HasLyrics
 
-                        text: column === FileTreeModel.FileName
-                              ? (model.fileName ?? model.display ?? "")
-                              : (model.display ?? "")
+                        text: model.display ?? ""
 
                         color: AppColors.textPrimary
 

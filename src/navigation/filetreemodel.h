@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QAbstractProxyModel>
 #include <QFileSystemModel>
 #include <QHash>
 #include <QSet>
@@ -12,7 +13,7 @@
 
 #include "metadata/taglibmetadatabackend.h"
 
-class FileTreeModel : public QFileSystemModel
+class FileTreeModel : public QAbstractProxyModel
 {
     Q_OBJECT
 
@@ -66,7 +67,9 @@ public:
      * override recursively.
      */
     enum Roles {
-        TitleRole = Qt::UserRole + 100,
+        FilePathRole = Qt::UserRole + 100,
+        FileNameRole,
+        TitleRole,
         ArtistRole,
         AlbumRole,
         YearRole,
@@ -85,6 +88,12 @@ public:
 
     bool isLoading() const {return m_loading;};
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+
+    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const override;
+    QModelIndex mapToSource(const QModelIndex &proxyIndex) const override;
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
@@ -118,10 +127,20 @@ private:
 
     bool m_loading = false;
 
+    QFileSystemModel m_sourceModel;
+    void configureSourceModel();
+
     QHash<QString, AudioFileInfo> m_metadataCache;
     QSet<QString> m_metadataPending;
     quint64 m_generation = 0;
 
 private slots:
     void slotDirectoryLoaded(const QString &path);
+    void slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles);
+    void slotInsertRows(const QModelIndex &parent, const int first, const int last);
+    void slotEndInsertRows();
+    void slotRemoveRows(const QModelIndex &parent, const int first, const int last);
+    void slotEndRemoveRows();
+    void slotResetModel();
+    void slotEndModelReset();
 };
