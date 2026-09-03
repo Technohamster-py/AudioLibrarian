@@ -106,8 +106,6 @@ QModelIndex FileTreeModel::index( const int row, const int column, const QModelI
 
     if (!sourceIndex.isValid()) return {};
 
-    // Do not use siblingAtColumn() here: it delegates back to this model's
-    // index() implementation and would recurse indefinitely.
     return createIndex(sourceIndex.row(), column, sourceIndex.internalPointer());
 }
 

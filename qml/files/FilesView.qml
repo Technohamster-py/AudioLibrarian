@@ -313,17 +313,16 @@ Item {
                         elide: Text.ElideRight
                     }
 
-                    Rectangle {
-                        visible: column === FileTreeModel.HasLyrics && model.display === true
-
-                        width: 6
-                        height: 6
-
-                        radius: 3
-
+                    Label {
                         anchors.centerIn: parent
 
-                        color: AppColors.textSecondary
+                        visible: column === FileTreeModel.HasLyrics
+
+                        text: model.hasLyrics ? "✓" : ""
+
+                        color: AppColors.textPrimary
+
+                        font.pixelSize: 18
                     }
                 }
 
