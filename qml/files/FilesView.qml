@@ -74,7 +74,7 @@ Item {
         if (fileModel.isDirectory(modelIndex))
             return
 
-        treeSelectionModel.setCurrentIndex(modelIndex, ItemSelectionModel.ClearAndSelect)
+        treeSelectionModel.setCurrentIndex(modelIndex, ItemSelectionModel.ClearAndSelect | ItemSelectionModel.Rows)
 
         const path = fileModel.filePath(modelIndex)
 
@@ -275,6 +275,9 @@ Item {
             model: fileModel
             selectionModel: treeSelectionModel
 
+            selectionBehavior: TableView.SelectRows
+            selectionMode: TableView.SingleSelection
+
             columnWidthProvider: function(column) {
                 return root.columnWidth(column)
             }
@@ -289,7 +292,7 @@ Item {
                 implicitHeight: 32
 
                 background: Rectangle {
-                    color: delegate.current ? AppColors.playerBackground : (delegate.row % 2 === 0 ? AppColors.surface : AppColors.surfaceElevated)
+                    color: delegate.row === treeView.currentRow ? AppColors.playerBackground : (delegate.row % 2 === 0 ? AppColors.surface : AppColors.surfaceElevated)
                 }
 
                 contentItem: Item {
