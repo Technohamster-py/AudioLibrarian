@@ -273,6 +273,7 @@ Item {
             clip: true
 
             model: fileModel
+            rootIndex: fileModel.rootIndex
             selectionModel: treeSelectionModel
 
             selectionBehavior: TableView.SelectRows
