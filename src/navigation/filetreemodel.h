@@ -12,7 +12,6 @@
 
 #include "metadata/taglibmetadatabackend.h"
 
-
 class FileTreeModel : public QFileSystemModel
 {
     Q_OBJECT
@@ -40,10 +39,34 @@ class FileTreeModel : public QFileSystemModel
 
 public:
     /**
+     * @brief Columns exposed by the model.
+     *
+     * The order of these values defines the logical column order used
+     * by TreeView and by headerData().
+     */
+    enum Column {
+        FileName = 0,
+        Artist,
+        Album,
+        Year,
+        Duration,
+        Genre,
+        HasLyrics,
+        ColumnCount
+    };
+
+    Q_ENUM(Column)
+
+    /**
      * @brief Custom roles exposed to QML.
+     *
+     * QFileSystemModel already uses the first few values after
+     * Qt::UserRole.  Keep this model's roles in a separate range so calls
+     * such as QFileSystemModel::fileName() cannot dispatch back into this
+     * override recursively.
      */
     enum Roles {
-        FilePathRole = Qt::UserRole + 1,
+        FilePathRole = Qt::UserRole + 100,
         FileNameRole,
         TitleRole,
         ArtistRole,
@@ -63,6 +86,13 @@ public:
     QModelIndex rootIndex() const;
 
     bool isLoading() const {return m_loading;};
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+    QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE QString filePath(const QModelIndex &index) const;
     Q_INVOKABLE bool isDirectory(const QModelIndex &index) const;
@@ -70,14 +100,10 @@ public:
     Q_INVOKABLE QStringList pathToRoot(const QString &filePath) const;
     Q_INVOKABLE void reload();
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    QHash<int, QByteArray> roleNames() const override;
-
 signals:
     void rootPathChanged();
     void loadingChanged();
 private:
-
     struct MetadataResult {
         QString filePath;
         std::optional<AudioFileInfo> fileInfo;

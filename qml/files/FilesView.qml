@@ -3,16 +3,42 @@ import QtQuick.Controls.Basic
 import QtQuick.Layouts
 import QtQml.Models
 
-/**
- * @brief Hierarchical filesystem navigation.
- *
- * Displays the configured music directory and allows selecting
- * individual audio files.
- */
 Item {
     id: root
 
     property string currentFilePath: ""
+
+    property var columnWidths: [
+        260, // File Name
+        180, // Artist
+        220, // Album
+        80,  // Year
+        100, // Duration
+        140, // Genre
+        70   // Lyrics
+    ]
+
+    readonly property real minimumColumnWidth: 50
+
+    function columnWidth(column) {
+        if (column < 0 || column >= root.columnWidths.length)
+            return 100
+
+        return root.columnWidths[column]
+    }
+
+    function setColumnWidth(column, width) {
+        if (column < 0 || column >= root.columnWidths.length)
+            return
+
+        const widths = root.columnWidths.slice()
+
+        widths[column] = Math.max(root.minimumColumnWidth, width)
+
+        root.columnWidths = widths
+
+        treeView.forceLayout()
+    }
 
     function revealFile(filePath) {
         if (filePath.length === 0)
@@ -35,16 +61,28 @@ Item {
         for (let i = parents.length - 1; i >= 0; --i)
             treeView.expand(parents[i])
 
-        treeView.currentIndex = fileIndex
+        treeSelectionModel.setCurrentIndex(fileIndex.siblingAtColumn(0), ItemSelectionModel.ClearAndSelect)
+        treeView.currentIndex = fileIndex.siblingAtColumn(0)
     }
 
-    Connections {
-        target: fileModel
+    function selectRow(row) {
+        const modelIndex = treeView.index(row, 0)
 
-        function onLoadingChanged() {
-            if (!fileModel.loading && root.currentFilePath.length > 0)
-                root.revealFile(root.currentFilePath)
-        }
+        if (!modelIndex.valid)
+            return
+
+        if (fileModel.isDirectory(modelIndex))
+            return
+
+        treeSelectionModel.setCurrentIndex(modelIndex, ItemSelectionModel.ClearAndSelect)
+
+        const path = fileModel.filePath(modelIndex)
+
+        if (path.length === 0)
+            return
+
+        root.currentFilePath = path
+        root.fileSelected(path)
     }
 
     signal fileSelected(string filePath)
@@ -53,12 +91,6 @@ Item {
         id: fileModel
 
         objectName: "fileTreeModel"
-
-        /*
-         * SettingsManager is the authoritative source for the library
-         * directory. This also makes changing the directory in Settings
-         * immediately update the tree.
-         */
         rootPath: SettingsManager.baseDir
     }
 
@@ -68,13 +100,16 @@ Item {
         model: fileModel
     }
 
-    /*
-     * Loading overlay.
-     *
-     * The TreeView remains underneath the overlay so the user does not
-     * perceive the navigation pane as broken or empty while the filesystem
-     * model is being populated.
-     */
+    Connections {
+        target: fileModel
+
+        function onLoadingChanged() {
+            if (!fileModel.loading && root.currentFilePath.length > 0) {
+                root.revealFile(root.currentFilePath)
+            }
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
 
@@ -105,7 +140,6 @@ Item {
         }
     }
 
-
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: AppMetrics.spacingLarge
@@ -122,142 +156,106 @@ Item {
 
             clip: true
 
-            Row {
-                id: headerRow
+            Item {
+                id: headerViewport
 
-                x: -fileTable.contentX
+                anchors.fill: parent
 
-                height: parent.height
+                clip: true
 
-                Repeater {
-                    model: fileModel.columnCount()
+                Row {
+                    id: headerRow
 
-                    delegate: Rectangle {
-                        required property int index
+                    x: -treeView.contentX
 
-                        readonly property bool sorted: root.sortColumn === index
+                    height: tableHeader.height
 
-                        width: root.columnWidth(index)
-                        height: tableHeader.height
+                    width: {
+                        let result = 0
 
-                        color: sorted ? AppColors.surfaceSelected : sortArea.containsMouse ? AppColors.hover : AppColors.surfaceElevated
+                        for (let i = 0; i < root.columnWidths.length; ++i) {
+                            result += root.columnWidth(i)
+                        }
+                        return result
+                    }
 
-                        /**
-                         * @brief Sorts the table when the header is clicked.
-                         */
-                        MouseArea {
-                            id: sortArea
+                    Repeater {
+                        model: fileModel.columnCount()
 
-                            anchors.fill: parent
+                        delegate: Rectangle {
+                            required property int index
 
-                            anchors.rightMargin: resizeArea.width
+                            width: root.columnWidth(index)
+                            height: tableHeader.height
 
-                            hoverEnabled: true
+                            color: AppColors.surfaceElevated
 
-                            cursorShape: Qt.ArrowCursor
+                            /*
+                             * Header text.
+                             */
+                            Label {
+                                anchors.fill: parent
 
-                            onClicked: {
-                                if (root.sortColumn === index) {
-                                    root.sortOrder = root.sortOrder === Qt.AscendingOrder ? Qt.DescendingOrder : Qt.AscendingOrder
-                                } else {
-                                    root.sortColumn = index
-                                    root.sortOrder = Qt.AscendingOrder
-                                }
-                                libraryModel.sort(index, root.sortOrder)
+                                anchors.leftMargin: AppMetrics.spacingMedium
+
+                                anchors.rightMargin: AppMetrics.spacingMedium + resizeArea.width
+
+                                verticalAlignment: Text.AlignVCenter
+
+                                text: fileModel.headerData(index, Qt.Horizontal, Qt.DisplayRole)
+
+                                color: AppColors.textSecondary
+
+                                elide: Text.ElideRight
                             }
-                        }
 
-                        /**
-                         * @brief Header text.
-                         */
-                        Label {
-                            anchors.fill: parent
+                            MouseArea {
+                                id: resizeArea
 
-                            anchors.leftMargin: AppMetrics.spacingMedium
-                            anchors.rightMargin: AppMetrics.spacingMedium + resizeArea.width + sortIndicator.width
+                                width: 8
+                                height: parent.height
 
-                            verticalAlignment: Text.AlignVCenter
+                                anchors.right: parent.right
 
-                            text: fileModel.headerData(index, Qt.Horizontal, Qt.DisplayRole)
+                                anchors.top: parent.top
 
-                            color: AppColors.textSecondary
+                                hoverEnabled: true
 
-                            elide: Text.ElideRight
-                        }
+                                cursorShape: Qt.SizeHorCursor
 
-                        /**
-                         * @brief Indicates the current sorting direction.
-                         *
-                         * The indicator is displayed only for the column currently used for
-                         * sorting.
-                         */
-                        Image {
-                            id: sortIndicator
+                                DragHandler {
+                                    id: resizeHandler
 
-                            anchors.right: resizeArea.left
-                            anchors.rightMargin: 6
-                            anchors.verticalCenter: parent.verticalCenter
+                                    target: null
 
-                            width: AppMetrics.sortIconSize
-                            height: AppMetrics.sortIconSize
+                                    xAxis.enabled: true
+                                    yAxis.enabled: false
 
-                            visible: sorted
+                                    property real initialWidth: 0
 
-                            fillMode: Image.PreserveAspectFit
+                                    onActiveChanged: {
+                                        if (active) {
+                                            initialWidth = root.columnWidth(index)
+                                        }
+                                    }
 
-                            source: root.sortOrder === Qt.AscendingOrder ? AppAssets.sortAscending : AppAssets.sortDescending
-                        }
-
-                        /**
-                         * @brief Interactive column resize area.
-                         */
-                        MouseArea {
-                            id: resizeArea
-
-                            width: 8
-                            height: parent.height
-
-                            anchors.right: parent.right
-                            anchors.top: parent.top
-
-                            hoverEnabled: true
-
-                            cursorShape: Qt.SizeHorCursor
-
-                            DragHandler {
-                                id: resizeHandler
-
-                                target: null
-
-                                xAxis.enabled: true
-                                yAxis.enabled: false
-
-                                property real initialWidth: 0
-
-                                onActiveChanged: {
-                                    if (active)
-                                        initialWidth = root.columnWidth(index)
-                                }
-
-                                onTranslationChanged: {
-                                    if (!active)
-                                        return
-
-                                    root.setColumnWidth(index, initialWidth + translation.x)
+                                    onTranslationChanged: {
+                                        if (!active)
+                                            return
+                                        root.setColumnWidth(index, initialWidth + translation.x)
+                                    }
                                 }
                             }
-                        }
 
-                        /**
-                         * @brief Visual resize indicator.
-                         */
-                        Rectangle {
-                            anchors.centerIn: resizeArea
+                            Rectangle {
+                                anchors.centerIn: resizeArea
 
-                            width: 1
-                            height: parent.height * 0.45
+                                width: 1
 
-                            color: resizeArea.containsMouse ? AppColors.textPrimary : "transparent"
+                                height: parent.height * 0.45
+
+                                color: resizeArea.containsMouse ? AppColors.textPrimary : "transparent"
+                            }
                         }
                     }
                 }
@@ -269,25 +267,17 @@ Item {
 
             objectName: "fileTreeView"
 
-            anchors.fill: parent
-            anchors.margins: AppMetrics.spacingLarge
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
             clip: true
 
             model: fileModel
+
             selectionModel: treeSelectionModel
 
             columnWidthProvider: function(column) {
-                switch (column) {
-                    case 0: return 260   // Название
-                    case 1: return 180   // Исполнитель
-                    case 2: return 220   // Альбом
-                    case 3: return 80    // Год
-                    case 4: return 100   // Продолжительность
-                    case 5: return 140   // Жанр
-                    case 6: return 70    // Слова
-                    default: return 100
-                }
+                return root.columnWidth(column)
             }
 
             rowHeightProvider: function(row) {
@@ -297,36 +287,53 @@ Item {
             delegate: TreeViewDelegate {
                 id: delegate
 
-                background: Rectangle {
-                    color: delegate.current
-                        ? AppColors.playerBackground
-                        : (delegate.row % 2 === 0
-                            ? AppColors.surface
-                            : AppColors.surfaceElevated)
-                }
-
                 implicitHeight: 32
 
+                background: Rectangle {
+                    color: delegate.current ? AppColors.playerBackground : (delegate.row % 2 === 0 ? AppColors.surface : AppColors.surfaceElevated)
+                }
+
+                contentItem: Item {
+                    anchors.fill: parent
+
+                    Label {
+                        anchors.fill: parent
+
+                        anchors.leftMargin: AppMetrics.spacingMedium
+
+                        anchors.rightMargin: AppMetrics.spacingMedium
+
+                        verticalAlignment: Text.AlignVCenter
+
+                        // DisplayRole is unavailable while file metadata is
+                        // being loaded (and for non-name directory cells).
+                        // Label.text is a QString, so convert that expected
+                        // missing value to an empty string at the QML boundary.
+                        visible: column !== FileTreeModel.HasLyrics
+
+                        text: model.display ?? ""
+
+                        color: AppColors.textPrimary
+
+                        elide: Text.ElideRight
+                    }
+
+                    Rectangle {
+                        visible: column === FileTreeModel.HasLyrics && model.display === true
+
+                        width: 6
+                        height: 6
+
+                        radius: 3
+
+                        anchors.centerIn: parent
+
+                        color: AppColors.textSecondary
+                    }
+                }
+
                 onClicked: {
-                    const modelIndex = treeView.index(row, column)
-
-                    if (!modelIndex.valid)
-                        return
-
-                    if (fileModel.isDirectory(modelIndex))
-                        return
-
-                    treeSelectionModel.setCurrentIndex(
-                        modelIndex,
-                        ItemSelectionModel.ClearAndSelect
-                    )
-
-                    const path = fileModel.filePath(modelIndex)
-
-                    if (path.length === 0)
-                        return
-
-                    root.fileSelected(path)
+                    root.selectRow(row)
                 }
             }
         }
