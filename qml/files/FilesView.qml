@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
+import QtQml.Models
 
 /**
  * @brief Hierarchical filesystem navigation.
@@ -26,6 +27,12 @@ Item {
         rootPath: SettingsManager.baseDir
     }
 
+    ItemSelectionModel {
+        id: treeSelectionModel
+
+        model: fileModel
+    }
+
     TreeView {
         id: treeView
 
@@ -37,6 +44,7 @@ Item {
         clip: true
 
         model: fileModel
+        selectionModel: treeSelectionModel
 
         /*
          * Display only the first column of QFileSystemModel.
@@ -55,7 +63,11 @@ Item {
             id: delegate
 
             background: Rectangle {
-                color: delegate.current ? AppColors.playerBeckground : (delegate.row % 2 === 0 ? AppColors.surface : AppColors.surfaceElevated)
+                color: delegate.current
+                    ? AppColors.playerBackground
+                    : (delegate.row % 2 === 0
+                        ? AppColors.surface
+                        : AppColors.surfaceElevated)
             }
 
             implicitHeight: 32
@@ -66,12 +78,13 @@ Item {
                 if (!modelIndex.valid)
                     return
 
-                /*
-                 * Directories are navigation elements and must not be
-                 * interpreted as audio files.
-                 */
                 if (fileModel.isDirectory(modelIndex))
                     return
+
+                treeSelectionModel.setCurrentIndex(
+                    modelIndex,
+                    ItemSelectionModel.ClearAndSelect
+                )
 
                 const path = fileModel.filePath(modelIndex)
 
