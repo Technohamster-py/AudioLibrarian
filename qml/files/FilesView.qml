@@ -1,43 +1,43 @@
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
-
+import QtQml.Models
 
 Item {
     id: root
 
     property string currentFilePath: ""
 
-    readonly property int nameColumnWidth: 260
-    readonly property int sizeColumnWidth: 100
-    readonly property int artistColumnWidth: 180
-    readonly property int albumColumnWidth: 220
-    readonly property int yearColumnWidth: 80
-    readonly property int durationColumnWidth: 100
-    readonly property int genreColumnWidth: 140
-    readonly property int lyricsColumnWidth: 70
+    property var columnWidths: [
+        260, // File Name
+        180, // Artist
+        220, // Album
+        80,  // Year
+        100, // Duration
+        140, // Genre
+        70   // Lyrics
+    ]
 
-    readonly property int contentWidth:
-        nameColumnWidth
-        + sizeColumnWidth
-        + artistColumnWidth
-        + albumColumnWidth
-        + yearColumnWidth
-        + durationColumnWidth
-        + genreColumnWidth
-        + lyricsColumnWidth
+    readonly property real minimumColumnWidth: 50
 
-    function formatFileSize(bytes) {
-        if (bytes < 1024)
-            return bytes + " B"
+    function columnWidth(column) {
+        if (column < 0 || column >= root.columnWidths.length)
+            return 100
 
-        if (bytes < 1024 * 1024)
-            return (bytes / 1024).toFixed(1) + " KB"
+        return root.columnWidths[column]
+    }
 
-        if (bytes < 1024 * 1024 * 1024)
-            return (bytes / (1024 * 1024)).toFixed(1) + " MB"
+    function setColumnWidth(column, width) {
+        if (column < 0 || column >= root.columnWidths.length)
+            return
 
-        return (bytes / (1024 * 1024 * 1024)).toFixed(1) + " GB"
+        const widths = root.columnWidths.slice()
+
+        widths[column] = Math.max(root.minimumColumnWidth, width)
+
+        root.columnWidths = widths
+
+        treeView.forceLayout()
     }
 
     function revealFile(filePath) {
@@ -49,283 +49,67 @@ Item {
         if (!fileIndex.valid)
             return
 
-        const rootIndex = fileModel.rootIndex
-
-        if (rootIndex.valid) {
-            let parentIndex = fileIndex.parent()
-            let belongsToRoot = fileIndex === rootIndex
-
-            while (parentIndex.valid) {
-                if (parentIndex === rootIndex) {
-                    belongsToRoot = true
-                    break
-                }
-
-                parentIndex = parentIndex.parent()
-            }
-
-            if (!belongsToRoot)
-                return
-        }
-
         const parents = []
 
         let parentIndex = fileIndex.parent()
 
         while (parentIndex.valid) {
             parents.push(parentIndex)
-
-            if (rootIndex.valid && parentIndex === rootIndex)
-                break
-
             parentIndex = parentIndex.parent()
         }
 
-        for (let i = parents.length - 1; i >= 0; --i) {
-            if (!rootIndex.valid || parents[i] !== rootIndex)
-                treeView.expand(parents[i])
-        }
+        for (let i = parents.length - 1; i >= 0; --i)
+            treeView.expand(parents[i])
 
-        treeView.currentColumn = 0
-        treeView.currentRow = treeView.rowAtIndex(fileIndex)
+        treeSelectionModel.setCurrentIndex(fileIndex.siblingAtColumn(0), ItemSelectionModel.ClearAndSelect)
+        treeView.currentIndex = fileIndex.siblingAtColumn(0)
     }
 
-    function processCurrentIndex(index) {
-        if (!index.valid) return
+    function selectRow(row) {
+        const modelIndex = treeView.index(row, 0)
 
-        if (fileModel.isDirectory(index)) return
+        if (!modelIndex.valid)
+            return
 
-        const path = fileModel.filePath(index)
+        if (fileModel.isDirectory(modelIndex))
+            return
 
-        if (path.length === 0) return
+        treeSelectionModel.setCurrentIndex(modelIndex, ItemSelectionModel.ClearAndSelect | ItemSelectionModel.Rows)
 
+        const path = fileModel.filePath(modelIndex)
+
+        if (path.length === 0)
+            return
+
+        root.currentFilePath = path
         root.fileSelected(path)
     }
 
     signal fileSelected(string filePath)
 
-
     FileTreeModel {
         id: fileModel
 
         objectName: "fileTreeModel"
-
         rootPath: SettingsManager.baseDir
     }
 
+    ItemSelectionModel {
+        id: treeSelectionModel
+
+        model: fileModel
+    }
 
     Connections {
         target: fileModel
 
         function onLoadingChanged() {
-            if (!fileModel.loading && root.currentFilePath.length > 0)
+            if (!fileModel.loading && root.currentFilePath.length > 0) {
                 root.revealFile(root.currentFilePath)
-        }
-
-        function onRootPathChanged() {
-            treeView.rootIndex = fileModel.rootIndex
-        }
-    }
-
-    TreeView {
-        id: treeView
-
-        objectName: "fileTreeView"
-
-        anchors.fill: parent
-        anchors.margins: AppMetrics.spacingLarge
-
-        clip: true
-
-        model: fileModel
-
-        rootIndex: fileModel.rootIndex
-
-        columnWidthProvider: function(column) {
-            return column === 0 ? root.contentWidth : 0
-        }
-
-        rowHeightProvider: function(row) {
-            return 32
-        }
-
-        onCurrentRowChanged: {
-            if (currentRow < 0)
-                return
-
-            root.processCurrentIndex(treeView.index(currentRow, 0))
-        }
-
-        delegate: TreeViewDelegate {
-            id: delegate
-
-            implicitHeight: 32
-            implicitWidth: root.contentWidth
-
-            background: Rectangle {
-                color: delegate.current
-                       ? AppColors.playerBackground
-                       : (delegate.row % 2 === 0
-                          ? AppColors.surface
-                          : AppColors.surfaceElevated)
-            }
-
-            contentItem: Row {
-                id: metadataRow
-
-                spacing: 0
-
-                Label {
-                    width: root.nameColumnWidth
-
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: model.fileName
-
-                    color: AppColors.textPrimary
-
-                    elide: Text.ElideRight
-
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                /*
-                 * File size.
-                 *
-                 * QFileSystemModel provides the standard fileSize role.
-                 * Directories do not have a meaningful audio-file size here.
-                 */
-                Label {
-                    width: root.sizeColumnWidth
-
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: fileModel.isDirectory(treeView.index(row, 0))
-                          ? ""
-                          : root.formatFileSize(model.fileSize)
-
-                    color: AppColors.textSecondary
-
-                    elide: Text.ElideRight
-
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                /*
-                 * Artist.
-                 */
-                Label {
-                    width: root.artistColumnWidth
-
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: model.artist
-
-                    color: AppColors.textPrimary
-
-                    elide: Text.ElideRight
-
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                /*
-                 * Album.
-                 */
-                Label {
-                    width: root.albumColumnWidth
-
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: model.album
-
-                    color: AppColors.textPrimary
-
-                    elide: Text.ElideRight
-
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                /*
-                 * Year.
-                 */
-                Label {
-                    width: root.yearColumnWidth
-
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: model.year
-
-                    color: AppColors.textSecondary
-
-                    elide: Text.ElideRight
-
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                /*
-                 * Duration.
-                 */
-                Label {
-                    width: root.durationColumnWidth
-
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: model.duration
-
-                    color: AppColors.textSecondary
-
-                    elide: Text.ElideRight
-
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                /*
-                 * Genre.
-                 */
-                Label {
-                    width: root.genreColumnWidth
-
-                    anchors.verticalCenter: parent.verticalCenter
-
-                    text: model.genre
-
-                    color: AppColors.textPrimary
-
-                    elide: Text.ElideRight
-
-                    verticalAlignment: Text.AlignVCenter
-                }
-
-                /*
-                 * Lyrics indicator.
-                 *
-                 * A small indicator is used instead of a Unicode character.
-                 * This avoids relying on font-specific glyphs.
-                 */
-                Item {
-                    width: root.lyricsColumnWidth
-                    height: parent.height
-
-                    Rectangle {
-                        width: 8
-                        height: 8
-
-                        anchors.centerIn: parent
-
-                        radius: width / 2
-
-                        visible: model.hasLyrics
-
-                        color: AppColors.textPrimary
-                    }
-                }
             }
         }
     }
 
-    /**
-     * @brief Loading overlay displayed while QFileSystemModel loads the root.
-     */
     Rectangle {
         anchors.fill: parent
 
@@ -356,10 +140,202 @@ Item {
         }
     }
 
-    /**
-     * @brief Updates the model root when the configured library directory
-     * changes.
-     */
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: AppMetrics.spacingLarge
+
+        spacing: AppMetrics.spacingMedium
+
+        Rectangle {
+            id: tableHeader
+
+            Layout.fillWidth: true
+            Layout.preferredHeight: 36
+
+            color: AppColors.surfaceElevated
+
+            clip: true
+
+            Item {
+                id: headerViewport
+
+                anchors.fill: parent
+
+                clip: true
+
+                Row {
+                    id: headerRow
+
+                    x: -treeView.contentX
+
+                    height: tableHeader.height
+
+                    width: {
+                        let result = 0
+
+                        for (let i = 0; i < root.columnWidths.length; ++i) {
+                            result += root.columnWidth(i)
+                        }
+                        return result
+                    }
+
+                    Repeater {
+                        model: fileModel.columnCount()
+
+                        delegate: Rectangle {
+                            required property int index
+
+                            width: root.columnWidth(index)
+                            height: tableHeader.height
+
+                            color: AppColors.surfaceElevated
+
+                            /*
+                             * Header text.
+                             */
+                            Label {
+                                anchors.fill: parent
+
+                                anchors.leftMargin: AppMetrics.spacingMedium
+
+                                anchors.rightMargin: AppMetrics.spacingMedium + resizeArea.width
+
+                                verticalAlignment: Text.AlignVCenter
+
+                                text: fileModel.headerData(index, Qt.Horizontal, Qt.DisplayRole)
+
+                                color: AppColors.textSecondary
+
+                                elide: Text.ElideRight
+                            }
+
+                            MouseArea {
+                                id: resizeArea
+
+                                width: 8
+                                height: parent.height
+
+                                anchors.right: parent.right
+
+                                anchors.top: parent.top
+
+                                hoverEnabled: true
+
+                                cursorShape: Qt.SizeHorCursor
+
+                                DragHandler {
+                                    id: resizeHandler
+
+                                    target: null
+
+                                    xAxis.enabled: true
+                                    yAxis.enabled: false
+
+                                    property real initialWidth: 0
+
+                                    onActiveChanged: {
+                                        if (active) {
+                                            initialWidth = root.columnWidth(index)
+                                        }
+                                    }
+
+                                    onTranslationChanged: {
+                                        if (!active)
+                                            return
+                                        root.setColumnWidth(index, initialWidth + translation.x)
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                anchors.centerIn: resizeArea
+
+                                width: 1
+
+                                height: parent.height * 0.45
+
+                                color: resizeArea.containsMouse ? AppColors.textPrimary : "transparent"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        TreeView {
+            id: treeView
+
+            objectName: "fileTreeView"
+
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            clip: true
+
+            model: fileModel
+            selectionModel: treeSelectionModel
+
+            selectionBehavior: TableView.SelectRows
+            selectionMode: TableView.SingleSelection
+
+            columnWidthProvider: function(column) {
+                return root.columnWidth(column)
+            }
+
+            rowHeightProvider: function(row) {
+                return 32
+            }
+
+            delegate: TreeViewDelegate {
+                id: delegate
+
+                implicitHeight: 32
+
+                background: Rectangle {
+                    color: delegate.row === treeView.currentRow ? AppColors.playerBackground : (delegate.row % 2 === 0 ? AppColors.surface : AppColors.surfaceElevated)
+                }
+
+                contentItem: Item {
+                    implicitWidth: 100
+                    implicitHeight: 32
+
+                    Label {
+                        anchors.fill: parent
+
+                        anchors.leftMargin: AppMetrics.spacingMedium
+                        anchors.rightMargin: AppMetrics.spacingMedium
+
+                        verticalAlignment: Text.AlignVCenter
+
+                        visible: column !== FileTreeModel.HasLyrics
+
+                        text: model.display ?? ""
+
+                        color: AppColors.textPrimary
+
+                        elide: Text.ElideRight
+                    }
+
+                    Label {
+                        anchors.centerIn: parent
+
+                        visible: column === FileTreeModel.HasLyrics
+
+                        text: model.hasLyrics ? "✓" : ""
+
+                        color: AppColors.textPrimary
+
+                        font.pixelSize: 18
+                    }
+                }
+
+                onClicked: {
+                    root.selectRow(row)
+                }
+            }
+        }
+    }
+
     Connections {
         target: SettingsManager
 

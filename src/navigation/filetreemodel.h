@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QAbstractProxyModel>
 #include <QFileSystemModel>
 #include <QHash>
 #include <QSet>
@@ -12,8 +13,7 @@
 
 #include "metadata/taglibmetadatabackend.h"
 
-
-class FileTreeModel : public QFileSystemModel
+class FileTreeModel : public QAbstractProxyModel
 {
     Q_OBJECT
 
@@ -40,7 +40,31 @@ class FileTreeModel : public QFileSystemModel
 
 public:
     /**
+     * @brief Columns exposed by the model.
+     *
+     * The order of these values defines the logical column order used
+     * by TreeView and by headerData().
+     */
+    enum Column {
+        FileName = 0,
+        Artist,
+        Album,
+        Year,
+        Duration,
+        Genre,
+        HasLyrics,
+        ColumnCount
+    };
+
+    Q_ENUM(Column)
+
+    /**
      * @brief Custom roles exposed to QML.
+     *
+     * QFileSystemModel already uses the first few values after
+     * Qt::UserRole.  Keep this model's roles in a separate range so calls
+     * such as QFileSystemModel::fileName() cannot dispatch back into this
+     * override recursively.
      */
     enum Roles {
         FilePathRole = Qt::UserRole + 100,
@@ -63,6 +87,19 @@ public:
     QModelIndex rootIndex() const;
 
     bool isLoading() const {return m_loading;};
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+    QModelIndex parent(const QModelIndex &child) const override;
+
+    QModelIndex mapFromSource(const QModelIndex &sourceIndex) const override;
+    QModelIndex mapToSource(const QModelIndex &proxyIndex) const override;
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+    QHash<int, QByteArray> roleNames() const override;
 
     Q_INVOKABLE QString filePath(const QModelIndex &index) const;
     Q_INVOKABLE bool isDirectory(const QModelIndex &index) const;
@@ -70,14 +107,10 @@ public:
     Q_INVOKABLE QStringList pathToRoot(const QString &filePath) const;
     Q_INVOKABLE void reload();
 
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    QHash<int, QByteArray> roleNames() const override;
-
 signals:
     void rootPathChanged();
     void loadingChanged();
 private:
-
     struct MetadataResult {
         QString filePath;
         std::optional<AudioFileInfo> fileInfo;
@@ -94,10 +127,20 @@ private:
 
     bool m_loading = false;
 
+    QFileSystemModel m_sourceModel;
+    void configureSourceModel();
+
     QHash<QString, AudioFileInfo> m_metadataCache;
     QSet<QString> m_metadataPending;
     quint64 m_generation = 0;
 
 private slots:
     void slotDirectoryLoaded(const QString &path);
+    void slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles);
+    void slotInsertRows(const QModelIndex &parent, const int first, const int last);
+    void slotEndInsertRows();
+    void slotRemoveRows(const QModelIndex &parent, const int first, const int last);
+    void slotEndRemoveRows();
+    void slotResetModel();
+    void slotEndModelReset();
 };
