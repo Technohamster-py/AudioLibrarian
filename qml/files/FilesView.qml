@@ -273,7 +273,6 @@ Item {
             clip: true
 
             model: fileModel
-
             selectionModel: treeSelectionModel
 
             columnWidthProvider: function(column) {
@@ -294,7 +293,8 @@ Item {
                 }
 
                 contentItem: Item {
-                    anchors.fill: parent
+                    implicitWidth: 100
+                    implicitHeight: 32
 
                     Label {
                         anchors.fill: parent

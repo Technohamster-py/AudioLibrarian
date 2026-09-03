@@ -49,10 +49,6 @@ QModelIndex FileTreeModel::rootIndex() const{
 
 
 int FileTreeModel::columnCount(const QModelIndex &parent) const{
-    // Every item in this tree has the same set of columns.  Returning zero
-    // for a valid parent makes QTreeView/TreeView treat child rows as having
-    // no columns and can leave it holding indexes that no longer belong to
-    // this model.
     Q_UNUSED(parent)
     return ColumnCount;
 }
@@ -321,7 +317,7 @@ void FileTreeModel::configureFilters() {
         QDir::NoDotAndDotDot
     );
 
-    setNameFilterDisables(false);
+    setNameFilterDisables(true);
 
     setNameFilters({
         QStringLiteral("*.mp3"),
