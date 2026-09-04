@@ -1,6 +1,8 @@
 #pragma once
 
 #include "metadata/taglibmetadatabackend.h"
+#include "library/audiofilerecord.h"
+#include "library/scanner/libraryscanner.h"
 
 #include <QAbstractTableModel>
 #include <QUrl>
@@ -9,16 +11,7 @@
 #include <QFutureWatcher>
 #include <QtQmlIntegration/qqmlintegration.h>
 
-/**
- * @brief Represents one audio file in the library.
- *
- * The record contains only data required by the library view.
- * TagLib-specific types are deliberately not exposed here.
- */
-struct AudioFileRecord {
-    QString filePath; ///< Absolute path to the audio file.
-    AudioFileInfo fileInfo; ///< Format-independent textual metadata.
-};
+
 
 /**
  * @brief Table model representing the audio library.
@@ -189,17 +182,6 @@ private slots:
 
 private:
     /**
-     * @brief Scans a directory recursively.
-     *
-     * This function does not access any model state and can therefore
-     * safely execute in a worker thread.
-     *
-     * @param path Directory to scan.
-     * @return Discovered audio files.
-     */
-    static QVector<AudioFileRecord> scanDirectory(const QString &path);
-
-    /**
      * @brief Compares two records according to a logical column.
      */
     static bool lessThan(const AudioFileRecord &left, const AudioFileRecord &right, int column);
@@ -213,6 +195,11 @@ private:
     QVector<AudioFileRecord> m_files;
     bool m_loading = false;
 
+    struct ScanResult {
+        quint64 generation = 0;
+        QVector<AudioFileRecord> files;
+    };
+
     /**
      * @brief Identifies the most recent scan request.
      *
@@ -221,5 +208,7 @@ private:
      * results belonging to an older rootPath/reload request.
      */
     quint64 m_scanGeneration = 0;
-    QFutureWatcher<QVector<AudioFileRecord> > m_scanWatcher;
+    QFutureWatcher<ScanResult> m_scanWatcher;
+
+    void startScan(quint64 generation);
 };

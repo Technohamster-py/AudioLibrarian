@@ -12,6 +12,7 @@
 #include <QtQmlIntegration/qqmlintegration.h>
 
 #include "metadata/taglibmetadatabackend.h"
+#include "library/scanner/libraryscanner.h"
 
 class FileTreeModel : public QAbstractProxyModel
 {
@@ -121,8 +122,6 @@ private:
     void loadMetadata(const QString &filePath);
     void loadDirectoryMetadata(const QString &path);
 
-    static bool isAudioFile(const QString &filePath);
-
     void setLoading(bool loading);
 
     bool m_loading = false;
@@ -133,6 +132,7 @@ private:
     QHash<QString, AudioFileInfo> m_metadataCache;
     QSet<QString> m_metadataPending;
     quint64 m_generation = 0;
+    LibraryScanner m_scanner;
 
 private slots:
     void slotDirectoryLoaded(const QString &path);
