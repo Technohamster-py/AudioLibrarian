@@ -1,7 +1,6 @@
 #include "audiofiletablemodel.h"
 
 #include <QFileInfo>
-#include <QDirIterator>
 #include <QStandardPaths>
 #include <QUrl>
 #include <QtConcurrent/QtConcurrentRun>
@@ -65,7 +64,10 @@ void AudioFileTableModel::reload() {
 
     setLoading(true);
     const QString path = m_rootPath;
-    m_scanWatcher.setFuture(QtConcurrent::run(&AudioFileTableModel::scanDirectory, path));
+    m_scanWatcher.setFuture(QtConcurrent::run([path]() {
+        LibraryScanner m_scanner;
+        return m_scanner.scan(path);
+    }));
 }
 
 int AudioFileTableModel::rowCount(const QModelIndex &parent) const {
@@ -247,41 +249,6 @@ void AudioFileTableModel::handleScanFinished() {
     m_files = files;
     endResetModel();
     setLoading(false);
-}
-
-QVector<AudioFileRecord> AudioFileTableModel::scanDirectory(const QString &path) {
-    QVector<AudioFileRecord> result;
-
-    if (path.isEmpty())
-        return result;
-
-    const QFileInfo rootInfo(path);
-    if (!rootInfo.exists() || !rootInfo.isDir())
-        return result;
-
-    QDirIterator iterator(path, QDir::Files | QDir::Readable, QDirIterator::Subdirectories);
-
-    TagLibMetadataBackend backend;
-
-    while (iterator.hasNext()) {
-        const QString filePath = iterator.next();
-        const auto fileInfo = backend.readFile(filePath);
-
-        if (!fileInfo)
-            continue;
-
-        AudioFileRecord record;
-        record.filePath = filePath;
-        record.fileInfo = *fileInfo;
-
-        result.append(std::move(record));
-    }
-
-    std::sort(result.begin(), result.end(), [](const AudioFileRecord &left, const AudioFileRecord &right) {
-        return QString::compare(left.filePath, right.filePath, Qt::CaseInsensitive) < 0;
-    });
-
-    return result;
 }
 
 bool AudioFileTableModel::lessThan(const AudioFileRecord &left, const AudioFileRecord &right, int column) {

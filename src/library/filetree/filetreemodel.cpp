@@ -410,12 +410,16 @@ void FileTreeModel::loadMetadata(const QString &filePath)
     );
 
     watcher->setFuture(QtConcurrent::run([filePath, generation]() {
-                TagLibMetadataBackend backend;
+                LibraryScanner scanner;
 
                 MetadataResult result;
                 result.filePath = filePath;
                 result.generation = generation;
-                result.fileInfo = backend.readFile(filePath);
+
+                const auto record = scanner.readFile(filePath);
+
+                if (record)
+                    result.fileInfo = record->fileInfo;
 
                 return result;
             }
@@ -440,26 +444,9 @@ void FileTreeModel::loadDirectoryMetadata(const QString &path)
 
         const QString filePath = m_sourceModel.filePath(index);
 
-        if (isAudioFile(filePath))
+        if (m_scanner.isAudioFile(filePath))
             loadMetadata(filePath);
     }
-}
-
-bool FileTreeModel::isAudioFile(const QString &filePath)
-{
-    const QString suffix = QFileInfo(filePath).suffix().toLower();
-
-    return suffix == QStringLiteral("mp3") ||
-           suffix == QStringLiteral("flac") ||
-           suffix == QStringLiteral("ogg") ||
-           suffix == QStringLiteral("oga") ||
-           suffix == QStringLiteral("wav") ||
-           suffix == QStringLiteral("m4a") ||
-           suffix == QStringLiteral("aac") ||
-           suffix == QStringLiteral("opus") ||
-           suffix == QStringLiteral("wma") ||
-           suffix == QStringLiteral("aiff") ||
-           suffix == QStringLiteral("aif");
 }
 
 void FileTreeModel::setLoading(const bool loading)

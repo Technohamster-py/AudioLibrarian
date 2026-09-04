@@ -26,8 +26,10 @@ qt_standard_project_setup(REQUIRES 6.11)
 # ---------------------------------------------------------------------------
 
 add_library(AudioLibrarianCore STATIC
+        src/library/audiofilerecord.h
         src/library/filetree/filetreemodel.h        src/library/filetree/filetreemodel.cpp
         src/library/library/audiofiletablemodel.h   src/library/library/audiofiletablemodel.cpp
+        src/library/scanner/libraryscanner.h        src/library/scanner/libraryscanner.cpp
         src/metadata/audiometadata.h                src/metadata/audiometadata.cpp
         src/metadata/metadatautils.h                src/metadata/metadatautils.cpp
         src/metadata/tageditormodel.h               src/metadata/tageditormodel.cpp
