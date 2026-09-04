@@ -26,16 +26,16 @@ qt_standard_project_setup(REQUIRES 6.11)
 # ---------------------------------------------------------------------------
 
 add_library(AudioLibrarianCore STATIC
-        src/library/audiofiletablemodel.h       src/library/audiofiletablemodel.cpp
-        src/metadata/audiometadata.h            src/metadata/audiometadata.cpp
-        src/metadata/metadatautils.h            src/metadata/metadatautils.cpp
-        src/metadata/tageditormodel.h           src/metadata/tageditormodel.cpp
-        src/metadata/taglibmetadatabackend.h    src/metadata/taglibmetadatabackend.cpp
-        src/navigation/filetreemodel.h          src/navigation/filetreemodel.cpp
-        src/player/playercontroller.h           src/player/playercontroller.cpp
-        src/settings/settingsmanager.h          src/settings/settingsmanager.cpp
+        src/library/filetree/filetreemodel.h        src/library/filetree/filetreemodel.cpp
+        src/library/library/audiofiletablemodel.h   src/library/library/audiofiletablemodel.cpp
+        src/metadata/audiometadata.h                src/metadata/audiometadata.cpp
+        src/metadata/metadatautils.h                src/metadata/metadatautils.cpp
+        src/metadata/tageditormodel.h               src/metadata/tageditormodel.cpp
+        src/metadata/taglibmetadatabackend.h        src/metadata/taglibmetadatabackend.cpp
+        src/player/playercontroller.h               src/player/playercontroller.cpp
+        src/settings/settingsmanager.h              src/settings/settingsmanager.cpp
         src/settings/settingsstruct.h
-        src/utils/datautils.h                  src/utils/datautils.cpp
+        src/utils/datautils.h                       src/utils/datautils.cpp
 )
 
 target_link_libraries(AudioLibrarianCore
@@ -160,9 +160,9 @@ qt_add_qml_module(AudioLibrarianUi
         # qmltyperegistrar generates their module registration.  The model's
         # implementation remains in AudioLibrarianCore above.
         SOURCES
-        src/library/audiofiletablemodel.h
+        src/library/filetree/filetreemodel.h
+        src/library/library/audiofiletablemodel.h
         src/metadata/tageditormodel.h
-        src/navigation/filetreemodel.h
         src/settings/settingsmanager.h
         src/player/playercontroller.h
 
@@ -223,9 +223,9 @@ target_link_libraries(AudioLibrarianUi
 
 target_include_directories(AudioLibrarianUi PRIVATE
         src
-        src/library
+        src/library/filetree
+        src/library/library
         src/metadata
-        src/navigation
         src/player
         src/settings
 )

@@ -1,6 +1,6 @@
 #include <QtTest>
 
-#include "../../src/library/audiofiletablemodel.h"
+#include "../../src/library/library/audiofiletablemodel.h"
 
 #include <QAbstractItemModelTester>
 #include <QBuffer>
