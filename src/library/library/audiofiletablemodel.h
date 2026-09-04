@@ -195,6 +195,11 @@ private:
     QVector<AudioFileRecord> m_files;
     bool m_loading = false;
 
+    struct ScanResult {
+        quint64 generation = 0;
+        QVector<AudioFileRecord> files;
+    };
+
     /**
      * @brief Identifies the most recent scan request.
      *
@@ -203,5 +208,7 @@ private:
      * results belonging to an older rootPath/reload request.
      */
     quint64 m_scanGeneration = 0;
-    QFutureWatcher<QVector<AudioFileRecord> > m_scanWatcher;
+    QFutureWatcher<ScanResult> m_scanWatcher;
+
+    void startScan(quint64 generation);
 };

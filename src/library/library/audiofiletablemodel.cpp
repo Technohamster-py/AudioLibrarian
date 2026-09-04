@@ -20,7 +20,7 @@
  */
 AudioFileTableModel::AudioFileTableModel(QObject *parent) : QAbstractTableModel(parent),
 m_rootPath(QStandardPaths::writableLocation(QStandardPaths::MusicLocation)){
-    connect(&m_scanWatcher, &QFutureWatcher<QVector<AudioFileRecord>>::finished, this, &AudioFileTableModel::handleScanFinished);
+    connect(&m_scanWatcher, &QFutureWatcher<ScanResult>::finished, this, &AudioFileTableModel::handleScanFinished);
     reload();
 }
 
@@ -57,17 +57,12 @@ bool AudioFileTableModel::isLoading() const {
 }
 
 void AudioFileTableModel::reload() {
-    ++m_scanGeneration;
+    const quint64 generation = ++m_scanGeneration;
 
     if (m_scanWatcher.isRunning())
         return;
 
-    setLoading(true);
-    const QString path = m_rootPath;
-    m_scanWatcher.setFuture(QtConcurrent::run([path]() {
-        LibraryScanner m_scanner;
-        return m_scanner.scan(path);
-    }));
+    startScan(generation);
 }
 
 int AudioFileTableModel::rowCount(const QModelIndex &parent) const {
@@ -243,10 +238,15 @@ bool AudioFileTableModel::reloadFile(const QString &filePath) {
 
 
 void AudioFileTableModel::handleScanFinished() {
-    const QVector<AudioFileRecord> files = m_scanWatcher.result();
+    const ScanResult result = m_scanWatcher.result();
+
+    if (result.generation != m_scanGeneration) {
+        startScan(m_scanGeneration);
+        return;
+    }
 
     beginResetModel();
-    m_files = files;
+    m_files = result.files;
     endResetModel();
     setLoading(false);
 }
@@ -284,4 +284,20 @@ void AudioFileTableModel::setLoading(const bool loading) {
         return;
     m_loading = loading;
     emit loadingChanged();
+}
+
+void AudioFileTableModel::startScan(quint64 generation) {
+    setLoading(true);
+
+    const QString path = m_rootPath;
+
+    m_scanWatcher.setFuture(QtConcurrent::run([path, generation]() {
+        ScanResult result;
+        result.generation = generation;
+
+        LibraryScanner scanner;
+        result.files = scanner.scan(path);
+
+        return result;
+    }));
 }
