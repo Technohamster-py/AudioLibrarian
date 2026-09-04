@@ -171,22 +171,6 @@ Item {
                     }
                 }
 
-                // /**
-                //  * Album label
-                //  */
-                // Label {
-                //     Layout.fillWidth: true
-                //     text: root.player.album
-                //     color: AppColors.playerForeground
-                //
-                //     opacity: 0.75
-                //
-                //     elide: Text.ElideRight
-                //     verticalAlignment: Text.AlignVCenter
-                //
-                //     visible: text.length > 0
-                // }
-
                 /**
                  * Progress
                  */

@@ -52,7 +52,7 @@ Item {
             Label {
                 text: root.title
 
-                color: AppColors.textPrimary
+                color: AppColors.settingsTextPrimary
 
                 font.pixelSize: 15
             }
@@ -62,7 +62,7 @@ Item {
 
                 text: root.description
 
-                color: AppColors.textSecondary
+                color: AppColors.settingsTextSecondary
 
                 font.pixelSize: 12
 

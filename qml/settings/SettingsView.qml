@@ -16,7 +16,7 @@ Item {
     Rectangle {
         anchors.fill: parent
 
-        color: AppColors.background
+        color: AppColors.settingsBackground
 
         ScrollView {
             anchors.fill: parent
@@ -36,7 +36,7 @@ Item {
                 Label {
                     text: qsTr("Settings")
 
-                    color: AppColors.textPrimary
+                    color: AppColors.settingsTextPrimary
 
                     font.pixelSize: 28
                     font.bold: true
@@ -45,7 +45,7 @@ Item {
                 Label {
                     text: qsTr("General")
 
-                    color: AppColors.textPrimary
+                    color: AppColors.settingsTextPrimary
 
                     font.pixelSize: 20
                     font.bold: true
@@ -57,7 +57,7 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 1
 
-                    color: AppColors.separator
+                    color: AppColors.settingsSeparator
                 }
 
                 SettingsRow {

@@ -28,7 +28,7 @@ Item {
     Rectangle {
         anchors.fill: parent
 
-        color: AppColors.navigationBar
+        color: AppColors.toolbarBackground
 
         ColumnLayout {
             anchors.fill: parent

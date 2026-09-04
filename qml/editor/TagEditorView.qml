@@ -30,7 +30,7 @@ Item {
     Rectangle {
         anchors.fill: parent
 
-        color: AppColors.background
+        color: AppColors.editorBackground
 
         ColumnLayout {
             anchors.fill: parent
@@ -43,7 +43,7 @@ Item {
 
                 text: qsTr("Tag Editor")
 
-                color: AppColors.textPrimary
+                color: AppColors.editorTextPrimary
                 font.pixelSize: 28
             }
 
@@ -52,7 +52,7 @@ Item {
 
                 text: root.fileName.length > 0 ? root.fileName : qsTr("No file selected")
 
-                color: AppColors.textSecondary
+                color: AppColors.editorTextSecondary
                 elide: Text.ElideMiddle
             }
 
@@ -83,7 +83,7 @@ Item {
 
                     height: isLyrics ? 220 : 48
 
-                    color: AppColors.surface
+                    color: AppColors.editorPanel
 
                     RowLayout {
                         anchors.fill: parent
@@ -111,7 +111,7 @@ Item {
 
                                 text: displayName
 
-                                color: AppColors.textPrimary
+                                color: AppColors.editorTextPrimary
 
                                 elide: Text.ElideRight
                             }
@@ -125,7 +125,7 @@ Item {
 
                                 text: key
 
-                                color: AppColors.textSecondary
+                                color: AppColors.editorTextSecondary
 
                                 font.pixelSize: 11
 
@@ -147,7 +147,7 @@ Item {
 
                             visible: !isLyrics
 
-                            color: AppColors.textPrimary
+                            color: AppColors.editorTextPrimary
 
                             horizontalAlignment: TextInput.AlignLeft
                             verticalAlignment: TextInput.AlignVCenter
@@ -188,7 +188,7 @@ Item {
 
                                 width: lyricsScrollView.availableWidth
 
-                                color: AppColors.textPrimary
+                                color: AppColors.editorTextPrimary
 
                                 wrapMode: TextEdit.Wrap
 

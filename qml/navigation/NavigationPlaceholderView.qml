@@ -24,7 +24,7 @@ Item {
     Rectangle {
         anchors.fill: parent
 
-        color: AppColors.background
+        color: AppColors.navigationBackground
 
         ColumnLayout {
             anchors.centerIn: parent
@@ -45,7 +45,7 @@ Item {
 
                 text: root.title
 
-                color: AppColors.textPrimary
+                color: AppColors.navigationTextPrimary
 
                 font.pixelSize: 28
             }
@@ -55,7 +55,7 @@ Item {
 
                 text: qsTr("This section is not implemented yet.")
 
-                color: AppColors.textSecondary
+                color: AppColors.navigationTextSecondary
             }
         }
     }

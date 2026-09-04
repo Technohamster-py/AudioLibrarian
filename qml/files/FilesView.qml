@@ -113,7 +113,7 @@ Item {
     Rectangle {
         anchors.fill: parent
 
-        color: AppColors.background
+        color: AppColors.navigationBackground
 
         visible: fileModel.loading
 
@@ -135,7 +135,7 @@ Item {
 
                 text: qsTr("Scanning files...")
 
-                color: AppColors.textSecondary
+                color: AppColors.navigationTextSecondary
             }
         }
     }
@@ -152,7 +152,7 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 36
 
-            color: AppColors.surfaceElevated
+            color: AppColors.navigationElevated
 
             clip: true
 
@@ -188,7 +188,7 @@ Item {
                             width: root.columnWidth(index)
                             height: tableHeader.height
 
-                            color: AppColors.surfaceElevated
+                            color: AppColors.navigationElevated
 
                             /*
                              * Header text.
@@ -204,7 +204,7 @@ Item {
 
                                 text: fileModel.headerData(index, Qt.Horizontal, Qt.DisplayRole)
 
-                                color: AppColors.textSecondary
+                                color: AppColors.navigationTextSecondary
 
                                 elide: Text.ElideRight
                             }
@@ -254,7 +254,7 @@ Item {
 
                                 height: parent.height * 0.45
 
-                                color: resizeArea.containsMouse ? AppColors.textPrimary : "transparent"
+                                color: resizeArea.containsMouse ? AppColors.navigationTextPrimary : "transparent"
                             }
                         }
                     }
@@ -293,7 +293,7 @@ Item {
                 implicitHeight: 32
 
                 background: Rectangle {
-                    color: delegate.row === treeView.currentRow ? AppColors.playerBackground : (delegate.row % 2 === 0 ? AppColors.surface : AppColors.surfaceElevated)
+                    color: delegate.row === treeView.currentRow ? AppColors.navigationAccent : (delegate.row % 2 === 0 ? AppColors.navigationPanel : AppColors.navigationElevated)
                 }
 
                 contentItem: Item {
@@ -312,7 +312,7 @@ Item {
 
                         text: model.display ?? ""
 
-                        color: AppColors.textPrimary
+                        color: AppColors.navigationTextPrimary
 
                         elide: Text.ElideRight
                     }
@@ -324,7 +324,7 @@ Item {
 
                         text: model.hasLyrics ? "✓" : ""
 
-                        color: AppColors.textPrimary
+                        color: AppColors.navigationTextPrimary
 
                         font.pixelSize: 18
                     }

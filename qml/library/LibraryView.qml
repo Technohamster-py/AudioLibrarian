@@ -149,7 +149,7 @@ Item {
 
             text: qsTr("Library")
 
-            color: AppColors.textPrimary
+            color: AppColors.navigationTextPrimary
             font.pixelSize: 28
         }
 
@@ -161,7 +161,7 @@ Item {
             Label {
                 text: qsTr("%1 files").arg(libraryModel.rowCount())
 
-                color: AppColors.textSecondary
+                color: AppColors.navigationTextSecondary
             }
 
             Item {
@@ -181,7 +181,7 @@ Item {
 
             height: 1
 
-            color: AppColors.separator
+            color: AppColors.navigationSeparator
         }
 
         /**
@@ -196,7 +196,7 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 36
 
-            color: AppColors.surfaceElevated
+            color: AppColors.navigationElevated
 
             clip: true
 
@@ -218,7 +218,7 @@ Item {
                         width: root.columnWidth(index)
                         height: tableHeader.height
 
-                        color: sorted ? AppColors.surfaceSelected : sortArea.containsMouse ? AppColors.hover : AppColors.surfaceElevated
+                        color: sorted ? AppColors.navigationSelection : sortArea.containsMouse ? AppColors.navigationHover : AppColors.navigationElevated
 
                         /**
                          * @brief Sorts the table when the header is clicked.
@@ -258,7 +258,7 @@ Item {
 
                             text: libraryModel.headerData(index, Qt.Horizontal, Qt.DisplayRole)
 
-                            color: AppColors.textSecondary
+                            color: AppColors.navigationTextSecondary
 
                             elide: Text.ElideRight
                         }
@@ -335,7 +335,7 @@ Item {
                             width: 1
                             height: parent.height * 0.45
 
-                            color: resizeArea.containsMouse ? AppColors.textPrimary : "transparent"
+                            color: resizeArea.containsMouse ? AppColors.navigationTextPrimary : "transparent"
                         }
                     }
                 }
@@ -371,7 +371,7 @@ Item {
 
                 readonly property bool selected: row === root.selectedIndex
 
-                color: selected ? AppColors.surfaceSelected : AppColors.surface
+                color: selected ? AppColors.navigationSelection : AppColors.navigationPanel
 
                 Loader {
                     anchors.centerIn: parent
@@ -389,7 +389,7 @@ Item {
                         height: width
 
                         radius: 2
-                        color: AppColors.surfaceElevated
+                        color: AppColors.navigationElevated
 
                         Image {
                             id: coverImage
@@ -430,9 +430,7 @@ Item {
                         column !== AudioFileTableModel.Cover &&
                         column !== AudioFileTableModel.HasLyrics
 
-                    color: selected
-                        ? AppColors.textPrimary
-                        : AppColors.textSecondary
+                    color: selected ? AppColors.navigationTextPrimary : AppColors.navigationTextSecondary
 
                     elide: Text.ElideRight
 
@@ -473,7 +471,7 @@ Item {
 
                     text: model.hasLyrics ? "✓" : ""
 
-                    color: AppColors.textPrimary
+                    color: AppColors.navigationTextPrimary
 
                     font.pixelSize: 18
                 }

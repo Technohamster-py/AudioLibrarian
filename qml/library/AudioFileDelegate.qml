@@ -26,7 +26,7 @@ Item {
 
         radius: AppMetrics.radiusSmall
 
-        color: root.selected ? AppColors.selection : (mouseArea.containsMouse ? AppColors.hover : "transparent")
+        color: root.selected ? AppColors.navigationSelection : (mouseArea.containsMouse ? AppColors.navigationHover : "transparent")
 
         RowLayout {
             anchors.fill: parent
@@ -53,7 +53,7 @@ Item {
 
                     text: root.fileName
 
-                    color: AppColors.textPrimary
+                    color: AppColors.navigationTextPrimary
 
                     elide: Text.ElideRight
                 }
@@ -65,7 +65,7 @@ Item {
                         .arg(root.artist)
                         .arg(root.album)
 
-                    color: AppColors.textSecondary
+                    color: AppColors.navigationTextSecondary
 
                     font.pixelSize: 12
 
@@ -78,7 +78,7 @@ Item {
 
                 text: root.year
 
-                color: AppColors.textSecondary
+                color: AppColors.navigationTextSecondary
 
                 horizontalAlignment: Text.AlignRight
             }
@@ -88,7 +88,7 @@ Item {
 
                 text: root.duration
 
-                color: AppColors.textSecondary
+                color: AppColors.navigationTextSecondary
 
                 horizontalAlignment: Text.AlignRight
             }
