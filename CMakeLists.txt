@@ -26,18 +26,21 @@ qt_standard_project_setup(REQUIRES 6.11)
 # ---------------------------------------------------------------------------
 
 add_library(AudioLibrarianCore STATIC
+        src/batch/abstractbatchoperation.h              src/batch/abstractbatchoperation.cpp
+        src/batch/batchprocessor.h                      src/batch/batchprocessor.cpp
+        src/batch/duplicates/duplicatesearchresult.cpp  src/batch/duplicates/duplicatesearchresult.cpp
         src/library/audiofilerecord.h
-        src/library/filetree/filetreemodel.h        src/library/filetree/filetreemodel.cpp
-        src/library/library/audiofiletablemodel.h   src/library/library/audiofiletablemodel.cpp
-        src/library/scanner/libraryscanner.h        src/library/scanner/libraryscanner.cpp
-        src/metadata/audiometadata.h                src/metadata/audiometadata.cpp
-        src/metadata/metadatautils.h                src/metadata/metadatautils.cpp
-        src/metadata/tageditormodel.h               src/metadata/tageditormodel.cpp
-        src/metadata/taglibmetadatabackend.h        src/metadata/taglibmetadatabackend.cpp
-        src/player/playercontroller.h               src/player/playercontroller.cpp
-        src/settings/settingsmanager.h              src/settings/settingsmanager.cpp
+        src/library/filetree/filetreemodel.h            src/library/filetree/filetreemodel.cpp
+        src/library/library/audiofiletablemodel.h       src/library/library/audiofiletablemodel.cpp
+        src/library/scanner/libraryscanner.h            src/library/scanner/libraryscanner.cpp
+        src/metadata/audiometadata.h                    src/metadata/audiometadata.cpp
+        src/metadata/metadatautils.h                    src/metadata/metadatautils.cpp
+        src/metadata/tageditormodel.h                   src/metadata/tageditormodel.cpp
+        src/metadata/taglibmetadatabackend.h            src/metadata/taglibmetadatabackend.cpp
+        src/player/playercontroller.h                   src/player/playercontroller.cpp
+        src/settings/settingsmanager.h                  src/settings/settingsmanager.cpp
         src/settings/settingsstruct.h
-        src/utils/datautils.h                       src/utils/datautils.cpp
+        src/utils/datautils.h                           src/utils/datautils.cpp
 )
 
 target_link_libraries(AudioLibrarianCore
