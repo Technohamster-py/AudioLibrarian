@@ -34,5 +34,3 @@ private:
 
     QVector<MetadataEditFileResult> m_results;
 };
-
-
