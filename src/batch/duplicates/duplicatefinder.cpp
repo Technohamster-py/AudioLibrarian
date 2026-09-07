@@ -45,7 +45,7 @@ BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &fi
 
     for (const AudioFileRecord &record: files) {
         if (cancellationRequested.load(std::memory_order_relaxed))
-            return {.success = false, .canceled = true};
+            return {.state = BatchOperationState::Cancelled};
 
         const QFileInfo fileInfo(record.filePath);
 
@@ -74,7 +74,7 @@ BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &fi
 
         for (const AudioFileRecord &record: records) {
             if (cancellationRequested.load(std::memory_order_relaxed))
-                return {.success = false, .canceled = true};
+                return {.state = BatchOperationState::Cancelled};
 
             const QFileInfo fileInfo(record.filePath);
 
@@ -82,7 +82,7 @@ BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &fi
 
             if (hash.isEmpty()) {
                 if (cancellationRequested.load(std::memory_order_relaxed)) {
-                    return {.success = false, .canceled = true};
+                    return {.state = BatchOperationState::Cancelled};
                 }
 
                 ++processed;
@@ -111,7 +111,7 @@ BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &fi
         }
     }
 
-    return {.success = true, .canceled = false};
+    return {.state = BatchOperationState::Success};
 }
 
 const DuplicateSearchResult &DuplicateFinder::result() const {

@@ -8,9 +8,14 @@
 
 #include <atomic>
 
+enum class BatchOperationState {
+    Success,
+    Fail,
+    Cancelled
+};
+
 struct BatchOperationResult {
-    bool success;
-    bool canceled;
+    BatchOperationState state = BatchOperationState::Success;
     QString errorMessage;
 };
 

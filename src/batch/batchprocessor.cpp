@@ -62,15 +62,19 @@ void BatchProcessor::setState(State state) {
 void BatchProcessor::handleFinished() {
     const BatchOperationResult result = m_watcher.result();
 
-    if (result.canceled) {
-        setState(State::Cancelled);
-        emit cancelled();
-    }else if (!result.success) {
-        setState(State::Failed);
-        emit failed(result.errorMessage);
-    }else {
-        setState(State::Finished);
-        emit finished();
+    switch (result.state) {
+        case BatchOperationState::Success:
+            setState(State::Finished);
+            emit finished();
+            break;
+        case BatchOperationState::Fail:
+            setState(State::Failed);
+            emit failed(result.errorMessage);
+            break;
+        case BatchOperationState::Cancelled:
+            setState(State::Cancelled);
+            emit cancelled();
+            break;
     }
 
     m_operation.clear();
