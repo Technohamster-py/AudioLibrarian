@@ -89,6 +89,10 @@ BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &fi
     return result;
 }
 
+void DuplicateFinder::setSearchModes(const QSet<DuplicateSearchMode> &searchModes) {
+    m_searchModes = searchModes;
+}
+
 const DuplicateSearchResult &DuplicateFinder::result() const {
     return m_result;
 }
