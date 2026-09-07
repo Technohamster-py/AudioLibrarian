@@ -158,6 +158,16 @@ set_source_files_properties(
         PROPERTIES QT_RESOURCE_ALIAS "FilesView.qml"
 )
 
+set_source_files_properties(
+        qml/batch/BatchProcessView.qml
+        PROPERTIES QT_RESOURCE_ALIAS "BatchProcessView.qml"
+)
+
+set_source_files_properties(
+        qml/batch/DuplicateFinderView.qml
+        PROPERTIES QT_RESOURCE_ALIAS "DuplicateFinderView.qml"
+)
+
 qt_add_qml_module(AudioLibrarianUi
         URI AudioLibrarian
         VERSION 0.1
@@ -176,6 +186,9 @@ qt_add_qml_module(AudioLibrarianUi
         qml/Main.qml
 
         qml/app/MainWindow.qml
+
+        qml/batch/BatchProcessView.qml
+        qml/batch/DuplicateFinderView.qml
 
         qml/components/AppIcon.qml
         qml/components/AppToolButton.qml

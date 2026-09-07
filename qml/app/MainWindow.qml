@@ -99,106 +99,131 @@ ApplicationWindow {
             }
         }
 
-        SplitView {
-            id: filesWorkspace
-            objectName: "mainSplitView"
+        StackLayout {
+            id: mainWorkspaceStack
+            objectName: "mainWorkspaceStack"
 
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            orientation: Qt.Horizontal
+            currentIndex: root.activeSection === "duplicates" ? 1 : 0
 
-            handle: Rectangle {
-                implicitWidth: 3
-                color: SplitHandle.pressed ? AppColors.accent : AppColors.separator
-            }
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
 
-            ColumnLayout{
-                id: navigationLayout
-                objectName: "navigationLayout"
+                SplitView {
+                    id: filesWorkspace
+                    objectName: "mainSplitView"
 
-                SplitView.preferredWidth: SettingsManager.navigationWidth
-                SplitView.minimumWidth: AppMetrics.libraryMinimumWidth
-                SplitView.maximumWidth: AppMetrics.libraryMaximumWidth
+                    anchors.fill: parent
 
-                StackLayout {
-                    id: contentStack
-                    objectName: "workspaceStack"
+                    orientation: Qt.Horizontal
 
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    handle: Rectangle {
+                        implicitWidth: 3
+                        color: SplitHandle.pressed ? AppColors.accent : AppColors.separator
+                    }
 
-                    currentIndex: root.sectionIndex(root.activeSection)
+                    ColumnLayout{
+                        id: navigationLayout
+                        objectName: "navigationLayout"
 
-                    FilesView {
-                        id: filesView
+                        SplitView.preferredWidth: SettingsManager.navigationWidth
+                        SplitView.minimumWidth: AppMetrics.libraryMinimumWidth
+                        SplitView.maximumWidth: AppMetrics.libraryMaximumWidth
 
-                        objectName: "filesView"
+                        StackLayout {
+                            id: contentStack
+                            objectName: "workspaceStack"
 
-                        currentFilePath: root.selectedFilePath
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
 
-                        onFileSelected: function(filePath) {
-                            root.selectedFilePath = filePath
-                            playerController.setFilePath(filePath)
+                            currentIndex: root.sectionIndex(root.activeSection)
+
+                            FilesView {
+                                id: filesView
+
+                                objectName: "filesView"
+
+                                currentFilePath: root.selectedFilePath
+
+                                onFileSelected: function(filePath) {
+                                    root.selectedFilePath = filePath
+                                    playerController.setFilePath(filePath)
+                                }
+                            }
+
+                            NavigationPlaceholderView {
+                                objectName: "albumsView"
+                                title: qsTr("Albums")
+                                iconSource: AppAssets.albums
+                            }
+
+                            NavigationPlaceholderView {
+                                objectName: "artistsView"
+                                title: qsTr("Artists")
+                                iconSource: AppAssets.artists
+                            }
+
+                            LibraryPane {
+                                id: libraryPane
+
+                                objectName: "libraryPane"
+
+                                onFileSelected: function (filePath) {
+                                    root.selectedFilePath = filePath
+                                    playerController.setFilePath(filePath)
+                                }
+                            }
+
+                            NavigationPlaceholderView {
+                                objectName: "duplicatesView"
+                                title: qsTr("Duplicates")
+                                iconSource: AppAssets.duplicate
+                            }
+
+                            SettingsView {
+                                objectName: "settingsView"
+                            }
+                        }
+
+                        PlayerBar {
+                            id: playerBar
+                            objectName: "playerBar"
+
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: AppMetrics.playerHeight
+                            player: playerController
                         }
                     }
 
-                    NavigationPlaceholderView {
-                        objectName: "albumsView"
-                        title: qsTr("Albums")
-                        iconSource: AppAssets.albums
+                    EditorView {
+                        id: editorView
+                        objectName: "editorView"
+
+                        SplitView.minimumWidth: AppMetrics.editorMinimumWidth
+                        SplitView.maximumWidth: AppMetrics.editorMaximumWidth
+
+                        SplitView.fillWidth: true
+
+                        filePath: root.selectedFilePath
                     }
-
-                    NavigationPlaceholderView {
-                        objectName: "artistsView"
-                        title: qsTr("Artists")
-                        iconSource: AppAssets.artists
-                    }
-
-                    LibraryPane {
-                        id: libraryPane
-
-                        objectName: "libraryPane"
-
-                        onFileSelected: function (filePath) {
-                            root.selectedFilePath = filePath
-                            playerController.setFilePath(filePath)
-                        }
-                    }
-
-                    NavigationPlaceholderView {
-                        objectName: "duplicatesView"
-                        title: qsTr("Duplicates")
-                        iconSource: AppAssets.duplicate
-                    }
-
-                    SettingsView {
-                        objectName: "settingsView"
-                    }
-                }
-
-                PlayerBar {
-                    id: playerBar
-                    objectName: "playerBar"
-
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: AppMetrics.playerHeight
-                    player: playerController
                 }
             }
 
-            EditorView {
-                id: editorView
-                objectName: "editorView"
+            BatchProcessView {
+                id: batchProcessView
+                objectName: "batchProcessView"
 
-                SplitView.minimumWidth: AppMetrics.editorMinimumWidth
-                SplitView.maximumWidth: AppMetrics.editorMaximumWidth
-
-                SplitView.fillWidth: true
-
-                filePath: root.selectedFilePath
+                Layout.fillWidth: true
+                Layout.fillHeight: true
             }
+
         }
+
+
     }
 
     /**
