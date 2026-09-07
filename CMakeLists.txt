@@ -372,6 +372,48 @@ add_test(
 )
 
 # ---------------------------------------------------------------------------
+# Batch processing tests
+# ---------------------------------------------------------------------------
+
+add_executable(tst_BatchProcessor
+        tests/batch/tst_batchprocessor.cpp
+)
+
+target_link_libraries(tst_BatchProcessor
+        PRIVATE
+        AudioLibrarianCore
+        Qt6::Test
+)
+
+target_include_directories(tst_BatchProcessor PRIVATE
+        src
+)
+
+add_test(
+        NAME tst_BatchProcessor
+        COMMAND tst_BatchProcessor
+)
+
+add_executable(tst_DuplicateFinder
+        tests/batch/tst_duplicatefinder.cpp
+)
+
+target_link_libraries(tst_DuplicateFinder
+        PRIVATE
+        AudioLibrarianCore
+        Qt6::Test
+)
+
+target_include_directories(tst_DuplicateFinder PRIVATE
+        src
+)
+
+add_test(
+        NAME tst_DuplicateFinder
+        COMMAND tst_DuplicateFinder
+)
+
+# ---------------------------------------------------------------------------
 # Windows / Qt deployment
 # ---------------------------------------------------------------------------
 #
