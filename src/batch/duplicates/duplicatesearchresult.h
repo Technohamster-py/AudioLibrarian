@@ -16,7 +16,7 @@ struct DuplicateFile
 
 enum class DuplicateSearchMode {
     Content,
-    Metadat,
+    Metadata,
     FileName
 };
 
