@@ -103,6 +103,14 @@ const DuplicateSearchResult &DuplicateFinder::result() const {
     return m_result;
 }
 
+void DuplicateFinder::setDurationTolerance(int durationTolerance) {
+    if (durationTolerance < 0 || durationTolerance == m_durationTolerance)
+        return;
+
+    m_durationTolerance = durationTolerance;
+    emit durationToleranceChanged();
+}
+
 /**
  * @brief Searches for byte-identical files using file size and SHA-256.
  */
@@ -189,8 +197,6 @@ BatchOperationResult DuplicateFinder::findByContent(const QVector<AudioFileRecor
 }
 
 BatchOperationResult DuplicateFinder::findByMetadata(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result) {
-    constexpr int DurationTolerance = 2;
-
     QHash<QString, QVector<AudioFileRecord>> filesByMetadata;
 
     for (const AudioFileRecord &record : files) {
@@ -237,7 +243,7 @@ BatchOperationResult DuplicateFinder::findByMetadata(const QVector<AudioFileReco
 
             if (currentGroup.files.isEmpty()) {
                 groupStartDuration = duration;
-            } else if (duration - groupStartDuration > DurationTolerance) {
+            } else if (duration - groupStartDuration > m_durationTolerance) {
                 if (currentGroup.files.size() > 1)
                     result.groups.append(std::move(currentGroup));
 
