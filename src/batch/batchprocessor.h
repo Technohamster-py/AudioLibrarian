@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QFuture>
 #include <QFutureWatcher>
+#include <QSharedPointer>
 #include <QString>
 #include <QVector>
 
@@ -28,7 +29,7 @@ public:
     explicit BatchProcessor(QObject *parent = nullptr);
     ~BatchProcessor() override;
 
-    bool start(const QSharedDataPointer<AbstractBatchOperation> &operation, const QVector<AudioFileRecord> &files);
+    bool start(const QSharedPointer<AbstractBatchOperation> &operation, const QVector<AudioFileRecord> &files);
     void cancel();
 
     State state() const {return m_state;};
@@ -55,5 +56,4 @@ private:
 private slots:
     void handleFinished();
 };
-
 

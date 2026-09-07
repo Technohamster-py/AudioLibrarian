@@ -13,7 +13,7 @@ BatchProcessor::~BatchProcessor() {
         m_watcher.waitForFinished();
 }
 
-bool BatchProcessor::start(const QSharedDataPointer<AbstractBatchOperation> &operation, const QVector<AudioFileRecord> &files) {
+bool BatchProcessor::start(const QSharedPointer<AbstractBatchOperation> &operation, const QVector<AudioFileRecord> &files) {
     if (!operation || isRunning())
         return false;
 
