@@ -87,6 +87,29 @@ Item {
             DuplicateFinderView {
                 id: duplicateFinderView
                 objectName: "duplicateFinderView"
+
+                searching: duplicateFinderController.running
+
+                duplicateGroupCount: duplicateFinderController.duplicateGroupCount
+                duplicateFileCount: duplicateFinderController.duplicateFileCount
+                removableFileCount: duplicateFinderController.removableFileCount
+                phase: duplicateFinderController.phase
+                currentFile: duplicateFinderController.currentFile
+                errorMessage: duplicateFinderController.errorMessage
+                progressCurrent: duplicateFinderController.progressCurrent
+                progressTotal: duplicateFinderController.progressTotal
+
+                onSearchRequested: function(searchByHash, searchByMetadata, searchByFileName, durationTolerance) {
+                    duplicateFinderController.start(
+                        root.baseFilePath,
+                        searchByHash,
+                        searchByMetadata,
+                        searchByFileName,
+                        durationTolerance
+                    )
+                }
+
+                onCancelRequested: duplicateFinderController.cancel()
             }
 
             Item {

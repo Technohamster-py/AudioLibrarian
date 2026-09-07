@@ -32,6 +32,17 @@ Item {
     /** @brief Number of files that can be removed while keeping one copy. */
     property int removableFileCount: 0
 
+    property string phase: ""
+    property string currentFile: ""
+    property string errorMessage: ""
+    property int progressCurrent: 0
+    property int progressTotal: 0
+
+    DuplicateFinderController {
+        id: duplicateFinderController
+        objectName: "duplicateFinderController"
+    }
+
     /** @brief Requests a duplicate search with the current settings. */
     signal searchRequested(
         bool searchByHash,
@@ -39,6 +50,8 @@ Item {
         bool searchByFileName,
         int durationTolerance
     )
+
+    signal cancelRequested()
 
     ColumnLayout {
         anchors.fill: parent
@@ -195,24 +208,64 @@ Item {
 
                 BusyIndicator {
                     Layout.alignment: Qt.AlignHCenter
-
                     running: root.searching
                 }
 
                 Label {
                     Layout.alignment: Qt.AlignHCenter
 
-                    visible: !root.searching && root.duplicateGroupCount === 0
+                    visible: root.searching
+
+                    text: root.phase
+                    color: AppColors.settingsTextPrimary
+                }
+
+                Label {
+                    Layout.alignment: Qt.AlignHCenter
+
+                    visible: root.searching && root.currentFile !== ""
+
+                    text: root.currentFile
+                    color: AppColors.settingsTextSecondary
+                    elide: Text.ElideMiddle
+                }
+
+                ProgressBar {
+                    Layout.preferredWidth: 400
+
+                    visible: root.searching
+
+                    from: 0
+                    to: root.progressTotal
+                    value: root.progressCurrent
+                }
+
+                Label {
+                    Layout.alignment: Qt.AlignHCenter
+
+                    visible: !root.searching && root.errorMessage !== ""
+
+                    text: root.errorMessage
+                    color: AppColors.settingsTextPrimary
+                }
+
+                Label {
+                    Layout.alignment: Qt.AlignHCenter
+
+                    visible: !root.searching
+                        && root.errorMessage === ""
+                        && root.duplicateGroupCount === 0
 
                     text: qsTr("No duplicate groups found")
-
                     color: AppColors.settingsTextSecondary
                 }
 
                 Label {
                     Layout.alignment: Qt.AlignHCenter
 
-                    visible: !root.searching && root.duplicateGroupCount > 0
+                    visible: !root.searching
+                        && root.errorMessage === ""
+                        && root.duplicateGroupCount > 0
 
                     text: qsTr("%1 groups · %2 files · %3 removable")
                         .arg(root.duplicateGroupCount)
@@ -233,19 +286,20 @@ Item {
 
                 Layout.alignment: Qt.AlignRight
 
-                text: qsTr("Find duplicates")
+                text: root.searching ? qsTr("Cancel") : qsTr("Find duplicates")
 
-                enabled: !root.searching
-                    && (root.searchByHash
-                        || root.searchByMetadata
-                        || root.searchByFileName)
+                enabled: root.searching
+                    || root.searchByHash
+                    || root.searchByMetadata
+                    || root.searchByFileName
 
                 onClicked: {
-                    root.searchRequested(
-                        root.searchByHash,
-                        root.searchByMetadata,
-                        root.searchByFileName,
-                        root.durationTolerance
+                    if (root.searching) {
+                        root.cancelRequested()
+                        return
+                    }
+
+                    root.searchRequested(root.searchByHash, root.searchByMetadata, root.searchByFileName, root.durationTolerance
                     )
                 }
             }

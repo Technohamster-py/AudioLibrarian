@@ -12,7 +12,10 @@
 class DuplicateFinder final : public AbstractBatchOperation {
     Q_OBJECT
 
-    Q_PROPERTY(int durationTolerance READ durationTolerance WRITE setDurationTolerance, NOTIFY durationToleranceChanged)
+    Q_PROPERTY(int durationTolerance
+                READ durationTolerance
+                WRITE setDurationTolerance
+                NOTIFY durationToleranceChanged)
 
 public:
     explicit DuplicateFinder(QObject *parent = nullptr);
