@@ -86,6 +86,12 @@ BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &fi
             return result;
     }
 
+    if (m_searchModes.contains(DuplicateSearchMode::FileName)) {
+        result = findByFileName(files, cancellationRequested, m_result);
+        if (result.state != BatchOperationState::Success)
+            return result;
+    }
+
     return result;
 }
 
@@ -143,10 +149,7 @@ BatchOperationResult DuplicateFinder::findByContent(const QVector<AudioFileRecor
 
             const QFileInfo fileInfo(record.filePath);
 
-            const QByteArray hash = calculateHash(
-                record.filePath,
-                cancellationRequested
-            );
+            const QByteArray hash = calculateHash(record.filePath,cancellationRequested);
 
             if (hash.isEmpty()) {
                 if (cancellationRequested.load(std::memory_order_relaxed))
@@ -262,4 +265,38 @@ BatchOperationResult DuplicateFinder::findByMetadata(const QVector<AudioFileReco
 }
 
 BatchOperationResult DuplicateFinder::findByFileName(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result) {
+    QHash<QString, DuplicateGroup> groupsByFileName;
+
+    for (const AudioFileRecord &record : files) {
+        if (cancellationRequested.load(std::memory_order_relaxed))
+            return {.state = BatchOperationState::Cancelled};
+
+        const QFileInfo fileInfo(record.filePath);
+
+        if (!fileInfo.exists() || !fileInfo.isFile())
+            continue;
+
+        const QString fileName = fileInfo.fileName().trimmed().toCaseFolded();
+
+        if (fileName.isEmpty())
+            continue;
+
+        DuplicateFile duplicateFile;
+        duplicateFile.filePath = record.filePath;
+        duplicateFile.fileSize = fileInfo.size();
+        duplicateFile.record = record;
+
+        auto &group = groupsByFileName[fileName];
+
+        if (group.files.isEmpty())
+            group.mode = DuplicateSearchMode::FileName;
+
+        group.files.append(std::move(duplicateFile));
+    }
+
+    for (auto it = groupsByFileName.cbegin(); it != groupsByFileName.cend(); ++it) {
+        if (it->files.size() > 1)
+            result.groups.append(std::move(it.value()));
+    }
+    return {.state = BatchOperationState::Success};
 }
