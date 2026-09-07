@@ -29,7 +29,7 @@ add_library(AudioLibrarianCore STATIC
         src/batch/abstractbatchoperation.h                  src/batch/abstractbatchoperation.cpp
         src/batch/batchprocessor.h                          src/batch/batchprocessor.cpp
         src/batch/duplicates/duplicatefinder.h              src/batch/duplicates/duplicatefinder.cpp
-        src/batch/duplicates/duplicatefindercontroller.cpp
+        src/batch/duplicates/duplicatefindercontroller.h    src/batch/duplicates/duplicatefindercontroller.cpp
         src/batch/duplicates/duplicatesearchresult.cpp      src/batch/duplicates/duplicatesearchresult.cpp
         src/library/audiofilerecord.h
         src/library/filetree/filetreemodel.cpp
