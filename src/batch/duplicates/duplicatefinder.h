@@ -3,8 +3,11 @@
 #include <batch/abstractbatchoperation.h>
 #include "duplicatesearchresult.h"
 
-#include <QVector>
+#include <QRegularExpression>
 #include <QSet>
+#include <QVector>
+
+#include <algorithm>
 
 class DuplicateFinder final : public AbstractBatchOperation {
     Q_OBJECT
@@ -23,7 +26,6 @@ protected:
     BatchOperationResult findByContent(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result);
     BatchOperationResult findByMetadata(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result);
     BatchOperationResult findByFileName(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result);
-
 private:
     static QByteArray calculateHash(const QString &filePath, const std::atomic_bool &cancellationRequested);
 
