@@ -30,6 +30,7 @@ add_library(AudioLibrarianCore STATIC
         src/batch/batchprocessor.h                      src/batch/batchprocessor.cpp
         src/batch/duplicates/duplicatefinder.h          src/batch/duplicates/duplicatefinder.cpp
         src/batch/duplicates/duplicatesearchresult.cpp  src/batch/duplicates/duplicatesearchresult.cpp
+        src/batch/metadata/metadataeditor.h             src/batch/metadata/metadataeditor.cpp
         src/library/audiofilerecord.h
         src/library/filetree/filetreemodel.h            src/library/filetree/filetreemodel.cpp
         src/library/library/audiofiletablemodel.h       src/library/library/audiofiletablemodel.cpp
