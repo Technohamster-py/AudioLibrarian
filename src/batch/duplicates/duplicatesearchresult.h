@@ -14,11 +14,18 @@ struct DuplicateFile
     AudioFileRecord record;
 };
 
+enum class DuplicateSearchMode {
+    Content,
+    Metadat,
+    FileName
+};
+
 /**
  * @brief Represents one group of files with identical content.
  */
 struct DuplicateGroup
 {
+    DuplicateSearchMode mode;
     QVector<DuplicateFile> files;
 };
 
