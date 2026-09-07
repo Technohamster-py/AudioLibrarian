@@ -64,9 +64,22 @@ DuplicateFinder::DuplicateFinder(QObject *parent) : AbstractBatchOperation(paren
 }
 
 BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested) {
+    BatchOperationResult result;
     m_result = {};
 
-    return findByContent(files, cancellationRequested, m_result);
+    if (m_searchModes.contains(DuplicateSearchMode::Content)) {
+        result = findByContent(files, cancellationRequested, m_result);
+        if (result.state != BatchOperationState::Success)
+            return result;
+    }
+
+    if (m_searchModes.contains(DuplicateSearchMode::Metadata)) {
+        result = findByMetadata(files, cancellationRequested, m_result);
+        if (result.state != BatchOperationState::Success)
+            return result;
+    }
+
+    return result;
 }
 
 const DuplicateSearchResult &DuplicateFinder::result() const {
