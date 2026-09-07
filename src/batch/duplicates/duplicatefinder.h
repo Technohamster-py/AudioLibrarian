@@ -10,7 +10,6 @@ class DuplicateFinder final : public AbstractBatchOperation {
     Q_OBJECT
 
 public:
-
     explicit DuplicateFinder(QObject *parent = nullptr);
 
     BatchOperationResult execute(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested) override;
@@ -21,9 +20,9 @@ public:
     const DuplicateSearchResult &result() const;
 
 protected:
-    BatchOperationResult findByContent(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested);
-    BatchOperationResult findByMetadata(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested);
-    BatchOperationResult findByFileName(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested);
+    BatchOperationResult findByContent(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result);
+    BatchOperationResult findByMetadata(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result);
+    BatchOperationResult findByFileName(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result);
 
 private:
     static QByteArray calculateHash(const QString &filePath, const std::atomic_bool &cancellationRequested);

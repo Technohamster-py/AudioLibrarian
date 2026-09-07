@@ -41,9 +41,20 @@ DuplicateFinder::DuplicateFinder(QObject *parent) : AbstractBatchOperation(paren
 BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested) {
     m_result = {};
 
-    QHash<qint64, QVector<AudioFileRecord> > filesBySize;
+    return findByContent(files, cancellationRequested, m_result);
+}
 
-    for (const AudioFileRecord &record: files) {
+const DuplicateSearchResult &DuplicateFinder::result() const {
+    return m_result;
+}
+
+/**
+ * @brief Searches for byte-identical files using file size and SHA-256.
+ */
+BatchOperationResult DuplicateFinder::findByContent(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result) {
+    QHash<qint64, QVector<AudioFileRecord>> filesBySize;
+
+    for (const AudioFileRecord &record : files) {
         if (cancellationRequested.load(std::memory_order_relaxed))
             return {.state = BatchOperationState::Cancelled};
 
@@ -64,30 +75,42 @@ BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &fi
 
     qsizetype processed = 0;
 
-    reportProgress(0, candidates, QStringLiteral("Hashing"), {});
+    reportProgress(
+        0,
+        candidates,
+        QStringLiteral("Hashing"),
+        {}
+    );
 
-    for (const auto &records: filesBySize) {
+    for (const auto &records : filesBySize) {
         if (records.size() < 2)
             continue;
 
         QHash<QByteArray, DuplicateGroup> groupsByHash;
 
-        for (const AudioFileRecord &record: records) {
+        for (const AudioFileRecord &record : records) {
             if (cancellationRequested.load(std::memory_order_relaxed))
                 return {.state = BatchOperationState::Cancelled};
 
             const QFileInfo fileInfo(record.filePath);
 
-            const QByteArray hash = calculateHash(record.filePath, cancellationRequested);
+            const QByteArray hash = calculateHash(
+                record.filePath,
+                cancellationRequested
+            );
 
             if (hash.isEmpty()) {
-                if (cancellationRequested.load(std::memory_order_relaxed)) {
+                if (cancellationRequested.load(std::memory_order_relaxed))
                     return {.state = BatchOperationState::Cancelled};
-                }
 
                 ++processed;
 
-                reportProgress(processed, candidates, QStringLiteral("Hashing"), record.filePath);
+                reportProgress(
+                    processed,
+                    candidates,
+                    QStringLiteral("Hashing"),
+                    record.filePath
+                );
 
                 continue;
             }
@@ -98,22 +121,31 @@ BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &fi
             duplicateFile.hash = hash;
             duplicateFile.record = record;
 
-            groupsByHash[hash].files.append(std::move(duplicateFile));
+            groupsByHash[hash].files.append(
+                std::move(duplicateFile)
+            );
 
             ++processed;
 
-            reportProgress(processed, candidates,QStringLiteral("Hashing"), record.filePath);
+            reportProgress(
+                processed,
+                candidates,
+                QStringLiteral("Hashing"),
+                record.filePath
+            );
         }
 
         for (auto it = groupsByHash.cbegin(); it != groupsByHash.cend(); ++it) {
             if (it.value().files.size() > 1)
-                m_result.groups.append(it.value());
+                result.groups.append(it.value());
         }
     }
 
     return {.state = BatchOperationState::Success};
 }
 
-const DuplicateSearchResult &DuplicateFinder::result() const {
-    return m_result;
+BatchOperationResult DuplicateFinder::findByMetadata(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result) {
+}
+
+BatchOperationResult DuplicateFinder::findByFileName(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result) {
 }
