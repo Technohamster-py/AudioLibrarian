@@ -27,6 +27,7 @@ qt_standard_project_setup(REQUIRES 6.11)
 
 add_library(AudioLibrarianCore STATIC
         src/batch/abstractbatchoperation.h              src/batch/abstractbatchoperation.cpp
+        src/batch/batchprocesscontroller.h              src/batch/batchprocesscontroller.cpp
         src/batch/batchprocessor.h                      src/batch/batchprocessor.cpp
         src/batch/duplicates/duplicatefinder.h          src/batch/duplicates/duplicatefinder.cpp
         src/batch/duplicates/duplicatesearchresult.cpp  src/batch/duplicates/duplicatesearchresult.cpp
