@@ -32,6 +32,7 @@ struct Settings {
 
     struct PlayerState {
         const QString volume = "player/volume";
+        const QString expanded = "player/expanded";
     };
     PlayerState playerState;
 
