@@ -79,8 +79,8 @@ void DuplicateFinderTest::differentSizes()
             cancellation
         );
 
-    QVERIFY(result.success);
-    QVERIFY(!result.canceled);
+    QVERIFY(result.state == BatchOperationState::Success);
+    QVERIFY(result.state != BatchOperationState::Cancelled);
     QVERIFY(finder.result().groups.isEmpty());
 }
 
@@ -132,7 +132,7 @@ void DuplicateFinderTest::sameSizeDifferentContent()
             cancellation
         );
 
-    QVERIFY(result.success);
+    QVERIFY(result.state == BatchOperationState::Success);
     QVERIFY(finder.result().groups.isEmpty());
 }
 
@@ -174,7 +174,7 @@ void DuplicateFinderTest::identicalFiles()
             cancellation
         );
 
-    QVERIFY(result.success);
+    QVERIFY(result.state == BatchOperationState::Success);
 
     QCOMPARE(finder.result().groups.size(), 1);
     QCOMPARE(finder.result().groups.first().files.size(), 2);
@@ -244,7 +244,7 @@ void DuplicateFinderTest::multipleGroups()
             cancellation
         );
 
-    QVERIFY(result.success);
+    QVERIFY(result.state == BatchOperationState::Success);
 
     QCOMPARE(finder.result().groups.size(), 2);
     QCOMPARE(finder.result().duplicateFileCount(), 4);
