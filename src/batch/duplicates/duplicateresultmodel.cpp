@@ -117,6 +117,7 @@ QVariant DuplicateResultModel::data(const QModelIndex &index, int role) const {
 
 QHash<int, QByteArray> DuplicateResultModel::roleNames() const {
     return {
+        {Qt::DisplayRole, "display"},
         {FilePathRole, "filePath"},
         {NodeTypeRole, "nodeType"},
         {SearchModeRole, "searchMode"},

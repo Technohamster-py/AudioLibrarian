@@ -99,6 +99,8 @@ Item {
                 duplicateFileCount: duplicateFinderController.duplicateFileCount
                 removableFileCount: duplicateFinderController.removableFileCount
 
+                resultModel: duplicateFinderController.resultModel
+
                 onSearchRequested: function(searchByHash, searchByMetadata, searchByFileName, durationTolerance) {
                     duplicateFinderController.start(
                         root.baseFilePath,

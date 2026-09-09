@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
+import QtQuick.Controls
 
 /**
  * @brief Settings and result view for duplicate file search.
@@ -31,6 +32,8 @@ Item {
 
     /** @brief Number of files that can be removed while keeping one copy. */
     property int removableFileCount: 0
+
+    property var resultModel
 
     /** @brief Requests a duplicate search with the current settings. */
     signal searchRequested(
@@ -188,39 +191,43 @@ Item {
             border.width: 1
             border.color: AppColors.settingsSeparator
 
-            ColumnLayout {
+            BusyIndicator {
+                anchors.centerIn: parent
+                running: root.searching
+            }
+
+            TreeView {
+                id: duplicateTreeView
+                objectName: "duplicateResultTreeView"
+
+                anchors.fill: parent
+                anchors.margins: AppMetrics.spacingSmall
+
+                visible: !root.searching && root.duplicateGroupCount > 0
+
+                clip: true
+
+                model: root.resultModel
+
+                delegate: TreeViewDelegate {
+                    id: treeDelegate
+
+                    text: model.display
+
+                    highlighted: selected
+
+                    width: treeView.width
+                }
+            }
+
+            Label {
                 anchors.centerIn: parent
 
-                spacing: AppMetrics.spacingMedium
+                visible: !root.searching && root.duplicateGroupCount === 0
 
-                BusyIndicator {
-                    Layout.alignment: Qt.AlignHCenter
+                text: qsTr("No duplicate groups found")
 
-                    running: root.searching
-                }
-
-                Label {
-                    Layout.alignment: Qt.AlignHCenter
-
-                    visible: !root.searching && root.duplicateGroupCount === 0
-
-                    text: qsTr("No duplicate groups found")
-
-                    color: AppColors.settingsTextSecondary
-                }
-
-                Label {
-                    Layout.alignment: Qt.AlignHCenter
-
-                    visible: !root.searching && root.duplicateGroupCount > 0
-
-                    text: qsTr("%1 groups · %2 files · %3 removable")
-                        .arg(root.duplicateGroupCount)
-                        .arg(root.duplicateFileCount)
-                        .arg(root.removableFileCount)
-
-                    color: AppColors.settingsTextPrimary
-                }
+                color: AppColors.settingsTextSecondary
             }
         }
 
