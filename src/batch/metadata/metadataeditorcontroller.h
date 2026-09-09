@@ -16,7 +16,7 @@
  * Scans files in the selected directory and executes MetadataEditor
  * with the metadata changes supplied by the user.
  */
-class MetadataEditorController final : public BatchProcessController
+class MetadataEditorController : public BatchProcessController
 {
     Q_OBJECT
     QML_ELEMENT
@@ -39,13 +39,13 @@ public:
      */
     Q_INVOKABLE bool start(const QString &baseFilePath, const QVariantList &changes);
 
-    signals:
-        void selectedFileCountChanged();
-
     /**
- * @brief Returns the model containing metadata edit results.
- */
+    * @brief Returns the model containing metadata edit results.
+    */
     MetadataEditResultModel *resultModel() { return &m_resultModel; }
+
+signals:
+    void selectedFileCountChanged();
 
 protected:
     void handleFinished() override;

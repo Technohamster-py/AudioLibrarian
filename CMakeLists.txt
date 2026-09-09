@@ -66,6 +66,7 @@ target_include_directories(AudioLibrarianCore PUBLIC
         src
         src/batch
         src/batch/duplicates
+        src/batch/metadata
         src/library/filetree
         src/library/library
         src/metadata
