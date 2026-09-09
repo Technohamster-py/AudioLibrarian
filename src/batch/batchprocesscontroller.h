@@ -15,7 +15,7 @@
  * Coordinates file scanning, batch operation configuration and asynchronous
  * execution through BatchProcessor.
  */
-class BatchProcessController final : public QObject {
+class BatchProcessController : public QObject {
     Q_OBJECT
 
     QML_ELEMENT
