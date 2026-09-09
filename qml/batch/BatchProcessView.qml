@@ -19,6 +19,11 @@ Item {
         objectName: "duplicateFinderController"
     }
 
+    MetadataEditorController {
+        id: metadataEditorController
+        objectName: "metadataEditorController"
+    }
+
     FolderDialog {
         id: folderDialog
 
@@ -112,14 +117,18 @@ Item {
                 }
             }
 
-            Item {
-                objectName: "metadataEditViewPlaceholder"
+            MetadataEditorView {
+                id: metadataEditorView
+                objectName: "metadataEditorView"
 
-                Label {
-                    anchors.centerIn: parent
+                editing: metadataEditorController.running
+                selectedFileCount: metadataEditorController.selectedFileCount
 
-                    text: qsTr("Metadata editor")
-                    color: AppColors.settingsTextSecondary
+                onChangesRequested: function(changes) {
+                    metadataEditorController.start(
+                        root.baseFilePath,
+                        changes
+                    )
                 }
             }
 

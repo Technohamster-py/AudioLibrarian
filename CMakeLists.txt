@@ -33,7 +33,8 @@ qt_add_library(AudioLibrarianCore STATIC
         src/batch/duplicates/duplicatesearchresult.cpp      src/batch/duplicates/duplicatesearchresult.cpp
         src/batch/duplicates/duplicatefindercontroller.h    src/batch/duplicates/duplicatefindercontroller.cpp
         src/batch/duplicates/duplicateresultmodel.h         src/batch/duplicates/duplicateresultmodel.cpp
-        src/batch/metadata/metadataeditor.h             src/batch/metadata/metadataeditor.cpp
+        src/batch/metadata/metadataeditor.h                 src/batch/metadata/metadataeditor.cpp
+        src/batch/metadata/metadataeditorcontroller.h       src/batch/metadata/metadataeditorcontroller.cpp
         src/library/audiofilerecord.h
         src/library/filetree/filetreemodel.h                src/library/filetree/filetreemodel.cpp
         src/library/library/audiofiletablemodel.h           src/library/library/audiofiletablemodel.cpp
@@ -181,6 +182,16 @@ set_source_files_properties(
         PROPERTIES QT_RESOURCE_ALIAS "DuplicateFinderView.qml"
 )
 
+set_source_files_properties(
+        qml/batch/MetadataEditorView.qml
+        PROPERTIES QT_RESOURCE_ALIAS "MetadataEditorView.qml"
+)
+
+set_source_files_properties(
+        qml/batch/MetadataEditRow.qml
+        PROPERTIES QT_RESOURCE_ALIAS "MetadataEditRow.qml"
+)
+
 qt_add_qml_module(AudioLibrarianCore
         URI AudioLibrarian
         VERSION 0.1
@@ -193,6 +204,8 @@ qt_add_qml_module(AudioLibrarianCore
 
         qml/batch/BatchProcessView.qml
         qml/batch/DuplicateFinderView.qml
+        qml/batch/MetadataEditorView.qml
+        qml/batch/MetadataEditRow.qml
 
         qml/components/AppIcon.qml
         qml/components/AppToolButton.qml
