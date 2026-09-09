@@ -182,8 +182,17 @@ ApplicationWindow {
                     objectName: "playerBar"
 
                     Layout.fillWidth: true
-                    Layout.preferredHeight: AppMetrics.playerHeight
+
+                    Layout.preferredHeight: expanded ? AppMetrics.playerHeight : AppMetrics.iconButtonSize
+
                     player: playerController
+
+                    Behavior on Layout.preferredHeight {
+                        NumberAnimation {
+                            duration: 180
+                            easing.type: Easing.OutCubic
+                        }
+                    }
                 }
             }
 

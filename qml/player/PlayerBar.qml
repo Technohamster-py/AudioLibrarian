@@ -13,6 +13,9 @@ Item {
     id: root
 
     required property PlayerController player
+
+    property bool expanded: true
+
     /**
      * @brief Formats milliseconds as MM:SS or HH:MM:SS.
      *
@@ -43,6 +46,8 @@ Item {
     Rectangle {
         anchors.fill: parent
         color: AppColors.playerBackground
+
+        visible: root.expanded
 
         RowLayout {
             anchors.fill: parent
@@ -252,5 +257,22 @@ Item {
                 }
             }
         }
+    }
+    AppToolButton {
+        id: togglePlayerButton
+        objectName: "togglePlayerButton"
+
+        anchors.right: parent.right
+        anchors.top: parent.top
+
+        anchors.rightMargin: AppMetrics.spacingSmall
+        anchors.topMargin: AppMetrics.spacingSmall
+
+        z: 10
+
+        iconSource: root.expanded ? AppAssets.sortDescending : AppAssets.sortAscending
+        tooltipText: root.expanded ? qsTr("Hide player") : qsTr("Show player")
+
+        onClicked: {root.expanded = !root.expanded}
     }
 }
