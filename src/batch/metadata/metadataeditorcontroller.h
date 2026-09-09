@@ -2,6 +2,7 @@
 
 #include "batchprocesscontroller.h"
 #include "metadataeditor.h"
+#include "metadataeditresultmodel.h"
 
 #include "library/scanner/libraryscanner.h"
 
@@ -21,6 +22,7 @@ class MetadataEditorController final : public BatchProcessController
     QML_ELEMENT
 
     Q_PROPERTY(qsizetype selectedFileCount READ selectedFileCount NOTIFY selectedFileCountChanged)
+    Q_PROPERTY(MetadataEditResultModel *resultModel READ resultModel CONSTANT)
 
 public:
     explicit MetadataEditorController(QObject *parent = nullptr);
@@ -40,6 +42,11 @@ public:
     signals:
         void selectedFileCountChanged();
 
+    /**
+ * @brief Returns the model containing metadata edit results.
+ */
+    MetadataEditResultModel *resultModel() { return &m_resultModel; }
+
 protected:
     void handleFinished() override;
 
@@ -48,4 +55,6 @@ private:
     QSharedPointer<MetadataEditor> m_metadataEditor;
 
     qsizetype m_selectedFileCount = 0;
+
+    MetadataEditResultModel m_resultModel;
 };

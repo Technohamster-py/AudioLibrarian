@@ -2,7 +2,7 @@
 
 #include <QDir>
 
-MetadataEditorController::MetadataEditorController(QObject *parent): BatchProcessController(parent), m_metadataEditor(QSharedPointer<MetadataEditor>::create()) {
+MetadataEditorController::MetadataEditorController(QObject *parent) : BatchProcessController(parent), m_metadataEditor(QSharedPointer<MetadataEditor>::create()) {
     connect(processor(), &BatchProcessor::finished, this, &MetadataEditorController::handleFinished);
 }
 
@@ -51,9 +51,5 @@ bool MetadataEditorController::start(const QString &baseFilePath, const QVariant
 
 void MetadataEditorController::handleFinished()
 {
-    /*
-     * MetadataEditor keeps per-file results itself.
-     * The controller currently only needs to expose the execution state
-     * through BatchProcessController.
-     */
+    m_resultModel.setResults(m_metadataEditor->result());
 }
