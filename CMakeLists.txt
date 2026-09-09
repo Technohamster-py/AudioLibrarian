@@ -22,10 +22,10 @@ find_package(TagLib 2.0 REQUIRED)
 qt_standard_project_setup(REQUIRES 6.11)
 
 # ---------------------------------------------------------------------------
-# Core application logic
+# Core application logic & QML module
 # ---------------------------------------------------------------------------
 
-add_library(AudioLibrarianCore STATIC
+qt_add_library(AudioLibrarianCore STATIC
         src/batch/abstractbatchoperation.h              src/batch/abstractbatchoperation.cpp
         src/batch/batchprocesscontroller.h              src/batch/batchprocesscontroller.cpp
         src/batch/batchprocessor.h                      src/batch/batchprocessor.cpp
@@ -51,17 +51,25 @@ target_link_libraries(AudioLibrarianCore
         Qt6::Gui
         Qt6::Concurrent
         Qt6::Multimedia
+        Qt6::Quick
+        Qt6::QuickControls2
         TagLib::tag
 )
 
-target_include_directories(AudioLibrarianCore PRIVATE
-    src
+target_include_directories(AudioLibrarianCore PUBLIC
+        src
+        src/batch
+        src/library/filetree
+        src/library/library
+        src/metadata
+        src/player
+        src/settings
+        src/utils
 )
 
 # ---------------------------------------------------------------------------
 # QML UI module
 # ---------------------------------------------------------------------------
-qt_add_library(AudioLibrarianUi STATIC)
 
 set_source_files_properties(
         qml/app/MainWindow.qml
@@ -169,19 +177,10 @@ set_source_files_properties(
         PROPERTIES QT_RESOURCE_ALIAS "DuplicateFinderView.qml"
 )
 
-qt_add_qml_module(AudioLibrarianUi
+qt_add_qml_module(AudioLibrarianCore
         URI AudioLibrarian
         VERSION 0.1
-
-        # QML_ELEMENT types must be listed as SOURCES of the QML module so
-        # qmltyperegistrar generates their module registration.  The model's
-        # implementation remains in AudioLibrarianCore above.
-        SOURCES
-        src/library/filetree/filetreemodel.h
-        src/library/library/audiofiletablemodel.h
-        src/metadata/tageditormodel.h
-        src/settings/settingsmanager.h
-        src/player/playercontroller.h
+        PLUGIN_TARGET AudioLibrarianUiplugin
 
         QML_FILES
         qml/Main.qml
@@ -232,22 +231,6 @@ qt_add_qml_module(AudioLibrarianUi
         assets/sort-ascending.svg
         assets/sort-descending.svg
         assets/unmute.svg
-)
-
-target_link_libraries(AudioLibrarianUi
-        PRIVATE
-        AudioLibrarianCore
-        Qt6::Quick
-        Qt6::QuickControls2
-)
-
-target_include_directories(AudioLibrarianUi PRIVATE
-        src
-        src/library/filetree
-        src/library/library
-        src/metadata
-        src/player
-        src/settings
 )
 
 # ---------------------------------------------------------------------------
