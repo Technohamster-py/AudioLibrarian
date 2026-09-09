@@ -10,6 +10,7 @@ class DuplicateResultModel : public QAbstractItemModel {
 public:
     enum Role {
         FilePathRole = Qt::UserRole + 1,
+        RelativeFilePathRole,
         NodeTypeRole,
         SearchModeRole,
         GroupIndexRole
@@ -24,6 +25,7 @@ public:
     explicit DuplicateResultModel(QObject *parent = nullptr);
 
     void setResult(const DuplicateSearchResult &result);
+    void setBaseDirectory(const QString &baseDirectory);
 
     int columnCount(const QModelIndex &parent = {}) const override;
     int rowCount(const QModelIndex &parent = {}) const override;
@@ -37,6 +39,7 @@ private:
         NodeType type;
         QString display;
         QString filePath;
+        QString relativeFilePath;
         DuplicateSearchMode searchMode = DuplicateSearchMode::Content;
         int groupIndex = -1;
         Node *parent = nullptr;
@@ -50,6 +53,7 @@ private:
     Node *appendModeNode(DuplicateSearchMode mode);
 
     std::unique_ptr<Node> m_root;
+    QString m_baseDirectory;
 };
 
 

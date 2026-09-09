@@ -4,8 +4,19 @@
 #include  <array>
 
 #include <QFileInfo>
+#include <QDir>
 
-DuplicateResultModel::DuplicateResultModel(QObject *parent) : QAbstractItemModel(parent), m_root(std::make_unique<Node>(Node{NodeType::Mode, {}, {}, DuplicateSearchMode::Content, -1, nullptr, {}})){
+DuplicateResultModel::DuplicateResultModel(QObject *parent) : QAbstractItemModel(parent),
+                                                              m_root(std::make_unique<Node>(Node{
+                                                                  NodeType::Mode,
+                                                                  {},
+                                                                  {},
+                                                                  {},
+                                                                  DuplicateSearchMode::Content,
+                                                                  -1,
+                                                                  nullptr,
+                                                                  {}
+                                                              })) {
 }
 
 void DuplicateResultModel::setResult(const DuplicateSearchResult &result) {
@@ -29,6 +40,7 @@ void DuplicateResultModel::setResult(const DuplicateSearchResult &result) {
             NodeType::Group,
             tr("Group %1").arg(groupIndex),
             {},
+            {},
             group.mode,
             groupIndex,
             modeNode,
@@ -40,6 +52,7 @@ void DuplicateResultModel::setResult(const DuplicateSearchResult &result) {
                     NodeType::File,
                     QFileInfo(file.filePath).fileName(),
                     file.filePath,
+                    QDir(m_baseDirectory).relativeFilePath(file.filePath),
                     group.mode,
                     groupIndex,
                     groupNode.get(),
@@ -50,6 +63,10 @@ void DuplicateResultModel::setResult(const DuplicateSearchResult &result) {
         modeNode->children.push_back(std::move(groupNode));
     }
     endResetModel();
+}
+
+void DuplicateResultModel::setBaseDirectory(const QString &baseDirectory) {
+    m_baseDirectory = QDir::cleanPath(baseDirectory);
 }
 
 int DuplicateResultModel::columnCount(const QModelIndex &parent) const {
@@ -107,6 +124,7 @@ QVariant DuplicateResultModel::data(const QModelIndex &index, int role) const {
 
     switch (role) {
         case Qt::DisplayRole: return node->display;
+        case RelativeFilePathRole: return node->relativeFilePath;
         case FilePathRole: return node->filePath;
         case NodeTypeRole: return static_cast<int>(node->type);
         case SearchModeRole: return static_cast<int>(node->searchMode);
@@ -118,6 +136,7 @@ QVariant DuplicateResultModel::data(const QModelIndex &index, int role) const {
 QHash<int, QByteArray> DuplicateResultModel::roleNames() const {
     return {
         {Qt::DisplayRole, "display"},
+        {RelativeFilePathRole, "relativeFilePath"},
         {FilePathRole, "filePath"},
         {NodeTypeRole, "nodeType"},
         {SearchModeRole, "searchMode"},
@@ -150,6 +169,7 @@ DuplicateResultModel::Node * DuplicateResultModel::appendModeNode(DuplicateSearc
     auto node = std::make_unique<Node>(Node{
         NodeType::Mode,
         modeDisplayName(mode),
+        {},
         {},
         mode,
         -1,

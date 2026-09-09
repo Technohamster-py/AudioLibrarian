@@ -196,6 +196,41 @@ Item {
                 running: root.searching
             }
 
+            Menu {
+                id: fileContextMenu
+
+                property string filePath
+                property string relativeFilePath
+
+                MenuItem {
+                    text: qsTr("Удалить этот файл")
+
+                    onTriggered: {
+                        root.deleteFileRequested(fileContextMenu.filePath)
+                    }
+                }
+
+                MenuItem {
+                    text: qsTr("Оставить этот файл")
+
+                    onTriggered: {
+                        root.keepFileRequested(fileContextMenu.filePath)
+                    }
+                }
+
+                MenuSeparator {}
+
+                MenuItem {
+                    text: qsTr("Открыть расположение в проводнике")
+
+                    onTriggered: {
+                        Qt.openUrlExternally(
+                            Qt.resolvedUrl("file://" + fileContextMenu.filePath)
+                        )
+                    }
+                }
+            }
+
             TreeView {
                 id: duplicateTreeView
                 objectName: "duplicateResultTreeView"
@@ -213,10 +248,29 @@ Item {
                     id: treeDelegate
 
                     text: model.display
-
                     highlighted: selected
-
                     width: treeView.width
+
+                    background: Rectangle {
+                        color: treeDelegate.row === duplicateTreeView.currentRow ? AppColors.navigationAccent : (treeDelegate.row % 2 === 0 ? AppColors.navigationPanel : AppColors.navigationElevated)
+                    }
+
+                    ToolTip.visible: hovered && isTreeNode && model.nodeType === 2
+                    ToolTip.text: model.relativeFilePath
+                    ToolTip.delay: 500
+
+                    TapHandler {
+                        acceptedButtons: Qt.RightButton
+
+                        onTapped: function (eventPoint, button){
+                            if (model.nodeType !== 2)
+                                return
+
+                            fileContextMenu.filePath = model.filePath
+                            fileContextMenu.relativeFilePath = model.relativeFilePath
+                            fileContextMenu.popup()
+                        }
+                    }
                 }
             }
 

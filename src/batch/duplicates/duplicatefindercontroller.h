@@ -41,6 +41,7 @@ public:
      * @return true if the operation was started.
      */
     Q_INVOKABLE bool start(const QString &baseFilePath, bool searchByHash, bool searchByMetadata, bool searchByFileName, int durationTolerance);
+    Q_INVOKABLE bool openFileLocation(const QString &filePath);
 
 signals:
     void resultChanged();
@@ -58,4 +59,6 @@ private:
     qsizetype m_duplicateGroupCount = 0;
     qsizetype m_duplicateFileCount = 0;
     qsizetype m_removableFileCount = 0;
+
+    QString m_baseFilePath;
 };

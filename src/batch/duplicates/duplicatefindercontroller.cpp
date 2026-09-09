@@ -2,6 +2,8 @@
 
 #include <QDir>
 #include <QSet>
+#include <QDesktopServices>
+#include <QUrl>
 
 DuplicateFinderController::DuplicateFinderController(QObject *parent) : BatchProcessController(parent) , m_duplicateFinder(QSharedPointer<DuplicateFinder>::create()) {
     connect(processor(), &BatchProcessor::finished, this, &DuplicateFinderController::handleFinished);
@@ -30,12 +32,18 @@ bool DuplicateFinderController::start(const QString &baseFilePath, const bool se
 
     resetResult();
 
+    m_baseFilePath = baseFilePath;
+
     m_duplicateFinder->setSearchModes(searchModes);
     m_duplicateFinder->setDurationTolerance(durationTolerance);
 
     const QVector<AudioFileRecord> files = m_scanner.scan(baseFilePath);
 
     return startOperation(m_duplicateFinder, files);
+}
+
+bool DuplicateFinderController::openFileLocation(const QString &filePath) {
+    return QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(filePath).absolutePath()));
 }
 
 void DuplicateFinderController::handleFinished()
@@ -46,6 +54,7 @@ void DuplicateFinderController::handleFinished()
     m_duplicateFileCount = result.duplicateFileCount();
     m_removableFileCount = result.removableFileCount();
 
+    m_resultModel.setBaseDirectory(m_baseFilePath);
     m_resultModel.setResult(result);
 
     emit resultChanged();
