@@ -14,9 +14,9 @@ Item {
 
     property string baseFilePath: SettingsManager.baseDir
 
-    BatchProcessController {
-        id: batchProcessController
-        objectName: "batchProcessController"
+    DuplicateFinderController {
+        id: duplicateFinderController
+        objectName: "duplicateFinderController"
     }
 
     FolderDialog {
@@ -93,14 +93,14 @@ Item {
                 id: duplicateFinderView
                 objectName: "duplicateFinderView"
 
-                searching: batchProcessController.running
+                searching: duplicateFinderController.running
 
-                duplicateGroupCount: batchProcessController.duplicateGroupCount
-                duplicateFileCount: batchProcessController.duplicateFileCount
-                removableFileCount: batchProcessController.removableFileCount
+                duplicateGroupCount: duplicateFinderController.duplicateGroupCount
+                duplicateFileCount: duplicateFinderController.duplicateFileCount
+                removableFileCount: duplicateFinderController.removableFileCount
 
                 onSearchRequested: function(searchByHash, searchByMetadata, searchByFileName, durationTolerance) {
-                    batchProcessController.startDuplicateSearch(
+                    duplicateFinderController.start(
                         root.baseFilePath,
                         searchByHash,
                         searchByMetadata,
