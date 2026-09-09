@@ -43,6 +43,7 @@ qt_add_library(AudioLibrarianCore STATIC
         src/settings/settingsmanager.h                  src/settings/settingsmanager.cpp
         src/settings/settingsstruct.h
         src/utils/datautils.h                           src/utils/datautils.cpp
+        src/batch/duplicates/duplicateresultmodel.h     src/batch/duplicates/duplicateresultmodel.cpp
 )
 
 target_link_libraries(AudioLibrarianCore
