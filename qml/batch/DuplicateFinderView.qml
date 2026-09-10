@@ -71,6 +71,16 @@ Item {
             Layout.fillWidth: true
             spacing: AppMetrics.spacingSmall
 
+            palette.window: AppColors.navigationPanel
+            palette.base: AppColors.navigationPanel
+            palette.alternateBase: AppColors.navigationElevated
+            palette.text: AppColors.textPrimary
+            palette.windowText: AppColors.textPrimary
+            palette.button: AppColors.navigationElevated
+            palette.buttonText: AppColors.textPrimary
+            palette.highlight: AppColors.navigationAccent
+            palette.highlightedText: AppColors.textPrimary
+
             CheckBox {
                 id: hashCheckBox
                 objectName: "searchByHashCheckBox"
@@ -192,6 +202,32 @@ Item {
             color: AppColors.settingsSeparator
         }
 
+        RowLayout {
+            Layout.fillWidth: true
+
+            Button {
+                id: searchButton
+                objectName: "findDuplicatesButton"
+
+                Layout.alignment: Qt.AlignRight
+
+                text: qsTr("Find duplicates")
+
+                background: Rectangle {
+                    color: AppColors.accentPrimary
+                }
+
+                enabled: !root.searching
+                    && (root.searchByHash
+                        || root.searchByMetadata
+                        || root.searchByFileName)
+
+                onClicked: {
+                    root.searchRequested(root.searchByHash, root.searchByMetadata, root.searchByFileName, root.durationTolerance)
+                }
+            }
+        }
+
         Label {
             text: qsTr("Result")
 
@@ -221,12 +257,41 @@ Item {
             Menu {
                 id: fileContextMenu
 
+                palette.window: AppColors.navigationPanel
+                palette.base: AppColors.navigationPanel
+                palette.alternateBase: AppColors.navigationElevated
+                palette.text: AppColors.textPrimary
+                palette.windowText: AppColors.textPrimary
+                palette.button: AppColors.navigationElevated
+                palette.buttonText: AppColors.textPrimary
+                palette.highlight: AppColors.navigationAccent
+                palette.highlightedText: AppColors.textPrimary
+
                 property string filePath
                 property string relativeFilePath
 
                 MenuItem {
+                    text: qsTr("Expand all")
+
+                    onTriggered: {
+                        duplicateTreeView.expandRecursively()
+                    }
+                }
+
+                MenuItem {
+                    text: qsTr("Collapse all")
+
+                    onTriggered: {
+                        duplicateTreeView.collapseRecursively()
+                    }
+                }
+
+                MenuSeparator {}
+
+                MenuItem {
                     text: qsTr("Удалить этот файл")
 
+                    enabled: fileContextMenu.filePath !== ""
                     onTriggered: {
                         root.deleteFileRequested(fileContextMenu.filePath)
                     }
@@ -235,6 +300,7 @@ Item {
                 MenuItem {
                     text: qsTr("Оставить этот файл")
 
+                    enabled: fileContextMenu.filePath !== ""
                     onTriggered: {
                         root.keepFileRequested(fileContextMenu.filePath)
                     }
@@ -245,6 +311,7 @@ Item {
                 MenuItem {
                     text: qsTr("Открыть расположение в проводнике")
 
+                    enabled: fileContextMenu.filePath !== ""
                     onTriggered: {
                         Qt.openUrlExternally(
                             Qt.resolvedUrl("file://" + fileContextMenu.filePath)
@@ -266,15 +333,22 @@ Item {
 
                 model: root.resultModel
 
+                columnWidthProvider: function(column) {
+                    return width;
+                }
+
                 delegate: TreeViewDelegate {
                     id: treeDelegate
 
+                    implicitHeight: model.nodeType === 0 ? AppMetrics.duplicatesRowHeightLarge : AppMetrics.duplicatesRowHeightSmall
                     text: model.display
                     highlighted: selected
                     width: treeView.width
 
+                    font.pixelSize: model.nodeType === 0 ? AppMetrics.duplicatesFontLarge : (model.nodeType === 1 ? AppMetrics.duplicatesFontMedium : AppMetrics.duplicatesFontSmall)
+
                     background: Rectangle {
-                        color: treeDelegate.row === duplicateTreeView.currentRow ? AppColors.navigationAccent : (treeDelegate.row % 2 === 0 ? AppColors.navigationPanel : AppColors.navigationElevated)
+                        color: treeDelegate.row === duplicateTreeView.currentRow ? AppColors.navigationAccent : (model.nodeType === 0 ? AppColors.duplicatesMethodColor : (treeDelegate.row % 2 === 0 ? AppColors.navigationPanel : AppColors.navigationElevated))
                     }
 
                     ToolTip.visible: hovered && isTreeNode && model.nodeType === 2
@@ -284,12 +358,14 @@ Item {
                     TapHandler {
                         acceptedButtons: Qt.RightButton
 
-                        onTapped: function (eventPoint, button){
-                            if (model.nodeType !== 2)
-                                return
+                        onTapped: function (eventPoint, button) {
+                            fileContextMenu.filePath = ""
+                            fileContextMenu.relativeFilePath = ""
 
-                            fileContextMenu.filePath = model.filePath
-                            fileContextMenu.relativeFilePath = model.relativeFilePath
+                            if (model.nodeType === 2) {
+                                fileContextMenu.filePath = model.filePath
+                                fileContextMenu.relativeFilePath = model.relativeFilePath
+                            }
                             fileContextMenu.popup()
                         }
                     }
@@ -304,33 +380,6 @@ Item {
                 text: qsTr("No duplicate groups found")
 
                 color: AppColors.settingsTextSecondary
-            }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-
-            Button {
-                id: searchButton
-                objectName: "findDuplicatesButton"
-
-                Layout.alignment: Qt.AlignRight
-
-                text: qsTr("Find duplicates")
-
-                enabled: !root.searching
-                    && (root.searchByHash
-                        || root.searchByMetadata
-                        || root.searchByFileName)
-
-                onClicked: {
-                    root.searchRequested(
-                        root.searchByHash,
-                        root.searchByMetadata,
-                        root.searchByFileName,
-                        root.durationTolerance
-                    )
-                }
             }
         }
     }

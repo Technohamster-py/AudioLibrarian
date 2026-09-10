@@ -54,4 +54,11 @@ QtObject {
     readonly property int fontSizeSmall: 12
     readonly property int fontSizeMedium: 16
     readonly property int fontSizeLarge: 24
+
+    // Batch
+    readonly property int duplicatesFontLarge: fontSizeLarge
+    readonly property int duplicatesFontMedium: 18
+    readonly property int duplicatesFontSmall: fontSizeMedium
+    readonly property int duplicatesRowHeightLarge: duplicatesFontLarge + 10
+    readonly property int duplicatesRowHeightSmall: duplicatesFontMedium + 4
 }

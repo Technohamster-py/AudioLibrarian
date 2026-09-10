@@ -35,6 +35,16 @@ Item {
 
         spacing: AppMetrics.spacingMedium
 
+        palette.window: AppColors.navigationPanel
+        palette.base: AppColors.navigationPanel
+        palette.alternateBase: AppColors.navigationElevated
+        palette.text: AppColors.textPrimary
+        palette.windowText: AppColors.textPrimary
+        palette.button: AppColors.navigationElevated
+        palette.buttonText: AppColors.textPrimary
+        palette.highlight: AppColors.navigationAccent
+        palette.highlightedText: AppColors.textPrimary
+
         RowLayout {
             Layout.fillWidth: true
 
