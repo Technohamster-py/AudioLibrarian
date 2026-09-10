@@ -86,6 +86,9 @@ Item {
                             }
                         ]
 
+                        textRole: "text"
+                        valueRole: "value"
+
                         currentIndex: {
                             const value = SettingsManager.language
 
@@ -98,11 +101,12 @@ Item {
                         }
 
                         onActivated: {
-                            SettingsManager.language = model[currentIndex].value
+                            SettingsManager.setLanguage(currentValue)
                         }
                     }
                 }
 
+                /*
                 SettingsRow {
                     Layout.fillWidth: true
 
@@ -170,6 +174,7 @@ Item {
                         }
                     }
                 }
+                */
 
                 Item {
                     Layout.fillHeight: true

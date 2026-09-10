@@ -10,6 +10,7 @@ find_package(Qt6 REQUIRED COMPONENTS
         Core
         Gui
         Concurrent
+        LinguistTools
         Multimedia
         Quick
         QuickControls2
@@ -19,7 +20,11 @@ find_package(Qt6 REQUIRED COMPONENTS
 
 find_package(TagLib 2.0 REQUIRED)
 
-qt_standard_project_setup(REQUIRES 6.11)
+qt_standard_project_setup(
+        REQUIRES 6.11
+        I18N_SOURCE_LANGUAGE en
+        I18N_TRANSLATED_LANGUAGES ru
+)
 
 # ---------------------------------------------------------------------------
 # Core application logic
@@ -236,6 +241,11 @@ target_include_directories(AudioLibrarianUi PRIVATE
 # Application
 # ---------------------------------------------------------------------------
 
+qt_add_translations(AudioLibrarianUi
+        TS_FILES
+        translations/AudioLibrarian_ru.ts
+        RESOURCE_PREFIX /qt/qml/AudioLibrarian/i18n
+)
 
 qt_add_executable(AudioLibrarian
         src/main.cpp
