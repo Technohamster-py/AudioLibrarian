@@ -325,7 +325,7 @@ Item {
 
                     enabled: fileContextMenu.filePath !== ""
                     onTriggered: {
-                        root.deleteFileRequested(fileContextMenu.filePath)
+                        duplicateFinderController.deleteFile(fileContextMenu.filePath)
                     }
                 }
 
@@ -378,6 +378,10 @@ Item {
                     width: treeView.width
 
                     font.pixelSize: model.nodeType === 0 ? AppMetrics.duplicatesFontLarge : (model.nodeType === 1 ? AppMetrics.duplicatesFontMedium : AppMetrics.duplicatesFontSmall)
+
+                    enabled: model.nodeType !== 2 || model.active
+                    font.strikeout: model.nodeType === 2 && !model.active
+                    opacity: model.nodeType === 2 && !model.active ? 0.45 : 1.0
 
                     background: Rectangle {
                         color: treeDelegate.row === duplicateTreeView.currentRow ? AppColors.navigationAccent : (model.nodeType === 0 ? AppColors.duplicatesMethodColor : (treeDelegate.row % 2 === 0 ? AppColors.navigationPanel : AppColors.navigationElevated))

@@ -47,6 +47,14 @@ bool DuplicateFinderController::openFileLocation(const QString &filePath) {
     return QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(filePath).absolutePath()));
 }
 
+bool DuplicateFinderController::deleteFile(const QString &filePath) {
+    if (!QFile::moveToTrash(filePath))
+        return false;
+
+    m_resultModel.setFileInactive(filePath);
+    return true;
+}
+
 void DuplicateFinderController::handleFinished() {
     const DuplicateSearchResult &result = m_duplicateFinder->result();
 

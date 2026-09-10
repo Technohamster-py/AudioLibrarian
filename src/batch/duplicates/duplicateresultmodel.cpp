@@ -129,6 +129,7 @@ QVariant DuplicateResultModel::data(const QModelIndex &index, int role) const {
         case NodeTypeRole: return static_cast<int>(node->type);
         case SearchModeRole: return static_cast<int>(node->searchMode);
         case GroupIndexRole: return node->groupIndex;
+        case ActiveRole: return node->active;
         default: return {};
     }
 }
@@ -140,8 +141,28 @@ QHash<int, QByteArray> DuplicateResultModel::roleNames() const {
         {FilePathRole, "filePath"},
         {NodeTypeRole, "nodeType"},
         {SearchModeRole, "searchMode"},
-        {GroupIndexRole, "groupIndex"}
+        {GroupIndexRole, "groupIndex"},
+        {ActiveRole, "active"}
     };
+}
+
+void DuplicateResultModel::setFileInactive(const QString &filePath)
+{
+    std::function<void(Node *, const QModelIndex &)> update =
+        [&](Node *node, const QModelIndex &parentIndex) {
+            for (int row = 0; row < static_cast<int>(node->children.size()); ++row) {
+                Node *child = node->children.at(row).get();
+                const QModelIndex index = createIndex(row, 0, child);
+
+                if (child->type == NodeType::File && child->filePath == filePath) {
+                    child->active = false;
+                    emit dataChanged(index, index, {ActiveRole});
+                }
+
+                update(child, index);
+            }
+    };
+    update(m_root.get(), {});
 }
 
 QString DuplicateResultModel::modeDisplayName(DuplicateSearchMode mode) {

@@ -44,6 +44,7 @@ public:
      */
     Q_INVOKABLE bool start(const QString &baseFilePath, bool searchByHash, bool searchByMetadata, bool searchByFileName, int durationTolerance);
     Q_INVOKABLE bool openFileLocation(const QString &filePath);
+    Q_INVOKABLE bool deleteFile(const QString &filePath);
 
 signals:
     void resultChanged();
