@@ -105,6 +105,7 @@ Item {
 
                 searching: duplicateFinderController.running
 
+                analyzedFileCount: duplicateFinderController.analyzedFileCount
                 duplicateGroupCount: duplicateFinderController.duplicateGroupCount
                 duplicateFileCount: duplicateFinderController.duplicateFileCount
                 removableFileCount: duplicateFinderController.removableFileCount

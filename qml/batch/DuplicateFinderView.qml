@@ -24,6 +24,9 @@ Item {
     /** @brief Indicates that duplicate search is currently running. */
     property bool searching: false
 
+    /** @brief Number of files analyzed during the latest search. */
+    property int analyzedFileCount: 0
+
     /** @brief Number of duplicate groups in the latest result. */
     property int duplicateGroupCount: 0
 
@@ -228,13 +231,42 @@ Item {
             }
         }
 
-        Label {
-            text: qsTr("Result")
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: AppMetrics.spasingMedium
 
-            color: AppColors.settingsTextPrimary
+            Label {
+                text: qsTr("Result")
 
-            font.pixelSize: 20
-            font.bold: true
+                color: AppColors.settingsTextPrimary
+
+                font.pixelSize: AppMetrics.fontSizeLarge
+                font.bold: true
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
+
+            Label {
+                text: qsTr("Groups: %1").arg(root.duplicateGroupCount)
+                color: AppColors.settingsTextSecondary
+            }
+
+            Label {
+                text: qsTr("Files analyzed: %1").arg(root.analyzedFileCount)
+                color: AppColors.settingsTextSecondary
+            }
+
+            // Label {
+            //     text: qsTr("Duplicate files: %1").arg(root.duplicateFileCount)
+            //     color: AppColors.settingsTextSecondary
+            // }
+            //
+            // Label {
+            //     text: qsTr("Removable: %1").arg(root.removableFileCount)
+            //     color: AppColors.settingsTextSecondary
+            // }
         }
 
         Rectangle {
@@ -289,7 +321,7 @@ Item {
                 MenuSeparator {}
 
                 MenuItem {
-                    text: qsTr("Удалить этот файл")
+                    text: qsTr("Delete this file")
 
                     enabled: fileContextMenu.filePath !== ""
                     onTriggered: {
@@ -298,7 +330,7 @@ Item {
                 }
 
                 MenuItem {
-                    text: qsTr("Оставить этот файл")
+                    text: qsTr("Keep this file")
 
                     enabled: fileContextMenu.filePath !== ""
                     onTriggered: {
@@ -309,7 +341,7 @@ Item {
                 MenuSeparator {}
 
                 MenuItem {
-                    text: qsTr("Открыть расположение в проводнике")
+                    text: qsTr("Open in external app")
 
                     enabled: fileContextMenu.filePath !== ""
                     onTriggered: {
