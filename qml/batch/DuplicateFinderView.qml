@@ -67,58 +67,76 @@ Item {
             color: AppColors.settingsSeparator
         }
 
-        CheckBox {
-            id: hashCheckBox
-            objectName: "searchByHashCheckBox"
-
-            text: qsTr("Search by file content (hash)")
-            palette.windowText: AppColors.textPrimary
-
-            checked: root.searchByHash
-
-            onToggled: {
-                root.searchByHash = checked
-            }
-        }
-
-        CheckBox {
-            id: metadataCheckBox
-            objectName: "searchByMetadataCheckBox"
-
-            text: qsTr("Search by metadata")
-            palette.windowText: AppColors.textPrimary
-
-
-            checked: root.searchByMetadata
-
-            onToggled: {
-                root.searchByMetadata = checked
-            }
-        }
-
-        CheckBox {
-            id: fileNameCheckBox
-            objectName: "searchByFileNameCheckBox"
-
-            text: qsTr("Search by file name")
-            palette.windowText: AppColors.textPrimary
-
-
-            checked: root.searchByFileName
-
-            onToggled: {
-                root.searchByFileName = checked
-            }
-        }
-
         RowLayout {
             Layout.fillWidth: true
+            spacing: AppMetrics.spacingSmall
 
-            spacing: AppMetrics.spacingMedium
+            CheckBox {
+                id: hashCheckBox
+                objectName: "searchByHashCheckBox"
+
+                text: qsTr("Search by file content (hash)")
+                palette.windowText: AppColors.textPrimary
+
+                checked: root.searchByHash
+
+                onToggled: {
+                    root.searchByHash = checked
+                }
+            }
+
+            Rectangle {
+                Layout.preferredHeight: 20
+                Layout.preferredWidth: 1
+
+                color: AppColors.settingsSeparator
+            }
+
+            CheckBox {
+                id: metadataCheckBox
+                objectName: "searchByMetadataCheckBox"
+
+                text: qsTr("Search by metadata")
+                palette.windowText: AppColors.textPrimary
+
+
+                checked: root.searchByMetadata
+
+                onToggled: {
+                    root.searchByMetadata = checked
+                }
+            }
+
+            Rectangle {
+                Layout.preferredHeight: 20
+                Layout.preferredWidth: 1
+
+                color: AppColors.settingsSeparator
+            }
+
+            CheckBox {
+                id: fileNameCheckBox
+                objectName: "searchByFileNameCheckBox"
+
+                text: qsTr("Search by file name")
+                palette.windowText: AppColors.textPrimary
+
+
+                checked: root.searchByFileName
+
+                onToggled: {
+                    root.searchByFileName = checked
+                }
+            }
+
+            Rectangle {
+                Layout.preferredHeight: 20
+                Layout.preferredWidth: 1
+
+                color: AppColors.settingsSeparator
+            }
 
             Label {
-                Layout.fillWidth: true
-
                 text: qsTr("Duration tolerance")
 
                 color: AppColors.settingsTextPrimary
@@ -158,6 +176,10 @@ Item {
                 onValueModified: {
                     root.durationTolerance = value
                 }
+            }
+
+            Item {
+                Layout.fillWidth: true
             }
         }
 

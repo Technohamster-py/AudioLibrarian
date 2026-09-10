@@ -31,7 +31,7 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: AppMetrics.spacingLarge
+        anchors.margins: AppMetrics.spacingMedium
 
         spacing: AppMetrics.spacingMedium
 
