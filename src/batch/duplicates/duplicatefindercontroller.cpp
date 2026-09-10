@@ -55,6 +55,14 @@ bool DuplicateFinderController::deleteFile(const QString &filePath) {
     return true;
 }
 
+bool DuplicateFinderController::keepFile(const QString &filePath, DuplicateGroup &group) {
+    for (auto &file : group.files) {
+        if (file.filePath != filePath) {
+            deleteFile(file.filePath);
+        }
+    }
+}
+
 void DuplicateFinderController::handleFinished() {
     const DuplicateSearchResult &result = m_duplicateFinder->result();
 
