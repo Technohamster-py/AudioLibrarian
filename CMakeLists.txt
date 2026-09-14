@@ -243,7 +243,7 @@ target_include_directories(AudioLibrarianUi PRIVATE
 
 qt_add_translations(AudioLibrarianUi
         TS_FILES
-        translations/AudioLibrarian_ru.ts
+        translations/qml_ru.ts
         RESOURCE_PREFIX /qt/qml/AudioLibrarian/i18n
 )
 

@@ -269,22 +269,22 @@
         <translation>Язык, используемый в интерфейсе.</translation>
     </message>
     <message>
-        <location filename="../qml/settings/SettingsView.qml" line="76"/>
+        <location filename="../qml/settings/SettingsView.qml" line="74"/>
         <source>System</source>
         <translation>Системная</translation>
     </message>
     <message>
-        <location filename="../qml/settings/SettingsView.qml" line="80"/>
+        <location filename="../qml/settings/SettingsView.qml" line="78"/>
         <source>English</source>
         <translation>Английский</translation>
     </message>
     <message>
-        <location filename="../qml/settings/SettingsView.qml" line="84"/>
+        <location filename="../qml/settings/SettingsView.qml" line="82"/>
         <source>Russian</source>
         <translation>Русский</translation>
     </message>
     <message>
-        <location filename="../qml/settings/SettingsView.qml" line="186"/>
+        <location filename="../qml/settings/SettingsView.qml" line="187"/>
         <source>Select library directory</source>
         <translation>Выберите папку библиотеки</translation>
     </message>

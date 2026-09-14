@@ -17,6 +17,7 @@ MainWindow {
         target: SettingsManager
 
         function onLanguageChanged(value) {
+            console.log(value)
             Qt.uiLanguage = value === "system" ? Qt.locale().name : value
         }
     }
