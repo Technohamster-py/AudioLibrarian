@@ -64,6 +64,11 @@ target_include_directories(AudioLibrarianCore PRIVATE
 qt_add_library(AudioLibrarianUi STATIC)
 
 set_source_files_properties(
+        qml/Main.qml
+        PROPERTIES QT_RESOURCE_ALIAS "Main.qml"
+)
+
+set_source_files_properties(
         qml/app/MainWindow.qml
         PROPERTIES QT_RESOURCE_ALIAS "MainWindow.qml"
 )
