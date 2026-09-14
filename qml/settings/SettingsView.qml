@@ -64,9 +64,7 @@ Item {
                     Layout.fillWidth: true
 
                     title: qsTr("Language")
-                    description: qsTr(
-                        "Language used by the application interface."
-                    )
+                    description: qsTr("Language used by the application interface.")
 
                     ComboBox {
                         Layout.fillWidth: true
@@ -86,6 +84,9 @@ Item {
                             }
                         ]
 
+                        textRole: "text"
+                        valueRole: "value"
+
                         currentIndex: {
                             const value = SettingsManager.language
 
@@ -98,11 +99,12 @@ Item {
                         }
 
                         onActivated: {
-                            SettingsManager.language = model[currentIndex].value
+                            SettingsManager.setLanguage(model[currentIndex].value)
                         }
                     }
                 }
 
+                /*
                 SettingsRow {
                     Layout.fillWidth: true
 
@@ -170,6 +172,7 @@ Item {
                         }
                     }
                 }
+                */
 
                 Item {
                     Layout.fillHeight: true

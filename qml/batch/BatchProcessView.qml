@@ -36,9 +36,19 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: AppMetrics.spacingLarge
+        anchors.margins: AppMetrics.spacingMedium
 
         spacing: AppMetrics.spacingMedium
+
+        palette.window: AppColors.navigationPanel
+        palette.base: AppColors.navigationPanel
+        palette.alternateBase: AppColors.navigationElevated
+        palette.text: AppColors.textPrimary
+        palette.windowText: AppColors.textPrimary
+        palette.button: AppColors.navigationElevated
+        palette.buttonText: AppColors.textPrimary
+        palette.highlight: AppColors.navigationAccent
+        palette.highlightedText: AppColors.textPrimary
 
         RowLayout {
             Layout.fillWidth: true
@@ -100,6 +110,7 @@ Item {
 
                 searching: duplicateFinderController.running
 
+                analyzedFileCount: duplicateFinderController.analyzedFileCount
                 duplicateGroupCount: duplicateFinderController.duplicateGroupCount
                 duplicateFileCount: duplicateFinderController.duplicateFileCount
                 removableFileCount: duplicateFinderController.removableFileCount

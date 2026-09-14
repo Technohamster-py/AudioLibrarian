@@ -17,6 +17,7 @@ class DuplicateFinderController : public BatchProcessController
     QML_ELEMENT
 
     Q_PROPERTY(QAbstractItemModel *resultModel READ resultModel CONSTANT)
+    Q_PROPERTY(qsizetype analyzedFileCount READ analyzedFileCount NOTIFY resultChanged)
     Q_PROPERTY(qsizetype duplicateGroupCount READ duplicateGroupCount NOTIFY resultChanged)
     Q_PROPERTY(qsizetype duplicateFileCount READ duplicateFileCount NOTIFY resultChanged)
     Q_PROPERTY(qsizetype removableFileCount READ removableFileCount NOTIFY resultChanged)
@@ -26,6 +27,7 @@ public:
 
     QAbstractItemModel *resultModel() { return &m_resultModel; }
 
+    qsizetype analyzedFileCount() const { return m_analyzedFileCount; }
     qsizetype duplicateGroupCount() const { return m_duplicateGroupCount; }
     qsizetype duplicateFileCount() const { return m_duplicateFileCount; }
     qsizetype removableFileCount() const { return m_removableFileCount; }
@@ -42,12 +44,18 @@ public:
      */
     Q_INVOKABLE bool start(const QString &baseFilePath, bool searchByHash, bool searchByMetadata, bool searchByFileName, int durationTolerance);
     Q_INVOKABLE bool openFileLocation(const QString &filePath);
+    Q_INVOKABLE bool deleteFile(const QString &filePath);
+    Q_INVOKABLE bool keepFile(const QString& filePath, int groupIndex, int searchMode);
+
+    bool keepFile(const QString &filePath, const DuplicateGroup &group);
 
 signals:
     void resultChanged();
 
 protected:
     void handleFinished() override;
+
+    const DuplicateGroup &findGroup(int groupIndex, int searchMode);
 
 private:
     void resetResult();
@@ -56,6 +64,7 @@ private:
     QSharedPointer<DuplicateFinder> m_duplicateFinder;
     DuplicateResultModel m_resultModel;
 
+    qsizetype m_analyzedFileCount = 0;
     qsizetype m_duplicateGroupCount = 0;
     qsizetype m_duplicateFileCount = 0;
     qsizetype m_removableFileCount = 0;

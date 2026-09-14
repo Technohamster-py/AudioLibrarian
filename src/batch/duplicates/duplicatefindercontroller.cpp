@@ -38,6 +38,7 @@ bool DuplicateFinderController::start(const QString &baseFilePath, const bool se
     m_duplicateFinder->setDurationTolerance(durationTolerance);
 
     const QVector<AudioFileRecord> files = m_scanner.scan(baseFilePath);
+    m_analyzedFileCount = files.size();
 
     return startOperation(m_duplicateFinder, files);
 }
@@ -46,8 +47,52 @@ bool DuplicateFinderController::openFileLocation(const QString &filePath) {
     return QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(filePath).absolutePath()));
 }
 
-void DuplicateFinderController::handleFinished()
-{
+bool DuplicateFinderController::deleteFile(const QString &filePath) {
+    if (!QFile::moveToTrash(filePath))
+        return false;
+
+    m_resultModel.setFileInactive(filePath);
+    return true;
+}
+
+bool DuplicateFinderController::keepFile(const QString &filePath, const int groupIndex, const int searchMode) {
+    const DuplicateGroup group = findGroup(groupIndex, searchMode);
+
+    if (group.files.isEmpty()) return false;
+
+    return keepFile(filePath, group);
+}
+
+const DuplicateGroup &DuplicateFinderController::findGroup(int groupIndex, int searchMode) {
+    const auto mode = static_cast<DuplicateSearchMode>(searchMode);
+    const DuplicateSearchResult &result = m_duplicateFinder->result();
+
+    int currentGroupIndex = 0;
+
+    for (const DuplicateGroup &group : result.groups) {
+        if (group.mode != mode)
+            continue;
+
+        ++currentGroupIndex;
+
+        if (currentGroupIndex != groupIndex)
+            continue;
+
+        return group;
+    }
+    return {};
+}
+
+bool DuplicateFinderController::keepFile(const QString &filePath, const DuplicateGroup &group) {
+    for (auto &file : group.files) {
+        if (file.filePath != filePath) {
+            return deleteFile(file.filePath);
+        }
+    }
+    return false;
+}
+
+void DuplicateFinderController::handleFinished() {
     const DuplicateSearchResult &result = m_duplicateFinder->result();
 
     m_duplicateGroupCount = result.groups.size();
@@ -60,8 +105,8 @@ void DuplicateFinderController::handleFinished()
     emit resultChanged();
 }
 
-void DuplicateFinderController::resetResult()
-{
+void DuplicateFinderController::resetResult() {
+    m_analyzedFileCount = 0;
     m_duplicateGroupCount = 0;
     m_duplicateFileCount = 0;
     m_removableFileCount = 0;

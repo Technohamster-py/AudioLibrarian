@@ -5,6 +5,8 @@
 #include <QFutureWatcher>
 #include <QStandardPaths>
 
+#include <utility>
+
 #include <QtConcurrent/QtConcurrentRun>
 
 #include "metadata/metadatautils.h"
@@ -21,6 +23,8 @@ FileTreeModel::FileTreeModel(QObject *parent) : QAbstractProxyModel(parent), m_s
     connect( &m_sourceModel, &QAbstractItemModel::rowsRemoved, this, &FileTreeModel::slotEndRemoveRows);
     connect(&m_sourceModel, &QAbstractItemModel::modelAboutToBeReset, this, &FileTreeModel::slotResetModel);
     connect(&m_sourceModel,&QAbstractItemModel::modelReset,this,&FileTreeModel::slotEndModelReset);
+    connect(&m_sourceModel, &QAbstractItemModel::layoutAboutToBeChanged, this, &FileTreeModel::slotLayoutAboutToBeChanged);
+    connect(&m_sourceModel, &QAbstractItemModel::layoutChanged, this, &FileTreeModel::slotLayoutChanged);
 
     const QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
 
@@ -56,6 +60,11 @@ void FileTreeModel::configureSourceModel() {
         QStringLiteral("*.aiff"),
         QStringLiteral("*.aif")
     });
+
+    // QFileSystemModel keeps directories before files when sorting. Trigger
+    // that sorting explicitly so every newly loaded directory has the same
+    // predictable name order.
+    m_sourceModel.sort(0, Qt::AscendingOrder);
 }
 
 QUrl FileTreeModel::rootPath() const {
@@ -357,8 +366,51 @@ void FileTreeModel::slotEndModelReset() {
     endResetModel();
 }
 
-void FileTreeModel::loadMetadata(const QString &filePath)
-{
+void FileTreeModel::slotLayoutAboutToBeChanged(const QList<QPersistentModelIndex> &parents, const QAbstractItemModel::LayoutChangeHint hint) {
+    QList<QPersistentModelIndex> proxyParents;
+    proxyParents.reserve(parents.size());
+
+    for (const QPersistentModelIndex &parent : parents)
+        proxyParents.append(mapFromSource(parent));
+
+    emit layoutAboutToBeChanged(proxyParents, hint);
+
+    m_proxyPersistentIndexes = persistentIndexList();
+    m_sourcePersistentIndexes.clear();
+    m_proxyPersistentColumns.clear();
+    m_sourcePersistentIndexes.reserve(m_proxyPersistentIndexes.size());
+    m_proxyPersistentColumns.reserve(m_proxyPersistentIndexes.size());
+
+    for (const QModelIndex &index : std::as_const(m_proxyPersistentIndexes)) {
+        m_sourcePersistentIndexes.append(mapToSource(index));
+        m_proxyPersistentColumns.append(index.column());
+    }
+}
+
+void FileTreeModel::slotLayoutChanged(const QList<QPersistentModelIndex> &parents, const QAbstractItemModel::LayoutChangeHint hint) {
+    QModelIndexList updatedProxyIndexes;
+    updatedProxyIndexes.reserve(m_sourcePersistentIndexes.size());
+
+    for (qsizetype position = 0; position < m_sourcePersistentIndexes.size(); ++position) {
+        const QModelIndex index = mapFromSource(m_sourcePersistentIndexes.at(position));
+        updatedProxyIndexes.append(index.siblingAtColumn(m_proxyPersistentColumns.at(position)));
+    }
+
+    changePersistentIndexList(m_proxyPersistentIndexes, updatedProxyIndexes);
+    m_proxyPersistentIndexes.clear();
+    m_sourcePersistentIndexes.clear();
+    m_proxyPersistentColumns.clear();
+
+    QList<QPersistentModelIndex> proxyParents;
+    proxyParents.reserve(parents.size());
+
+    for (const QPersistentModelIndex &parent : parents)
+        proxyParents.append(mapFromSource(parent));
+
+    emit layoutChanged(proxyParents, hint);
+}
+
+void FileTreeModel::loadMetadata(const QString &filePath) {
     if (filePath.isEmpty()) return;
     if (m_metadataCache.contains(filePath)) return;
     if (m_metadataPending.contains(filePath)) return;
@@ -383,11 +435,9 @@ void FileTreeModel::loadMetadata(const QString &filePath)
 
             m_metadataCache.insert(result.filePath, *result.fileInfo);
 
-            const QModelIndex sourceIndex =
-                m_sourceModel.index(result.filePath);
+            const QModelIndex sourceIndex = m_sourceModel.index(result.filePath);
 
-            const QModelIndex proxyIndex =
-                mapFromSource(sourceIndex);
+            const QModelIndex proxyIndex = mapFromSource(sourceIndex);
 
             if (!proxyIndex.isValid())
                 return;

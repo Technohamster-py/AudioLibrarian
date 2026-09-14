@@ -10,6 +10,7 @@ find_package(Qt6 REQUIRED COMPONENTS
         Core
         Gui
         Concurrent
+        LinguistTools
         Multimedia
         Quick
         QuickControls2
@@ -19,7 +20,11 @@ find_package(Qt6 REQUIRED COMPONENTS
 
 find_package(TagLib 2.0 REQUIRED)
 
-qt_standard_project_setup(REQUIRES 6.11)
+qt_standard_project_setup(
+        REQUIRES 6.11
+        I18N_SOURCE_LANGUAGE en
+        I18N_TRANSLATED_LANGUAGES ru
+)
 
 # ---------------------------------------------------------------------------
 # Core application logic & QML module
@@ -33,8 +38,6 @@ qt_add_library(AudioLibrarianCore STATIC
         src/batch/duplicates/duplicatesearchresult.cpp      src/batch/duplicates/duplicatesearchresult.cpp
         src/batch/duplicates/duplicatefindercontroller.h    src/batch/duplicates/duplicatefindercontroller.cpp
         src/batch/duplicates/duplicateresultmodel.h         src/batch/duplicates/duplicateresultmodel.cpp
-        src/batch/metadata/metadataeditor.h                 src/batch/metadata/metadataeditor.cpp
-        src/batch/metadata/metadataeditorcontroller.h       src/batch/metadata/metadataeditorcontroller.cpp
         src/library/audiofilerecord.h
         src/library/filetree/filetreemodel.h                src/library/filetree/filetreemodel.cpp
         src/library/library/audiofiletablemodel.h           src/library/library/audiofiletablemodel.cpp
@@ -78,6 +81,11 @@ target_include_directories(AudioLibrarianCore PUBLIC
 # ---------------------------------------------------------------------------
 # QML UI module
 # ---------------------------------------------------------------------------
+
+set_source_files_properties(
+        qml/Main.qml
+        PROPERTIES QT_RESOURCE_ALIAS "Main.qml"
+)
 
 set_source_files_properties(
         qml/app/MainWindow.qml
@@ -257,6 +265,11 @@ qt_add_qml_module(AudioLibrarianCore
 # Application
 # ---------------------------------------------------------------------------
 
+qt_add_translations(AudioLibrarianCore
+        TS_FILES
+        translations/qml_ru.ts
+        RESOURCE_PREFIX /qt/qml/AudioLibrarian/i18n
+)
 
 qt_add_executable(AudioLibrarian
         src/main.cpp

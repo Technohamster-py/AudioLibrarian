@@ -13,7 +13,8 @@ public:
         RelativeFilePathRole,
         NodeTypeRole,
         SearchModeRole,
-        GroupIndexRole
+        GroupIndexRole,
+        ActiveRole
     };
 
     enum class NodeType {
@@ -34,6 +35,8 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     QHash<int, QByteArray> roleNames() const override;
 
+    void setFileInactive(const QString &filePath);
+
 private:
     struct Node {
         NodeType type;
@@ -44,6 +47,7 @@ private:
         int groupIndex = -1;
         Node *parent = nullptr;
         std::vector<std::unique_ptr<Node>> children;
+        bool active = true;
     };
 
     static QString modeDisplayName(DuplicateSearchMode mode);
