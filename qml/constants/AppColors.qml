@@ -69,4 +69,8 @@ QtObject {
     readonly property color settingsTextSecondary: textSecondary
 
     readonly property color settingsSeparator: separator
+
+
+    // Batch palette
+    readonly property color duplicatesMethodColor: textDisabled
 }

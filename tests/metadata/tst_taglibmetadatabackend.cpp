@@ -241,10 +241,10 @@ void TagLibMetadataBackendTest::multipleValues()
         loaded->values(
             QStringLiteral("ARTIST")
         ),
-        QStringList{
+        (QStringList{
             QStringLiteral("Artist One"),
             QStringLiteral("Artist Two")
-        }
+        })
     );
 }
 
