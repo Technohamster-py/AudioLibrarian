@@ -302,6 +302,9 @@ Item {
                 property string filePath
                 property string relativeFilePath
 
+                property int groupIndex: -1
+                property int searchMode: -1
+
                 MenuItem {
                     text: qsTr("Expand all")
 
@@ -332,9 +335,9 @@ Item {
                 MenuItem {
                     text: qsTr("Keep this file")
 
-                    enabled: fileContextMenu.filePath !== ""
+                    enabled: fileContextMenu.filePath !== "" && fileContextMenu.groupIndex >= 0 && fileContextMenu.searchMode >= 0
                     onTriggered: {
-                        root.keepFileRequested(fileContextMenu.filePath)
+                        duplicateFinderController.keepFile(fileContextMenu.filePath, fileContextMenu.groupIndex, fileContextMenu.searchMode)
                     }
                 }
 
@@ -397,10 +400,14 @@ Item {
                         onTapped: function (eventPoint, button) {
                             fileContextMenu.filePath = ""
                             fileContextMenu.relativeFilePath = ""
+                            fileContextMenu.groupIndex = -1
+                            fileContextMenu.searchMode = -1
 
                             if (model.nodeType === 2) {
                                 fileContextMenu.filePath = model.filePath
                                 fileContextMenu.relativeFilePath = model.relativeFilePath
+                                fileContextMenu.groupIndex = model.groupIndex
+                                fileContextMenu.searchMode = model.searchMode
                             }
                             fileContextMenu.popup()
                         }

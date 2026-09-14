@@ -55,12 +55,41 @@ bool DuplicateFinderController::deleteFile(const QString &filePath) {
     return true;
 }
 
-void DuplicateFinderController::keepFile(const QString &filePath, const DuplicateGroup &group) {
+bool DuplicateFinderController::keepFile(const QString &filePath, const int groupIndex, const int searchMode) {
+    const DuplicateGroup group = findGroup(groupIndex, searchMode);
+
+    if (group.files.isEmpty()) return false;
+
+    return keepFile(filePath, group);
+}
+
+const DuplicateGroup &DuplicateFinderController::findGroup(int groupIndex, int searchMode) {
+    const auto mode = static_cast<DuplicateSearchMode>(searchMode);
+    const DuplicateSearchResult &result = m_duplicateFinder->result();
+
+    int currentGroupIndex = 0;
+
+    for (const DuplicateGroup &group : result.groups) {
+        if (group.mode != mode)
+            continue;
+
+        ++currentGroupIndex;
+
+        if (currentGroupIndex != groupIndex)
+            continue;
+
+        return group;
+    }
+    return {};
+}
+
+bool DuplicateFinderController::keepFile(const QString &filePath, const DuplicateGroup &group) {
     for (auto &file : group.files) {
         if (file.filePath != filePath) {
-            deleteFile(file.filePath);
+            return deleteFile(file.filePath);
         }
     }
+    return false;
 }
 
 void DuplicateFinderController::handleFinished() {
