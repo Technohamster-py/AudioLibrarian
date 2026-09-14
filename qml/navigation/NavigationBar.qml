@@ -87,14 +87,14 @@ Item {
                 Layout.fillHeight: true
             }
 
-            NavigationItem {
-                section: "settings"
-
-                iconSource: AppAssets.settings
-                tooltipText: qsTr("Settings")
-                checked: root.currentSection === section
-                onSelected: root.sectionSelected(section)
-            }
+            // NavigationItem {
+            //     section: "settings"
+            //
+            //     iconSource: AppAssets.settings
+            //     tooltipText: qsTr("Settings")
+            //     checked: root.currentSection === section
+            //     onSelected: root.sectionSelected(section)
+            // }
         }
     }
 }

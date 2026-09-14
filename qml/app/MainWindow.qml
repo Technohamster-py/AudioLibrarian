@@ -44,7 +44,7 @@ ApplicationWindow {
     property string selectedFilePath: ""
 
     onClosing: {
-        SettingsManager.saveApplicationState(width, height, x, y, navigationLayout.width, activeSection, playerController.volume)
+        SettingsManager.saveApplicationState(width, height, x, y, navigationLayout.width, activeSection, playerController.volume, playerBar.expanded)
     }
 
     /**
@@ -184,20 +184,29 @@ ApplicationWindow {
                                 iconSource: AppAssets.duplicate
                             }
 
-                            SettingsView {
-                                objectName: "settingsView"
-                            }
-                        }
+                    // SettingsView {
+                    //     objectName: "settingsView"
+                    // }
+                }
 
-                        PlayerBar {
-                            id: playerBar
-                            objectName: "playerBar"
+                PlayerBar {
+                    id: playerBar
+                    objectName: "playerBar"
 
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: AppMetrics.playerHeight
-                            player: playerController
+                    Layout.fillWidth: true
+
+                    Layout.preferredHeight: expanded ? AppMetrics.playerHeight : AppMetrics.iconButtonSize
+
+                    player: playerController
+
+                    Behavior on Layout.preferredHeight {
+                        NumberAnimation {
+                            duration: 180
+                            easing.type: Easing.OutCubic
                         }
                     }
+                }
+            }
 
                     EditorView {
                         id: editorView

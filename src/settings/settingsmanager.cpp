@@ -50,7 +50,7 @@ void SettingsManager::setBaseDir(const QString &value)
     emit baseDirChanged(m_baseDir);
 }
 
-void SettingsManager::saveApplicationState(int windowWidth, int windowHeight, int windowX, int windowY, double navigationWidth, const QString &activeSection, double volume) {
+void SettingsManager::saveApplicationState(int windowWidth, int windowHeight, int windowX, int windowY, double navigationWidth, const QString &activeSection, double volume, bool playerExpanded) {
     m_settings.setValue(m_settingsStruct.appState.windowWidth, windowWidth);
     m_settings.setValue(m_settingsStruct.appState.windowHeight, windowHeight);
     m_settings.setValue(m_settingsStruct.appState.windowX, windowX);
@@ -60,6 +60,7 @@ void SettingsManager::saveApplicationState(int windowWidth, int windowHeight, in
 
     volume = std::clamp(volume, 0.0, 100.0);
     m_settings.setValue(m_settingsStruct.playerState.volume, volume);
+    m_settings.setValue(m_settingsStruct.playerState.expanded, playerExpanded);
 
     m_settings.sync();
 }

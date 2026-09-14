@@ -82,6 +82,8 @@ class SettingsManager : public QObject{
     Q_PROPERTY(double volume
                 READ volume
                 NOTIFY volumeChanged)
+
+    Q_PROPERTY(bool playerExpanded READ playerExpanded NOTIFY playerExpandedChanged)
 public:
     explicit SettingsManager(QObject *parent = nullptr);
     ~SettingsManager() = default;
@@ -93,6 +95,7 @@ public:
     double navigationWidth() const {return m_settings.value(m_settingsStruct.appState.navigationWidth, 500.0).toDouble();};
     QString activeSection() const {return m_settings.value(m_settingsStruct.appState.activeSection, QStringLiteral("files")).toString();};
     double volume() const;
+    bool playerExpanded() const {return m_settings.value(m_settingsStruct.playerState.expanded, true).toBool();};
 
     QString language() const {return m_language;};
     Q_INVOKABLE void setLanguage(const QString &value);
@@ -115,6 +118,8 @@ public:
      * @param navigationWidth
      * @param navigationWidth
      * @param activeSection Currently selected navigation section.
+     * @param playerExpanded
+     * @param playerExpanded
      */
     Q_INVOKABLE void saveApplicationState(
         int windowWidth,
@@ -122,8 +127,9 @@ public:
         int windowX,
         int windowY,
         double navigationWidth, const QString &activeSection,
-        double volume
-        );
+        double volume,
+        bool playerExpanded
+    );
 
 signals:
     void windowWidthChanged(int value);
@@ -136,6 +142,7 @@ signals:
     void themeChanged(const QString &value);
     void baseDirChanged(const QString &value);
     void volumeChanged(double value);
+    void playerExpandedChanged(bool value);
 
 private:
     SettingsManager(const SettingsManager &) = delete;

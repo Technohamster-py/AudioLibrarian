@@ -61,7 +61,7 @@ Item {
                 Label {
                     Layout.fillWidth: true
 
-                    text: qsTr("%1 — %2")
+                    text: qsTr("%1 - %2")
                         .arg(root.artist)
                         .arg(root.album)
 
