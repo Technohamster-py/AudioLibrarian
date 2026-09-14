@@ -172,9 +172,9 @@ ApplicationWindow {
                         iconSource: AppAssets.duplicate
                     }
 
-                    SettingsView {
-                        objectName: "settingsView"
-                    }
+                    // SettingsView {
+                    //     objectName: "settingsView"
+                    // }
                 }
 
                 PlayerBar {
