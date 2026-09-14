@@ -134,6 +134,10 @@ private:
     quint64 m_generation = 0;
     LibraryScanner m_scanner;
 
+    QModelIndexList m_proxyPersistentIndexes;
+    QList<QPersistentModelIndex> m_sourcePersistentIndexes;
+    QList<int> m_proxyPersistentColumns;
+
 private slots:
     void slotDirectoryLoaded(const QString &path);
     void slotDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QList<int> &roles);
@@ -143,4 +147,6 @@ private slots:
     void slotEndRemoveRows();
     void slotResetModel();
     void slotEndModelReset();
+    void slotLayoutAboutToBeChanged(const QList<QPersistentModelIndex> &parents, LayoutChangeHint hint);
+    void slotLayoutChanged(const QList<QPersistentModelIndex> &parents, LayoutChangeHint hint);
 };

@@ -11,7 +11,7 @@
 
 #include <atomic>
 
-class BatchProcessor final : public QObject {
+class BatchProcessor : public QObject {
     Q_OBJECT
 
 public:

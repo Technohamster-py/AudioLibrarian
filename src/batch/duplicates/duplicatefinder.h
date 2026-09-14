@@ -9,7 +9,7 @@
 
 #include <algorithm>
 
-class DuplicateFinder final : public AbstractBatchOperation {
+class DuplicateFinder : public AbstractBatchOperation {
     Q_OBJECT
 
     Q_PROPERTY(int durationTolerance
