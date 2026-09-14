@@ -250,7 +250,7 @@ qt_add_qml_module(AudioLibrarianCore
 # Application
 # ---------------------------------------------------------------------------
 
-qt_add_translations(AudioLibrarianUi
+qt_add_translations(AudioLibrarianCore
         TS_FILES
         translations/qml_ru.ts
         RESOURCE_PREFIX /qt/qml/AudioLibrarian/i18n
