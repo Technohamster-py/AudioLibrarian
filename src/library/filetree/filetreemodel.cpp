@@ -435,11 +435,9 @@ void FileTreeModel::loadMetadata(const QString &filePath) {
 
             m_metadataCache.insert(result.filePath, *result.fileInfo);
 
-            const QModelIndex sourceIndex =
-                m_sourceModel.index(result.filePath);
+            const QModelIndex sourceIndex = m_sourceModel.index(result.filePath);
 
-            const QModelIndex proxyIndex =
-                mapFromSource(sourceIndex);
+            const QModelIndex proxyIndex = mapFromSource(sourceIndex);
 
             if (!proxyIndex.isValid())
                 return;
