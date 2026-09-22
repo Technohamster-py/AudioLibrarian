@@ -64,6 +64,26 @@ DuplicateFinder::DuplicateFinder(QObject *parent) : AbstractBatchOperation(paren
 }
 
 BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested) {
+    return searchForDuplicates(files, cancellationRequested);
+}
+
+void DuplicateFinder::setSearchModes(const QSet<DuplicateSearchMode> &searchModes) {
+    m_searchModes = searchModes;
+}
+
+const DuplicateSearchResult &DuplicateFinder::result() const {
+    return m_result;
+}
+
+void DuplicateFinder::setDurationTolerance(int durationTolerance) {
+    if (durationTolerance < 0 || durationTolerance == m_durationTolerance)
+        return;
+
+    m_durationTolerance = durationTolerance;
+    emit durationToleranceChanged();
+}
+
+BatchOperationResult DuplicateFinder::searchForDuplicates(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested) {
     if (m_searchModes.isEmpty()) {
         return {
             .state = BatchOperationState::Fail,
@@ -93,22 +113,6 @@ BatchOperationResult DuplicateFinder::execute(const QVector<AudioFileRecord> &fi
     }
 
     return result;
-}
-
-void DuplicateFinder::setSearchModes(const QSet<DuplicateSearchMode> &searchModes) {
-    m_searchModes = searchModes;
-}
-
-const DuplicateSearchResult &DuplicateFinder::result() const {
-    return m_result;
-}
-
-void DuplicateFinder::setDurationTolerance(int durationTolerance) {
-    if (durationTolerance < 0 || durationTolerance == m_durationTolerance)
-        return;
-
-    m_durationTolerance = durationTolerance;
-    emit durationToleranceChanged();
 }
 
 /**

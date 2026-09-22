@@ -82,6 +82,49 @@ Item {
             }
         }
 
+        ColumnLayout {
+            id: progressLayout
+            objectName: "batchProgressLayout"
+
+            Layout.fillWidth: true
+            spacing: AppMetrics.spacingSmall
+
+            visible: duplicateFinderController.running
+
+            ProgressBar {
+                id: progressBar
+                objectName: "batchProgressBar"
+
+                Layout.fillWidth: true
+
+                from: 0
+                to: duplicateFinderController.progressTotal
+                value: duplicateFinderController.progressCurrent
+            }
+
+            Label {
+                id: progressPhaseLabel
+                objectName: "batchProgressPhaseLabel"
+
+                Layout.fillWidth: true
+
+                text: duplicateFinderController.progressPhase
+                color: AppColors.textPrimary
+                elide: Text.ElideRight
+            }
+
+            Label {
+                id: currentFileLabel
+                objectName: "batchCurrentFileLabel"
+
+                Layout.fillWidth: true
+
+                text: duplicateFinderController.currentFile
+                color: AppColors.settingsTextSecondary
+                elide: Text.ElideMiddle
+            }
+        }
+
         StackLayout {
             id: operationStack
             objectName: "batchOperationStack"

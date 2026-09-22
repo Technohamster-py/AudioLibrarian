@@ -34,6 +34,8 @@ signals:
     void durationToleranceChanged();
 
 protected:
+    BatchOperationResult searchForDuplicates(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested);
+
     BatchOperationResult findByContent(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result);
     BatchOperationResult findByMetadata(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result);
     BatchOperationResult findByFileName(const QVector<AudioFileRecord> &files, const std::atomic_bool &cancellationRequested, DuplicateSearchResult &result);

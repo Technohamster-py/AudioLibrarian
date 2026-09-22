@@ -11,6 +11,13 @@ class BatchProcessController : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool running READ running NOTIFY runningChanged)
+    Q_PROPERTY(qsizetype progressCurrent READ progressCurrent NOTIFY progressChanged)
+    Q_PROPERTY(qsizetype progressTotal READ progressTotal NOTIFY progressChanged)
+    Q_PROPERTY(QString progressPhase READ progressPhase NOTIFY progressChanged)
+    Q_PROPERTY(QString currentFile READ currentFile NOTIFY progressChanged)
+    Q_PROPERTY(QString errorMessage READ errorMessage NOTIFY errorMessageChanged)
+
 public:
     explicit BatchProcessController(QObject *parent = nullptr);
     ~BatchProcessController() override = default;
@@ -38,12 +45,7 @@ protected:
     virtual void handleFinished() = 0;
 
 private:
-    void handleProgress(
-        qsizetype current,
-        qsizetype total,
-        const QString &phase,
-        const QString &currentFile
-    );
+    void handleProgress(qsizetype current, qsizetype total, const QString &phase, const QString &currentFile);
 
     void handleFailed(const QString &error);
     void handleCancelled();
