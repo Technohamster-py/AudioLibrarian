@@ -6,11 +6,20 @@
 #include <QString>
 
 #include <optional>
+#include <functional>
 #include <QSet>
+
+struct LibraryScanProgress {
+    qsizetype current = 0;
+    qsizetype total = 0;
+    QString currentFile;
+};
+
+using LibraryScannerCallback = std::function<void(const LibraryScanProgress &)>;
 
 class LibraryScanner {
 public:
-    QVector<AudioFileRecord> scan(const QString &path) const;
+    QVector<AudioFileRecord> scan(const QString &path, const LibraryScannerCallback &progress = {}) const;
 
     std::optional<AudioFileRecord> readFile(const QString &filePath) const;
 

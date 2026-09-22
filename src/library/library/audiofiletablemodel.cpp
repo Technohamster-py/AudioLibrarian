@@ -289,12 +289,15 @@ void AudioFileTableModel::startScan(quint64 generation) {
 
     const QString path = m_rootPath;
 
-    m_scanWatcher.setFuture(QtConcurrent::run([path, generation]() {
+    m_scanWatcher.setFuture(QtConcurrent::run([this, path, generation]() {
         ScanResult result;
         result.generation = generation;
 
         LibraryScanner scanner;
-        result.files = scanner.scan(path);
+
+        result.files = scanner.scan(path, [this](const LibraryScanProgress &progress) {
+            emit scanProgressReported(progress.current, progress.total, tr("Scanning files"), progress.currentFile);
+        });
 
         return result;
     }));

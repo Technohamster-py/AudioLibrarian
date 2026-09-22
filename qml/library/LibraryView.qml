@@ -203,11 +203,72 @@ Item {
                 color: AppColors.navigationTextSecondary
             }
 
-            BusyIndicator {
-                visible: libraryModel.loading
+            // BusyIndicator {
+            //     visible: libraryModel.loading
+            //
+            //     Layout.preferredWidth: 24
+            //     Layout.preferredHeight: 24
+            // }
 
-                Layout.preferredWidth: 24
-                Layout.preferredHeight: 24
+            Rectangle {
+                anchors.fill: fileTable
+
+                visible: libraryModel.loading
+                z: 10
+
+                color: AppColors.navigationBackground
+
+                ColumnLayout {
+                    anchors.centerIn: parent
+
+                    width: Math.min(parent.width * 0.6, 500)
+
+                    spacing: AppMetrics.spacingMedium
+
+                    Label {
+                        Layout.fillWidth: true
+
+                        text: qsTr("Scanning library")
+
+                        horizontalAlignment: Text.AlignHCenter
+
+                        color: AppColors.navigationTextPrimary
+                    }
+
+                    ProgressBar {
+                        Layout.fillWidth: true
+
+                        from: 0
+                        to: Math.max(1, libraryModel.progressTotal)
+                        value: libraryModel.progressCurrent
+                    }
+
+                    Label {
+                        Layout.fillWidth: true
+
+                        text: libraryModel.currentFile.length > 0
+                            ? libraryModel.currentFile
+                            : qsTr("Preparing...")
+
+                        horizontalAlignment: Text.AlignHCenter
+
+                        elide: Text.ElideMiddle
+
+                        color: AppColors.navigationTextSecondary
+                    }
+
+                    Label {
+                        Layout.fillWidth: true
+
+                        text: libraryModel.progressTotal > 0
+                            ? qsTr("%1 of %2").arg(libraryModel.progressCurrent).arg(libraryModel.progressTotal)
+                            : ""
+
+                        horizontalAlignment: Text.AlignHCenter
+
+                        color: AppColors.navigationTextSecondary
+                    }
+                }
             }
         }
 

@@ -18,24 +18,14 @@ class FileTreeModel : public QAbstractProxyModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(
-        QUrl rootPath
-        READ rootPath
-        WRITE setRootPathUrl
-        NOTIFY rootPathChanged
-    )
+    Q_PROPERTY(QUrl rootPath READ rootPath WRITE setRootPathUrl NOTIFY rootPathChanged)
+    Q_PROPERTY(QModelIndex rootIndex READ rootIndex NOTIFY rootPathChanged)
+    Q_PROPERTY(bool loading READ isLoading NOTIFY loadingChanged)
 
-    Q_PROPERTY(
-        QModelIndex rootIndex
-        READ rootIndex
-        NOTIFY rootPathChanged
-    )
-
-    Q_PROPERTY(
-        bool loading
-        READ isLoading
-        NOTIFY loadingChanged
-    )
+    // Q_PROPERTY(qsizetype progressCurrent READ progressCurrent NOTIFY progressChanged)
+    // Q_PROPERTY(qsizetype progressTotal READ progressTotal NOTIFY progressChanged)
+    // Q_PROPERTY(QString progressPhase READ progressPhase NOTIFY progressChanged)
+    // Q_PROPERTY(QString currentFile READ currentFile NOTIFY progressChanged)
 
     QML_ELEMENT
 
@@ -125,6 +115,11 @@ private:
     void setLoading(bool loading);
 
     bool m_loading = false;
+
+    qsizetype m_progressCurrent = 0;
+    qsizetype m_progressTotal = 0;
+    QString m_progressPhase;
+    QString m_currentFile;
 
     QFileSystemModel m_sourceModel;
     void configureSourceModel();

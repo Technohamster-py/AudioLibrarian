@@ -4,7 +4,7 @@
 #include <QFileInfo>
 #include <algorithm>
 
-QVector<AudioFileRecord> LibraryScanner::scan(const QString &path) const {
+QVector<AudioFileRecord> LibraryScanner::scan(const QString &path, const LibraryScannerCallback &progress) const {
     QVector<AudioFileRecord> result;
 
     if (path.isEmpty())
@@ -15,15 +15,38 @@ QVector<AudioFileRecord> LibraryScanner::scan(const QString &path) const {
     if (!rootInfo.exists() || !rootInfo.isDir())
         return result;
 
+    QStringList files;
+
     QDirIterator iterator(path, QDir::Files | QDir::Readable, QDirIterator::Subdirectories);
 
     while (iterator.hasNext()) {
         const QString filePath = iterator.next();
+
+        if (isAudioFile(filePath))
+            files.append(filePath);
+    }
+
+    const qsizetype total = files.size();
+    qsizetype current = 0;
+
+    if (progress)
+        progress({current, total, {}});
+
+    result.reserve(total);
+
+    for (const QString &filePath : std::as_const(files)) {
+        if (progress)
+            progress({current, total, filePath});
+
         const auto record = readFile(filePath);
 
-        if (!record) continue;
+        if (record)
+            result.append(*record);
 
-        result.append(*record);
+        ++current;
+
+        if (progress)
+            progress({current, total, {}});
     }
 
     std::sort(result.begin(), result.end(), [](const AudioFileRecord &left, const AudioFileRecord &right) {

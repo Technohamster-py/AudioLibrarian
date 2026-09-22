@@ -29,21 +29,17 @@ class AudioFileTableModel : public QAbstractTableModel {
     /**
      * @brief Directory being scanned by the model
      */
-    Q_PROPERTY(
-        QUrl rootPath
-        READ rootPath
-        WRITE setRootPath
-        NOTIFY rootPathChanged
-    )
+    Q_PROPERTY(QUrl rootPath READ rootPath WRITE setRootPath NOTIFY rootPathChanged)
 
     /**
      * @brief Indicates whether the directory is currently being scanned.
      */
-    Q_PROPERTY(
-        bool loading
-        READ isLoading
-        NOTIFY loadingChanged
-    )
+    Q_PROPERTY(bool loading READ isLoading NOTIFY loadingChanged)
+
+    Q_PROPERTY(qsizetype progressCurrent READ progressCurrent NOTIFY progressChanged)
+    Q_PROPERTY(qsizetype progressTotal READ progressTotal NOTIFY progressChanged)
+    Q_PROPERTY(QString progressPhase READ progressPhase NOTIFY progressChanged)
+    Q_PROPERTY(QString currentFile READ currentFile NOTIFY progressChanged)
 
     QML_ELEMENT
 
@@ -123,6 +119,11 @@ public:
      */
     Q_INVOKABLE void reload();
 
+    qsizetype progressCurrent() const {return m_progressCurrent;}
+    qsizetype progressTotal() const {return m_progressTotal;}
+    QString progressPhase() const {return m_progressPhase;}
+    QString currentFile() const {return m_currentFile;}
+
     /**
      * @brief Returns the number of audio files.
      */
@@ -174,6 +175,10 @@ signals:
      */
     void loadingChanged();
 
+    void progressChanged();
+
+    void scanProgressReported(qsizetype current, qsizetype total, const QString &phase, const QString &currentFile);
+
 private slots:
     /**
      * @brief Handles completion of an asynchronous scan.
@@ -194,6 +199,11 @@ private:
     QString m_rootPath;
     QVector<AudioFileRecord> m_files;
     bool m_loading = false;
+
+    qsizetype m_progressCurrent = 0;
+    qsizetype m_progressTotal = 0;
+    QString m_progressPhase;
+    QString m_currentFile;
 
     struct ScanResult {
         quint64 generation = 0;
