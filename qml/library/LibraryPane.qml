@@ -15,6 +15,7 @@ Item {
     id: root
 
     signal fileSelected(string filePath)
+    signal baseDirectoryChanged(string directory)
 
     implicitWidth: AppMetrics.libraryWidth
 
@@ -32,6 +33,10 @@ Item {
 
             onFileSelected: function(filePath) {
                 root.fileSelected(filePath)
+            }
+
+            onBaseDirectoryChanged: function(directory) {
+                root.baseDirectoryChanged(directory)
             }
         }
     }

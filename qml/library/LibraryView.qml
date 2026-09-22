@@ -23,6 +23,9 @@ Item {
      * @param filePath Absolute path of the selected audio file.
      */
     signal fileSelected(string filePath)
+    signal baseDirectoryChanged(string directory)
+
+    property int fileCount: 0
 
     /**
      * @brief C++ model containing the actual audio library.
@@ -138,6 +141,16 @@ Item {
         root.fileSelected(filePath)
     }
 
+    function selectBaseDirectory() {
+        const directory = FileDialogController.getExistingDirectory(qsTr("Select library directory"), libraryModel.rootPath)
+
+        if (directory.length === 0)
+            return
+
+        libraryModel.rootPath = Qt.resolvedUrl(directory)
+        root.baseDirectoryChanged(directory)
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: AppMetrics.spacingLarge
@@ -159,13 +172,35 @@ Item {
             spacing: AppMetrics.spacingMedium
 
             Label {
-                text: qsTr("%1 files").arg(libraryModel.rowCount())
+                id: baseDirectoryLabel
+
+                objectName: "baseDirectoryLabel"
+
+                text: libraryModel.rootPath
+
+                Layout.fillWidth: true
+
+                elide: Text.ElideMiddle
 
                 color: AppColors.navigationTextSecondary
+
+                MouseArea {
+                    anchors.fill: parent
+
+                    cursorShape: Qt.PointingHandCursor
+
+                    onClicked: root.selectBaseDirectory()
+                }
             }
 
-            Item {
-                Layout.fillWidth: true
+            Label {
+                id: fileCountLabel
+
+                objectName: "fileCountLabel"
+
+                text: qsTr("%1 files").arg(root.fileCount)
+
+                color: AppColors.navigationTextSecondary
             }
 
             BusyIndicator {
@@ -490,18 +525,20 @@ Item {
             }
         }
     }
+
     /**
-     * @brief Select the first file after the initial scan.
-     *
-     * This keeps the editor populated when the library is non-empty.
+     * @brief Updates the view state after a library scan.
      */
     Connections {
         target: libraryModel
 
         function onLoadingChanged() {
-            if (!libraryModel.loading &&
-                root.selectedIndex < 0 &&
-                libraryModel.rowCount() > 0) {
+            if (libraryModel.loading)
+                return
+
+            root.fileCount = libraryModel.rowCount()
+
+            if (root.selectedIndex < 0 && libraryModel.rowCount() > 0) {
                 root.selectFile(0)
             }
         }
