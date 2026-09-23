@@ -342,14 +342,20 @@ Item {
 
                                 Layout.fillWidth: true
 
-                                placeholderText: valuesEditor.editingIndex >= 0
-                                    ? qsTr("Edit value...")
-                                    : qsTr("Add value...")
+                                placeholderText: valuesEditor.editingIndex >= 0 ? qsTr("Edit value...") : qsTr("Add value...")
 
                                 color: AppColors.editorTextPrimary
 
                                 horizontalAlignment: TextInput.AlignLeft
                                 verticalAlignment: TextInput.AlignVCenter
+
+                                background: Rectangle {
+                                    color: AppColors.inputBackground
+                                    radius: AppMetrics.editFieldRadius
+
+                                    border.width: inputField.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder
+                                    border.color: inputField.activeFocus ? AppColors.inputBorderActive : AppColors.inputBorder
+                                }
 
                                 onTextChanged: {
                                     if (text.indexOf(";") < 0)
@@ -400,6 +406,14 @@ Item {
                                 text = value
                             }
 
+                            background: Rectangle {
+                                color: valueField.enabled ? AppColors.inputBackground : AppColors.editorPanel
+                                radius: AppMetrics.editFieldRadius
+
+                                border.width: valueField.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder
+                                border.color: valueField.activeFocus ? AppColors.inputBorderActive : AppColors.inputBorder
+                            }
+
                             onTextChanged: {
                                 if (activeFocus)
                                     tagModel.setValue(tagDelegate.modelIndex, text)
@@ -441,7 +455,11 @@ Item {
                                 selectByMouse: true
 
                                 background: Rectangle {
-                                    color: AppColors.primary
+                                    color: AppColors.inputBackground
+                                    radius: AppMetrics.editFieldRadius
+
+                                    border.width: lyricsEditor.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder
+                                    border.color: lyricsEditor.activeFocus ? AppColors.inputBorderActive : AppColors.inputBorder
                                 }
 
                                 Component.onCompleted: {
