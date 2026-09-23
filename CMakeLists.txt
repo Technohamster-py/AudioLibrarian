@@ -235,6 +235,7 @@ qt_add_qml_module(AudioLibrarianCore
         assets/albums.svg
         assets/artists.svg
         assets/backward.svg
+        assets/cancel.svg
         assets/duplicate.svg
         assets/files.svg
         assets/forward.svg

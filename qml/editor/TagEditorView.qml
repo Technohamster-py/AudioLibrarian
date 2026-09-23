@@ -7,9 +7,8 @@ import QtQuick.Layouts
  *
  * Displays metadata prepared by TagEditorModel.
  *
- * Single-value tags are edited using a regular TextField.
- * Multi-value tags are displayed as editable chips with a trailing
- * TextField used to add new values.
+ * Multi-value tags are represented as chips. A single TextField is used both
+ * for adding new values and editing an existing chip.
  */
 Item {
     id: root
@@ -18,31 +17,22 @@ Item {
     property string fileName: filePath.length > 0 ? filePath.substring(filePath.lastIndexOf("/") + 1) : ""
 
     /**
-     * @brief Determines whether a metadata property supports multiple values.
+     * @brief Returns whether a metadata property supports multiple values.
      *
-     * Lyrics are handled separately by the TextArea and are therefore
-     * considered single-value here.
-     *
-     * @param key Original TagLib metadata key.
-     * @return true if the property supports multiple values.
+     * Lyrics and scalar properties are intentionally excluded.
      */
-    function isMultiValueTag(key) {
-        const normalized = key.toUpperCase()
-
-        if (normalized === "TITLE" ||
-            normalized === "ALBUM" ||
-            normalized === "DISCNUMBER" ||
-            normalized === "TRACKNUMBER" ||
-            normalized === "DATE" ||
-            normalized === "LENGTH" ||
-            normalized === "LYRICS" ||
-            normalized.startsWith("LYRICS:") ||
-            normalized === "UNSYNCEDLYRICS" ||
-            normalized === "UNSYNCED_LYRICS" ||
-            normalized === "USLT")
+    function isMultiValueTag(key, lyrics) {
+        if (lyrics)
             return false
 
-        return true
+        const normalized = key.toUpperCase()
+
+        return normalized !== "TITLE" &&
+            normalized !== "ALBUM" &&
+            normalized !== "DISCNUMBER" &&
+            normalized !== "TRACKNUMBER" &&
+            normalized !== "DATE" &&
+            normalized !== "LENGTH"
     }
 
     TagEditorModel {
@@ -101,16 +91,20 @@ Item {
 
                 delegate: Rectangle {
                     id: tagDelegate
+
                     required property string key
                     required property var values
+                    required property string value
                     required property string displayName
                     required property bool isLyrics
                     required property bool isEditable
                     required property int modelIndex
 
+                    readonly property bool multiValue: root.isMultiValueTag(key, isLyrics)
+
                     width: tagList.width
 
-                    height: isLyrics ? 220 : 48
+                    height: isLyrics ? 220 : multiValue ? Math.max(72, valuesEditor.implicitHeight + 20) : 48
 
                     color: AppColors.editorPanel
 
@@ -123,7 +117,7 @@ Item {
                         spacing: AppMetrics.spacingLarge
 
                         /**
-                         * @brief Metadata key column.
+                         * Key column
                          */
                         ColumnLayout {
                             Layout.minimumWidth: AppMetrics.editorKeyWidth
@@ -159,10 +153,231 @@ Item {
                         }
 
                         /**
-                         * @brief Single-value metadata editor.
+                         * Multi-value editor.
                          *
-                         * Duration and lyrics are excluded because they use
-                         * their own presentation/editing logic.
+                         * Chips are always placed above the input field.
+                         */
+                        ColumnLayout {
+                            id: valuesEditor
+
+                            objectName: "valuesEditor"
+
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
+
+                            visible: multiValue
+                            enabled: isEditable
+
+                            spacing: AppMetrics.spacingSmall
+
+                            property int editingIndex: -1
+
+                            function commitInput() {
+                                const text = inputField.text.trim()
+
+                                if (text.length === 0) {
+                                    editingIndex = -1
+                                    inputField.clear()
+                                    return
+                                }
+
+                                const enteredValues = text
+                                    .split(";")
+                                    .map(function(item) {
+                                    return item.trim()
+                                })
+                                    .filter(function(item) {
+                                    return item.length > 0
+                                })
+
+                                if (enteredValues.length === 0) {
+                                    editingIndex = -1
+                                    inputField.clear()
+                                    return
+                                }
+
+                                const newValues = values.slice()
+
+                                if (editingIndex >= 0 && editingIndex < newValues.length) {
+                                    newValues.splice(editingIndex, 1, enteredValues[0])
+
+                                    for (let i = enteredValues.length - 1; i >= 1; --i)
+                                        newValues.splice(editingIndex + 1, 0, enteredValues[i])
+                                } else {
+                                    for (const enteredValue of enteredValues)
+                                        newValues.push(enteredValue)
+                                }
+
+                                tagModel.setValues(tagDelegate.modelIndex, newValues)
+
+                                editingIndex = -1
+                                inputField.clear()
+                            }
+
+                            function startEditing(index) {
+                                if (index < 0 || index >= values.length)
+                                    return
+
+                                editingIndex = index
+                                inputField.text = values[index]
+                                inputField.selectAll()
+                                inputField.forceActiveFocus()
+                            }
+
+                            function removeValue(index) {
+                                if (index < 0 || index >= values.length)
+                                    return
+
+                                const newValues = values.slice()
+                                newValues.splice(index, 1)
+
+                                if (editingIndex === index)
+                                    editingIndex = -1
+                                else if (editingIndex > index)
+                                    --editingIndex
+
+                                tagModel.setValues(tagDelegate.modelIndex, newValues)
+                            }
+
+                            function cancelEditing() {
+                                editingIndex = -1
+                                inputField.clear()
+                            }
+
+                            Flow {
+                                id: chipsFlow
+
+                                objectName: "chipsFlow"
+
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: implicitHeight
+
+                                spacing: AppMetrics.spacingSmall
+
+                                Repeater {
+                                    model: values
+
+                                    delegate: Rectangle {
+                                        id: chip
+
+                                        required property string modelData
+                                        required property int index
+
+                                        height: 32
+                                        width: chipLabel.implicitWidth + removeButton.width + 24
+
+                                        radius: height / 2
+
+                                        color: AppColors.editorBackground
+
+                                        border.color: AppColors.editorTextSecondary
+
+                                        Label {
+                                            id: chipLabel
+
+                                            anchors.left: parent.left
+                                            anchors.leftMargin: 12
+                                            anchors.verticalCenter: parent.verticalCenter
+
+                                            text: modelData
+
+                                            color: AppColors.editorTextPrimary
+
+                                            elide: Text.ElideRight
+                                        }
+
+                                        ToolButton {
+                                            id: removeButton
+
+                                            anchors.right: parent.right
+                                            anchors.verticalCenter: parent.verticalCenter
+
+                                            width: 28
+                                            height: 28
+
+                                            // text: "×"
+
+                                            contentItem: Image {
+                                                anchors.fill: parent
+                                                anchors.margins: 5
+                                                source: AppAssets.cancel
+
+                                                sourceSize.width: width
+                                                sourceSize.height: height
+
+                                                fillMode: Image.PreserveAspectFit
+
+                                                asynchronous: true
+                                                smooth: true
+                                                mipmap: true
+                                            }
+
+                                            font.pixelSize: 18
+
+                                            onClicked: {
+                                                valuesEditor.removeValue(index)
+                                            }
+                                        }
+
+                                        MouseArea {
+                                            anchors.left: parent.left
+                                            anchors.right: removeButton.left
+                                            anchors.top: parent.top
+                                            anchors.bottom: parent.bottom
+
+                                            acceptedButtons: Qt.LeftButton
+
+                                            onDoubleClicked: {
+                                                valuesEditor.startEditing(index)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            TextField {
+                                id: inputField
+
+                                objectName: "multiValueInput"
+
+                                Layout.fillWidth: true
+
+                                placeholderText: valuesEditor.editingIndex >= 0
+                                    ? qsTr("Edit value...")
+                                    : qsTr("Add value...")
+
+                                color: AppColors.editorTextPrimary
+
+                                horizontalAlignment: TextInput.AlignLeft
+                                verticalAlignment: TextInput.AlignVCenter
+
+                                onTextChanged: {
+                                    if (text.indexOf(";") < 0)
+                                        return
+
+                                    valuesEditor.commitInput()
+                                }
+
+                                onActiveFocusChanged: {
+                                    if (!activeFocus && text.trim().length > 0)
+                                        valuesEditor.commitInput()
+                                }
+
+                                Keys.onReturnPressed: {
+                                    valuesEditor.commitInput()
+                                }
+
+                                Keys.onEscapePressed: {
+                                    if (valuesEditor.editingIndex >= 0)
+                                        valuesEditor.cancelEditing()
+                                    else
+                                        clear()
+                                }
+                            }
+                        }
+
+                        /**
+                         * Single-value editor.
                          */
                         TextField {
                             id: valueField
@@ -174,260 +389,27 @@ Item {
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
-                            visible: !isLyrics && !root.isMultiValueTag(key)
+                            visible: !isLyrics && !multiValue
 
                             color: AppColors.editorTextPrimary
 
                             horizontalAlignment: TextInput.AlignLeft
                             verticalAlignment: TextInput.AlignVCenter
 
-                            text: {
-                                if (key.toUpperCase() === "LENGTH")
-                                    return value
-
-                                return values.length > 0 ? values[0] : ""
+                            Component.onCompleted: {
+                                text = value
                             }
 
                             onTextChanged: {
                                 if (activeFocus)
                                     tagModel.setValue(tagDelegate.modelIndex, text)
-                            }
-                        }
-
-                        /**
-                         * @brief Multi-value metadata editor.
-                         *
-                         * Existing values are displayed as chips.
-                         * The trailing TextField is used to create new values.
-                         *
-                         * A semicolon commits one or more values.
-                         * Losing focus commits the current input.
-                         */
-                        Flow {
-                            id: valuesEditor
-
-                            objectName: "valuesEditor"
-
-                            visible: !isLyrics && root.isMultiValueTag(key)
-                            enabled: isEditable
-
-                            Layout.fillWidth: true
-                            Layout.alignment: Qt.AlignVCenter
-
-                            spacing: AppMetrics.spacingSmall
-
-                            property int editingIndex: -1
-                            property bool cancelEditing: false
-
-                            /**
-                             * @brief Commits the current input as one or more values.
-                             *
-                             * Semicolons are treated as value separators.
-                             */
-                            function commitInput() {
-                                const input = inputField.text
-
-                                if (input.length === 0)
-                                    return
-
-                                const parts = input.split(";")
-                                const newValues = []
-
-                                for (const part of parts) {
-                                    const value = part.trim()
-
-                                    if (value.length > 0)
-                                        newValues.push(value)
-                                }
-
-                                if (newValues.length === 0)
-                                    return
-
-                                const updatedValues = values.slice()
-
-                                for (const newValue of newValues)
-                                    updatedValues.push(newValue)
-
-                                tagModel.setValues(
-                                    tagDelegate.modelIndex,
-                                    updatedValues
-                                )
-
-                                inputField.clear()
-                            }
-
-                            /**
-                             * @brief Starts editing an existing chip.
-                             *
-                             * @param index Index of the value being edited.
-                             */
-                            function editValue(index) {
-                                cancelEditing = false
-                                editingIndex = index
-                            }
-
-                            /**
-                             * @brief Commits an edited chip.
-                             *
-                             * @param index Index of the edited value.
-                             * @param newValue New value.
-                             */
-                            function commitEditedValue(index, newValue) {
-                                const updatedValues = values.slice()
-                                const normalizedValue = newValue.trim()
-
-                                if (normalizedValue.length === 0)
-                                    updatedValues.splice(index, 1)
                                 else
-                                    updatedValues[index] = normalizedValue
-
-                                tagModel.setValues(
-                                    tagDelegate.modelIndex,
-                                    updatedValues
-                                )
-
-                                editingIndex = -1
-                            }
-
-                            /**
-                             * @brief Cancels editing without changing the model.
-                             */
-                            function cancelEdit() {
-                                cancelEditing = true
-                                editingIndex = -1
-                            }
-
-                            Repeater {
-                                model: values
-
-                                delegate: Rectangle {
-                                    id: valueChip
-
-                                    required property string modelData
-                                    required property int index
-
-                                    height: 32
-
-                                    width: valuesEditor.editingIndex === index ? editField.width : chipText.implicitWidth + 24
-
-                                    radius: height / 2
-
-                                    color: AppColors.panelElevated
-
-                                    /**
-                                     * @brief Displayed chip contents.
-                                     */
-                                    Text {
-                                        id: chipText
-
-                                        anchors.centerIn: parent
-
-                                        visible: valuesEditor.editingIndex !== index
-
-                                        text: modelData
-
-                                        color: AppColors.editorTextPrimary
-
-                                        elide: Text.ElideRight
-                                    }
-
-                                    /**
-                                     * @brief Inline editor for an existing chip.
-                                     */
-                                    TextField {
-                                        id: editField
-
-                                        objectName: "chipEditField"
-
-                                        visible: valuesEditor.editingIndex === index
-
-                                        width: Math.max(100, implicitWidth + AppMetrics.spacingMedium)
-
-                                        anchors.verticalCenter: parent.verticalCenter
-
-                                        color: AppColors.editorTextPrimary
-
-                                        text: modelData
-
-                                        selectByMouse: true
-
-                                        Component.onCompleted: {
-                                            if (valuesEditor.editingIndex === index) {
-                                                forceActiveFocus()
-                                                selectAll()
-                                            }
-                                        }
-
-                                        onActiveFocusChanged: {
-                                            if (!activeFocus && valuesEditor.editingIndex === index) {
-                                                if (valuesEditor.cancelEditing) {
-                                                    valuesEditor.cancelEditing = false
-                                                    return
-                                                }
-
-                                                valuesEditor.commitEditedValue(index, text)
-                                            }
-                                        }
-
-                                        Keys.onReturnPressed: {
-                                            valuesEditor.commitEditedValue(index, text)
-                                        }
-
-                                        Keys.onEscapePressed: {
-                                            valuesEditor.cancelEdit()
-                                        }
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-
-                                        visible: valuesEditor.editingIndex !== index
-
-                                        acceptedButtons: Qt.LeftButton
-
-                                        onDoubleClicked: {
-                                            valuesEditor.editValue(index)
-                                        }
-                                    }
-                                }
-                            }
-
-                            /**
-                             * @brief Input field used to append new values.
-                             */
-                            TextField {
-                                id: inputField
-
-                                objectName: "multiValueInput"
-
-                                width: Math.max(100, implicitWidth + AppMetrics.spacingMedium)
-
-                                height: 32
-
-                                placeholderText: qsTr("Add value...")
-
-                                color: AppColors.editorTextPrimary
-
-                                onActiveFocusChanged: {
-                                    if (!activeFocus)
-                                        valuesEditor.commitInput()
-                                }
-
-                                Keys.onReturnPressed: {
-                                    valuesEditor.commitInput()
-                                }
-
-                                onTextChanged: {
-                                    if (text.indexOf(";") === -1)
-                                        return
-
-                                    valuesEditor.commitInput()
-                                }
+                                    text = value
                             }
                         }
 
                         /**
-                         * @brief Lyrics editor.
+                         * Lyrics editor.
                          */
                         ScrollView {
                             id: lyricsScrollView
@@ -458,13 +440,19 @@ Item {
 
                                 selectByMouse: true
 
-                                background: null
+                                background: Rectangle {
+                                    color: AppColors.primary
+                                }
 
-                                text: values.length > 0 ? values[0] : ""
+                                Component.onCompleted: {
+                                    text = value
+                                }
 
                                 onTextChanged: {
                                     if (activeFocus)
                                         tagModel.setValue(tagDelegate.modelIndex, text)
+                                    else
+                                        text = value
                                 }
                             }
                         }
