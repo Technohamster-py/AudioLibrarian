@@ -59,6 +59,7 @@ QVariant TagEditorModel::data(const QModelIndex &index, int role) const {
         case ValuesRole: return entry.values;
         case DisplayNameRole: return displayNameForKey(entry.key);
         case IsLyricsRole: return isLyricsKey(entry.key);
+        case IsMultiValueRole: return isMultiValueKey(entry.key);
         case IsEditableRole: return isKeyEditable(entry.key);
         case IndexRole: return index.row();
         default: return {};
@@ -132,7 +133,8 @@ bool TagEditorModel::setValue(int row, const QString &value) {
 }
 
 bool TagEditorModel::setValues(int row, const QStringList &values) {
-    if (row < 0 || row >= m_entries.size()) return false;
+    if (row < 0 || row >= m_entries.size())
+        return false;
 
     QStringList normalizedValues;
 
@@ -143,6 +145,9 @@ bool TagEditorModel::setValues(int row, const QStringList &values) {
     }
 
     TagEntry &entry = m_entries[row];
+
+    if (!isMultiValueKey(entry.key) && normalizedValues.size() > 1)
+        normalizedValues = {normalizedValues.first()};
 
     if (entry.values == normalizedValues)
         return false;
@@ -172,6 +177,7 @@ QHash<int, QByteArray> TagEditorModel::roleNames() const {
         {ValuesRole, "values"},
         {DisplayNameRole, "displayName"},
         {IsLyricsRole, "isLyrics"},
+        {IsMultiValueRole, "isMultiValue"},
         {IsEditableRole, "isEditable"},
         {IndexRole, "modelIndex"}
     };
@@ -326,6 +332,29 @@ bool TagEditorModel::isLyricsKey(const QString &key) {
 
 bool TagEditorModel::isKeyEditable(const QString &key) {
     return key.compare(QStringLiteral("LENGTH"), Qt::CaseInsensitive) != 0;
+}
+
+/**
+ * @brief Checks whether a metadata property can contain multiple values.
+ *
+ * Lyrics and scalar metadata properties are intentionally limited to one
+ * value. Unknown properties are treated as multi-value properties.
+ *
+ * @param key Metadata property name.
+ * @return true if the property supports multiple values.
+ */
+bool TagEditorModel::isMultiValueKey(const QString &key) {
+    const QString normalized = key.toUpper();
+
+    if (isLyricsKey(normalized))
+        return false;
+
+    return normalized != QStringLiteral("TITLE") &&
+           normalized != QStringLiteral("ALBUM") &&
+           normalized != QStringLiteral("DISCNUMBER") &&
+           normalized != QStringLiteral("TRACKNUMBER") &&
+           normalized != QStringLiteral("DATE") &&
+           normalized != QStringLiteral("LENGTH");
 }
 
 QString TagEditorModel::formatDuration(quint64 milliseconds) {

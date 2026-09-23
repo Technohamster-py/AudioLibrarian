@@ -35,6 +35,9 @@ qt_add_library(AudioLibrarianCore STATIC
         src/batch/abstractbatchoperation.h                  src/batch/abstractbatchoperation.cpp
         src/batch/batchprocesscontroller.h                  src/batch/batchprocesscontroller.cpp
         src/batch/batchprocessor.h                          src/batch/batchprocessor.cpp
+        src/batch/metadata/metadataeditresultmodel.h        src/batch/metadata/metadataeditresultmodel.cpp
+        src/batch/metadata/metadataeditorcontroller.h       src/batch/metadata/metadataeditorcontroller.cpp
+        src/batch/metadata/metadataeditor.h                 src/batch/metadata/metadataeditor.cpp
         src/batch/duplicates/duplicatefinder.h              src/batch/duplicates/duplicatefinder.cpp
         src/batch/duplicates/duplicatesearchresult.cpp      src/batch/duplicates/duplicatesearchresult.cpp
         src/batch/duplicates/duplicatefindercontroller.h    src/batch/duplicates/duplicatefindercontroller.cpp
@@ -70,6 +73,7 @@ target_include_directories(AudioLibrarianCore PUBLIC
         src
         src/batch
         src/batch/duplicates
+        src/batch/metadata
         src/library/filetree
         src/library/library
         src/metadata
@@ -193,6 +197,21 @@ set_source_files_properties(
         PROPERTIES QT_RESOURCE_ALIAS "DuplicateFinderView.qml"
 )
 
+set_source_files_properties(
+        qml/batch/MetadataEditorView.qml
+        PROPERTIES QT_RESOURCE_ALIAS "MetadataEditorView.qml"
+)
+
+set_source_files_properties(
+        qml/batch/MetadataEditRow.qml
+        PROPERTIES QT_RESOURCE_ALIAS "MetadataEditRow.qml"
+)
+
+set_source_files_properties(
+        qml/editor/MultiValueEditor.qml
+        PROPERTIES QT_RESOURCE_ALIAS "MultiValueEditor.qml"
+)
+
 qt_add_qml_module(AudioLibrarianCore
         URI AudioLibrarian
         VERSION 0.1
@@ -205,11 +224,14 @@ qt_add_qml_module(AudioLibrarianCore
 
         qml/batch/BatchProcessView.qml
         qml/batch/DuplicateFinderView.qml
+        qml/batch/MetadataEditorView.qml
+        qml/batch/MetadataEditRow.qml
 
         qml/components/AppIcon.qml
         qml/components/AppToolButton.qml
 
         qml/editor/EditorView.qml
+        qml/editor/MultiValueEditor.qml
         qml/editor/TagEditorView.qml
 
         qml/files/FilesView.qml

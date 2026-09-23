@@ -18,6 +18,11 @@ Item {
         objectName: "duplicateFinderController"
     }
 
+    MetadataEditorController {
+        id: metadataEditorController
+        objectName: "metadataEditorController"
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: AppMetrics.spacingMedium
@@ -115,14 +120,18 @@ Item {
                 }
             }
 
-            Item {
-                objectName: "metadataEditViewPlaceholder"
+            MetadataEditorView {
+                id: metadataEditorView
+                objectName: "metadataEditorView"
 
-                Label {
-                    anchors.centerIn: parent
+                editing: metadataEditorController.running
+                selectedFileCount: metadataEditorController.selectedFileCount
 
-                    text: qsTr("Metadata editor")
-                    color: AppColors.settingsTextSecondary
+                onChangesRequested: function(changes) {
+                    metadataEditorController.start(
+                        root.baseFilePath,
+                        changes
+                    )
                 }
             }
 
