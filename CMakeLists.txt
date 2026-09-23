@@ -35,13 +35,15 @@ qt_add_library(AudioLibrarianCore STATIC
         src/batch/abstractbatchoperation.h                  src/batch/abstractbatchoperation.cpp
         src/batch/batchprocesscontroller.h                  src/batch/batchprocesscontroller.cpp
         src/batch/batchprocessor.h                          src/batch/batchprocessor.cpp
-        src/batch/metadata/metadataeditresultmodel.h        src/batch/metadata/metadataeditresultmodel.cpp
-        src/batch/metadata/metadataeditorcontroller.h       src/batch/metadata/metadataeditorcontroller.cpp
-        src/batch/metadata/metadataeditor.h                 src/batch/metadata/metadataeditor.cpp
         src/batch/duplicates/duplicatefinder.h              src/batch/duplicates/duplicatefinder.cpp
         src/batch/duplicates/duplicatesearchresult.cpp      src/batch/duplicates/duplicatesearchresult.cpp
         src/batch/duplicates/duplicatefindercontroller.h    src/batch/duplicates/duplicatefindercontroller.cpp
         src/batch/duplicates/duplicateresultmodel.h         src/batch/duplicates/duplicateresultmodel.cpp
+        src/batch/metadata/metadataeditresultmodel.h        src/batch/metadata/metadataeditresultmodel.cpp
+        src/batch/metadata/metadataeditorcontroller.h       src/batch/metadata/metadataeditorcontroller.cpp
+        src/batch/metadata/metadataeditor.h                 src/batch/metadata/metadataeditor.cpp
+        src/batch/rename/renametemplateparser.h             src/batch/rename/renametemplateparser.cpp
+        src/batch/rename/filerenamer.h                      src/batch/rename/filerenamer.cpp
         src/library/audiofilerecord.h
         src/library/filetree/filetreemodel.h                src/library/filetree/filetreemodel.cpp
         src/library/library/audiofiletablemodel.h           src/library/library/audiofiletablemodel.cpp
@@ -55,6 +57,7 @@ qt_add_library(AudioLibrarianCore STATIC
         src/settings/settingsstruct.h
         src/utils/datautils.h                               src/utils/datautils.cpp
         src/utils/filedialogcontroller.h                    src/utils/filedialogcontroller.cpp
+        src/batch/rename/renamefileresult.h
 )
 
 target_link_libraries(AudioLibrarianCore
