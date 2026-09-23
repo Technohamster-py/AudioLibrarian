@@ -47,6 +47,7 @@ public:
         ValueRole,
         DisplayNameRole,
         IsLyricsRole,
+        IsMultiValueRole,
         IsEditableRole,
         IndexRole
     };
@@ -219,6 +220,8 @@ private:
     static bool isLyricsKey(const QString &key);
 
     static bool isKeyEditable(const QString &key);
+    static bool isMultiValueKey(const QString &key);
+
     /**
     * @brief Formats a duration in milliseconds.
     *

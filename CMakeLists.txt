@@ -207,6 +207,11 @@ set_source_files_properties(
         PROPERTIES QT_RESOURCE_ALIAS "MetadataEditRow.qml"
 )
 
+set_source_files_properties(
+        qml/editor/MultiValueEditor.qml
+        PROPERTIES QT_RESOURCE_ALIAS "MultiValueEditor.qml"
+)
+
 qt_add_qml_module(AudioLibrarianCore
         URI AudioLibrarian
         VERSION 0.1
@@ -226,6 +231,7 @@ qt_add_qml_module(AudioLibrarianCore
         qml/components/AppToolButton.qml
 
         qml/editor/EditorView.qml
+        qml/editor/MultiValueEditor.qml
         qml/editor/TagEditorView.qml
 
         qml/files/FilesView.qml
