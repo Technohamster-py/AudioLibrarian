@@ -8,6 +8,7 @@ QtObject {
     readonly property string albums: "qrc:/qt/qml/AudioLibrarian/assets/albums.svg"
     readonly property string artists: "qrc:/qt/qml/AudioLibrarian/assets/artists.svg"
     readonly property string backward: "qrc:/qt/qml/AudioLibrarian/assets/backward.svg"
+    readonly property string cancel: "qrc:/qt/qml/AudioLibrarian/assets/cancel.svg"
     readonly property string duplicate: "qrc:/qt/qml/AudioLibrarian/assets/duplicate.svg"
     readonly property string files: "qrc:/qt/qml/AudioLibrarian/assets/files.svg"
     readonly property string forward: "qrc:/qt/qml/AudioLibrarian/assets/forward.svg"

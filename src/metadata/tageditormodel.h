@@ -130,6 +130,7 @@ public:
     Q_INVOKABLE bool discardChanges();
 
     Q_INVOKABLE bool setValue(int row, const QString &value);
+    Q_INVOKABLE bool setValues(int row, const QStringList &values);
 
     /**
      * @brief Returns role names exposed to QML.
