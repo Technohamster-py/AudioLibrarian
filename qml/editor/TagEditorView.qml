@@ -308,7 +308,7 @@ Item {
 
                                     height: 32
 
-                                    width: editingIndex === index ? editField.width : chipText.implicitWidth + 24
+                                    width: valuesEditor.editingIndex === index ? editField.width : chipText.implicitWidth + 24
 
                                     radius: height / 2
 
