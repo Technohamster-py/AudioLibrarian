@@ -4,6 +4,8 @@ import QtQuick.Layouts
 
 /**
  * @brief Editable metadata field used by the batch metadata editor.
+ *
+ * Supports scalar values, multiple values and multiline text.
  */
 Rectangle {
     id: root
@@ -12,12 +14,15 @@ Rectangle {
     property string tagName: ""
     property bool checked: false
     property string value: ""
+    property var values: []
     property bool multiline: false
+    property bool multiValue: false
 
     signal valueEdited(string value)
+    signal valuesEdited(var values)
 
     Layout.fillWidth: true
-    Layout.preferredHeight: multiline ? 140 : 52
+    Layout.preferredHeight: root.multiline ? 140 : root.multiValue ? 100 : 52
 
     color: AppColors.settingsBackground
 
@@ -71,6 +76,23 @@ Rectangle {
             }
         }
 
+        MultiValueEditor {
+            id: multiValueEditor
+            objectName: "multiValueEditor"
+
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+
+            visible: root.multiValue
+            enabled: root.checked
+
+            values: root.values
+
+            onValuesEdited: function(newValues) {
+                root.valuesEdited(newValues)
+            }
+        }
+
         TextField {
             id: valueField
             objectName: "valueField"
@@ -78,7 +100,7 @@ Rectangle {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
-            visible: !root.multiline
+            visible: !root.multiline && !root.multiValue
 
             enabled: root.checked
 
@@ -89,6 +111,13 @@ Rectangle {
             horizontalAlignment: TextInput.AlignLeft
 
             onTextEdited: root.valueEdited(text)
+
+            background: Rectangle {
+                color: valueField.enabled ? AppColors.inputBackground : AppColors.editorPanelDisabled
+                radius: AppMetrics.editFieldRadius
+                border.width: valueField.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder
+                border.color: valueField.activeFocus ? AppColors.inputBorderActive : AppColors.inputBorder
+            }
         }
 
         ScrollView {
@@ -122,6 +151,13 @@ Rectangle {
                 selectByMouse: true
 
                 onTextEdited: root.valueEdited(text)
+
+                background: Rectangle {
+                    color: multilineScrollView.enabled ? AppColors.inputBackground : AppColors.editorPanelDisabled
+                    radius: AppMetrics.editFieldRadius
+                    border.width: multilineValueField.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder
+                    border.color: multilineValueField.activeFocus ? AppColors.inputBorderActive : AppColors.inputBorder
+                }
             }
         }
 
@@ -134,7 +170,10 @@ Rectangle {
             enabled: root.checked
 
             onClicked: {
-                root.valueEdited("")
+                if (root.multiValue)
+                    root.valuesEdited([])
+                else
+                    root.valueEdited("")
             }
         }
     }

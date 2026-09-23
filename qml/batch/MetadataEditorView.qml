@@ -3,40 +3,25 @@ import QtQuick.Controls.Basic
 import QtQuick.Layouts
 
 /**
- * @brief User interface for batch metadata editing.
+ * @brief Batch metadata editor view.
  *
- * Each metadata field can be enabled independently. Enabled fields are
- * converted into MetadataChange objects by the controller.
+ * Allows selecting metadata fields and specifying values that should be
+ * applied to all selected files.
  */
 Item {
     id: root
 
-    /** @brief Indicates that metadata editing is currently running. */
     property bool editing: false
-
-    /** @brief Number of files selected for processing. */
     property int selectedFileCount: 0
 
-    /** @brief Requests applying the configured metadata changes. */
     signal changesRequested(var changes)
 
+    // Scalar fields.
     property bool titleEnabled: false
     property string titleValue: ""
 
-    property bool artistEnabled: false
-    property string artistValue: ""
-
     property bool albumEnabled: false
     property string albumValue: ""
-
-    property bool albumArtistEnabled: false
-    property string albumArtistValue: ""
-
-    property bool genreEnabled: false
-    property string genreValue: ""
-
-    property bool commentEnabled: false
-    property string commentValue: ""
 
     property bool dateEnabled: false
     property string dateValue: ""
@@ -50,90 +35,145 @@ Item {
     property bool lyricsEnabled: false
     property string lyricsValue: ""
 
+    // Multi-value fields.
+    property bool artistEnabled: false
+    property var artistValues: []
+
+    property bool albumArtistEnabled: false
+    property var albumArtistValues: []
+
+    property bool genreEnabled: false
+    property var genreValues: []
+
+    property bool commentEnabled: false
+    property var commentValues: []
+
     function createChanges() {
-        const changes = []
+        var changes = []
 
-        if (titleEnabled)
-            changes.push({key: "TITLE", values: [titleValue], remove: titleValue.length === 0})
+        if (titleEnabled) {
+            changes.push({
+                key: "TITLE",
+                values: [titleValue],
+                remove: titleValue.length === 0
+            })
+        }
 
-        if (artistEnabled)
-            changes.push({key: "ARTIST", values: [artistValue], remove: artistValue.length === 0})
+        if (artistEnabled) {
+            changes.push({
+                key: "ARTIST",
+                values: artistValues,
+                remove: artistValues.length === 0
+            })
+        }
 
-        if (albumEnabled)
-            changes.push({key: "ALBUM", values: [albumValue], remove: albumValue.length === 0})
+        if (albumEnabled) {
+            changes.push({
+                key: "ALBUM",
+                values: [albumValue],
+                remove: albumValue.length === 0
+            })
+        }
 
-        if (albumArtistEnabled)
-            changes.push({key: "ALBUMARTIST", values: [albumArtistValue], remove: albumArtistValue.length === 0})
+        if (albumArtistEnabled) {
+            changes.push({
+                key: "ALBUMARTIST",
+                values: albumArtistValues,
+                remove: albumArtistValues.length === 0
+            })
+        }
 
-        if (genreEnabled)
-            changes.push({key: "GENRE", values: [genreValue], remove: genreValue.length === 0})
+        if (genreEnabled) {
+            changes.push({
+                key: "GENRE",
+                values: genreValues,
+                remove: genreValues.length === 0
+            })
+        }
 
-        if (commentEnabled)
-            changes.push({key: "COMMENT", values: [commentValue], remove: commentValue.length === 0})
+        if (commentEnabled) {
+            changes.push({
+                key: "COMMENT",
+                values: commentValues,
+                remove: commentValues.length === 0
+            })
+        }
 
-        if (dateEnabled)
-            changes.push({key: "DATE", values: [dateValue], remove: dateValue.length === 0})
+        if (dateEnabled) {
+            changes.push({
+                key: "DATE",
+                values: [dateValue],
+                remove: dateValue.length === 0
+            })
+        }
 
-        if (trackNumberEnabled)
-            changes.push({key: "TRACKNUMBER", values: [trackNumberValue], remove: trackNumberValue.length === 0})
+        if (trackNumberEnabled) {
+            changes.push({
+                key: "TRACKNUMBER",
+                values: [trackNumberValue],
+                remove: trackNumberValue.length === 0
+            })
+        }
 
-        if (discNumberEnabled)
-            changes.push({key: "DISCNUMBER", values: [discNumberValue], remove: discNumberValue.length === 0})
+        if (discNumberEnabled) {
+            changes.push({
+                key: "DISCNUMBER",
+                values: [discNumberValue],
+                remove: discNumberValue.length === 0
+            })
+        }
 
-        if (lyricsEnabled)
-            changes.push({key: "LYRICS", values: [lyricsValue], remove: lyricsValue.length === 0})
+        if (lyricsEnabled) {
+            changes.push({
+                key: "LYRICS",
+                values: [lyricsValue],
+                remove: lyricsValue.length === 0
+            })
+        }
 
         return changes
     }
 
     function hasChanges() {
-        return titleEnabled
-            || artistEnabled
-            || albumEnabled
-            || albumArtistEnabled
-            || genreEnabled
-            || commentEnabled
-            || dateEnabled
-            || trackNumberEnabled
-            || discNumberEnabled
-            || lyricsEnabled
+        return titleEnabled ||
+            artistEnabled ||
+            albumEnabled ||
+            albumArtistEnabled ||
+            genreEnabled ||
+            commentEnabled ||
+            dateEnabled ||
+            trackNumberEnabled ||
+            discNumberEnabled ||
+            lyricsEnabled
     }
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: AppMetrics.spacingLarge
-
+        anchors.margins: AppMetrics.spacingMedium
         spacing: AppMetrics.spacingMedium
 
         Label {
             Layout.fillWidth: true
 
-            text: qsTr("Edit metadata")
-
+            text: qsTr("Metadata editor")
             color: AppColors.settingsTextPrimary
-
-            font.pixelSize: 24
+            font.pixelSize: 20
             font.bold: true
         }
 
         Label {
             Layout.fillWidth: true
 
-            text: qsTr("Selected files: %1").arg(root.selectedFileCount)
+            text: root.selectedFileCount > 0
+                ? qsTr("Selected files: %1").arg(root.selectedFileCount)
+                : qsTr("No files selected")
 
             color: AppColors.settingsTextSecondary
         }
 
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 1
-
-            color: AppColors.settingsSeparator
-        }
-
         ScrollView {
-            id: metadataScrollView
-            objectName: "metadataEditorScrollView"
+            id: fieldsScrollView
+            objectName: "fieldsScrollView"
 
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -141,12 +181,14 @@ Item {
             clip: true
 
             ColumnLayout {
-                width: metadataScrollView.availableWidth
-
+                width: fieldsScrollView.availableWidth
                 spacing: AppMetrics.spacingSmall
 
                 MetadataEditRow {
-                    objectName: "titleEditRow"
+                    id: titleRow
+                    objectName: "titleRow"
+
+                    Layout.fillWidth: true
 
                     label: qsTr("Title")
                     tagName: "TITLE"
@@ -154,25 +196,38 @@ Item {
                     checked: root.titleEnabled
                     value: root.titleValue
 
+                    onValueEdited: function(newValue) {
+                        root.titleValue = newValue
+                    }
+
                     onCheckedChanged: root.titleEnabled = checked
-                    onValueEdited: root.titleValue = value
                 }
 
                 MetadataEditRow {
-                    objectName: "artistEditRow"
+                    id: artistRow
+                    objectName: "artistRow"
+
+                    Layout.fillWidth: true
 
                     label: qsTr("Artist")
                     tagName: "ARTIST"
 
                     checked: root.artistEnabled
-                    value: root.artistValue
+                    multiValue: true
+                    values: root.artistValues
+
+                    onValuesEdited: function(newValues) {
+                        root.artistValues = newValues
+                    }
 
                     onCheckedChanged: root.artistEnabled = checked
-                    onValueEdited: root.artistValue = value
                 }
 
                 MetadataEditRow {
-                    objectName: "albumEditRow"
+                    id: albumRow
+                    objectName: "albumRow"
+
+                    Layout.fillWidth: true
 
                     label: qsTr("Album")
                     tagName: "ALBUM"
@@ -180,51 +235,78 @@ Item {
                     checked: root.albumEnabled
                     value: root.albumValue
 
+                    onValueEdited: function(newValue) {
+                        root.albumValue = newValue
+                    }
+
                     onCheckedChanged: root.albumEnabled = checked
-                    onValueEdited: root.albumValue = value
                 }
 
                 MetadataEditRow {
-                    objectName: "albumArtistEditRow"
+                    id: albumArtistRow
+                    objectName: "albumArtistRow"
+
+                    Layout.fillWidth: true
 
                     label: qsTr("Album artist")
                     tagName: "ALBUMARTIST"
 
                     checked: root.albumArtistEnabled
-                    value: root.albumArtistValue
+                    multiValue: true
+                    values: root.albumArtistValues
+
+                    onValuesEdited: function(newValues) {
+                        root.albumArtistValues = newValues
+                    }
 
                     onCheckedChanged: root.albumArtistEnabled = checked
-                    onValueEdited: root.albumArtistValue = value
                 }
 
                 MetadataEditRow {
-                    objectName: "genreEditRow"
+                    id: genreRow
+                    objectName: "genreRow"
+
+                    Layout.fillWidth: true
 
                     label: qsTr("Genre")
                     tagName: "GENRE"
 
                     checked: root.genreEnabled
-                    value: root.genreValue
+                    multiValue: true
+                    values: root.genreValues
+
+                    onValuesEdited: function(newValues) {
+                        root.genreValues = newValues
+                    }
 
                     onCheckedChanged: root.genreEnabled = checked
-                    onValueEdited: root.genreValue = value
                 }
 
                 MetadataEditRow {
-                    objectName: "commentEditRow"
+                    id: commentRow
+                    objectName: "commentRow"
+
+                    Layout.fillWidth: true
 
                     label: qsTr("Comment")
                     tagName: "COMMENT"
 
                     checked: root.commentEnabled
-                    value: root.commentValue
+                    multiValue: true
+                    values: root.commentValues
+
+                    onValuesEdited: function(newValues) {
+                        root.commentValues = newValues
+                    }
 
                     onCheckedChanged: root.commentEnabled = checked
-                    onValueEdited: root.commentValue = value
                 }
 
                 MetadataEditRow {
-                    objectName: "dateEditRow"
+                    id: dateRow
+                    objectName: "dateRow"
+
+                    Layout.fillWidth: true
 
                     label: qsTr("Date")
                     tagName: "DATE"
@@ -232,12 +314,18 @@ Item {
                     checked: root.dateEnabled
                     value: root.dateValue
 
+                    onValueEdited: function(newValue) {
+                        root.dateValue = newValue
+                    }
+
                     onCheckedChanged: root.dateEnabled = checked
-                    onValueEdited: root.dateValue = value
                 }
 
                 MetadataEditRow {
-                    objectName: "trackNumberEditRow"
+                    id: trackNumberRow
+                    objectName: "trackNumberRow"
+
+                    Layout.fillWidth: true
 
                     label: qsTr("Track number")
                     tagName: "TRACKNUMBER"
@@ -245,12 +333,18 @@ Item {
                     checked: root.trackNumberEnabled
                     value: root.trackNumberValue
 
+                    onValueEdited: function(newValue) {
+                        root.trackNumberValue = newValue
+                    }
+
                     onCheckedChanged: root.trackNumberEnabled = checked
-                    onValueEdited: root.trackNumberValue = value
                 }
 
                 MetadataEditRow {
-                    objectName: "discNumberEditRow"
+                    id: discNumberRow
+                    objectName: "discNumberRow"
+
+                    Layout.fillWidth: true
 
                     label: qsTr("Disc number")
                     tagName: "DISCNUMBER"
@@ -258,23 +352,31 @@ Item {
                     checked: root.discNumberEnabled
                     value: root.discNumberValue
 
+                    onValueEdited: function(newValue) {
+                        root.discNumberValue = newValue
+                    }
+
                     onCheckedChanged: root.discNumberEnabled = checked
-                    onValueEdited: root.discNumberValue = value
                 }
 
                 MetadataEditRow {
-                    objectName: "lyricsEditRow"
+                    id: lyricsRow
+                    objectName: "lyricsRow"
+
+                    Layout.fillWidth: true
 
                     label: qsTr("Lyrics")
                     tagName: "LYRICS"
 
-                    multiline: true
-
                     checked: root.lyricsEnabled
                     value: root.lyricsValue
+                    multiline: true
+
+                    onValueEdited: function(newValue) {
+                        root.lyricsValue = newValue
+                    }
 
                     onCheckedChanged: root.lyricsEnabled = checked
-                    onValueEdited: root.lyricsValue = value
                 }
             }
         }
@@ -307,13 +409,9 @@ Item {
 
                 text: qsTr("Apply changes")
 
-                enabled: !root.editing
-                    && root.selectedFileCount > 0
-                    && root.hasChanges()
+                enabled: root.editing && root.selectedFileCount > 0 && root.hasChanges()
 
-                onClicked: {
-                    root.changesRequested(root.createChanges())
-                }
+                onClicked: root.changesRequested(root.createChanges())
             }
         }
     }

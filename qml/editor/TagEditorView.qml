@@ -180,7 +180,7 @@ Item {
                             }
 
                             background: Rectangle {
-                                color: valueField.enabled ? AppColors.inputBackground : AppColors.editorPanel
+                                color: valueField.enabled ? AppColors.inputBackground : AppColors.editorPanelDisabled
                                 radius: AppMetrics.editFieldRadius
 
                                 border.width: valueField.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder

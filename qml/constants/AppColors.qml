@@ -28,7 +28,7 @@ QtObject {
 
     readonly property color inputBackground: "#000000"
     readonly property color inputBorder: textSecondary
-    readonly property color inputBorderActive: "#0d69f2"
+    readonly property color inputBorderActive: accentPrimary
 
 
     // Module palettes
@@ -45,7 +45,7 @@ QtObject {
     readonly property color editorTextSecondary: textSecondary
 
     readonly property color editorPanel: panel
-
+    readonly property color editorPanelDisabled: separator
 
     // Navigation palette
     readonly property color navigationBackground: background

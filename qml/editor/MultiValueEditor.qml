@@ -206,9 +206,7 @@ Item {
 
             enabled: root.editable
 
-            placeholderText: root.editingIndex >= 0
-                ? qsTr("Edit value...")
-                : root.placeholderText
+            placeholderText: root.editingIndex >= 0 ? qsTr("Edit value...") : root.placeholderText
 
             color: AppColors.editorTextPrimary
 
@@ -216,17 +214,10 @@ Item {
             verticalAlignment: TextInput.AlignVCenter
 
             background: Rectangle {
-                color: AppColors.inputBackground
-
+                color: inputField.enabled ? AppColors.inputBackground : AppColors.editorPanelDisabled
                 radius: AppMetrics.editFieldRadius
-
-                border.width: inputField.activeFocus
-                    ? AppMetrics.editFieldBorderBold
-                    : AppMetrics.editFieldBorder
-
-                border.color: inputField.activeFocus
-                    ? AppColors.inputBorderActive
-                    : AppColors.inputBorder
+                border.width: inputField.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder
+                border.color: inputField.activeFocus ? AppColors.inputBorderActive : AppColors.inputBorder
             }
 
             onTextChanged: {
