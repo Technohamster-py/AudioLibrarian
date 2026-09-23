@@ -1,4 +1,4 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
 #include <QtQml/QQmlExtensionPlugin>
@@ -18,7 +18,7 @@ Q_IMPORT_QML_PLUGIN(AudioLibrarianPlugin)
  * @return Application exit code
  */
 int main(int argc, char *argv[]) {
-    QGuiApplication app(argc, argv);
+    QApplication app(argc, argv);
 
     app.setOrganizationName(QStringLiteral(ORGANIZATION_NAME));
     app.setOrganizationDomain(QStringLiteral(ORGANIZATION_DOMAIN));

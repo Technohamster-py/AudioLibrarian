@@ -176,6 +176,10 @@ ApplicationWindow {
                                     root.selectedFilePath = filePath
                                     playerController.setFilePath(filePath)
                                 }
+
+                                onBaseDirectoryChanged: function(directory) {
+                                    batchProcessView.baseFilePath = directory
+                                }
                             }
 
                             NavigationPlaceholderView {

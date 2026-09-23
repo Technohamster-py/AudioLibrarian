@@ -26,6 +26,10 @@ QtObject {
     readonly property color selection: "#333f40"
     readonly property color hover: "#353535"
 
+    readonly property color inputBackground: "#000000"
+    readonly property color inputBorder: textSecondary
+    readonly property color inputBorderActive: "#0d69f2"
+
 
     // Module palettes
 

@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
-import QtQuick.Dialogs
 
 /**
  * @brief Common workspace for batch processing operations.
@@ -22,16 +21,6 @@ Item {
     MetadataEditorController {
         id: metadataEditorController
         objectName: "metadataEditorController"
-    }
-
-    FolderDialog {
-        id: folderDialog
-
-        title: qsTr("Select base directory")
-
-        onAccepted: {
-            root.baseFilePath = selectedFolder.toLocalFile()
-        }
     }
 
     ColumnLayout {
@@ -71,7 +60,10 @@ Item {
                 text: qsTr("Browse...")
 
                 onClicked: {
-                    folderDialog.open()
+                    const directory = FileDialogController.getExistingDirectory(qsTr("Select base directory"), root.baseFilePath)
+
+                    if (directory.length > 0)
+                        root.baseFilePath = directory
                 }
             }
         }

@@ -16,6 +16,7 @@ find_package(Qt6 REQUIRED COMPONENTS
         QuickControls2
         QuickTest
         Test
+        Widgets
 )
 
 find_package(TagLib 2.0 REQUIRED)
@@ -53,6 +54,7 @@ qt_add_library(AudioLibrarianCore STATIC
         src/settings/settingsmanager.h                      src/settings/settingsmanager.cpp
         src/settings/settingsstruct.h
         src/utils/datautils.h                               src/utils/datautils.cpp
+        src/utils/filedialogcontroller.h                    src/utils/filedialogcontroller.cpp
 )
 
 target_link_libraries(AudioLibrarianCore
@@ -63,6 +65,7 @@ target_link_libraries(AudioLibrarianCore
         Qt6::Multimedia
         Qt6::Quick
         Qt6::QuickControls2
+        Qt6::Widgets
         TagLib::tag
 )
 
@@ -248,6 +251,7 @@ qt_add_qml_module(AudioLibrarianCore
         assets/albums.svg
         assets/artists.svg
         assets/backward.svg
+        assets/cancel.svg
         assets/duplicate.svg
         assets/files.svg
         assets/forward.svg

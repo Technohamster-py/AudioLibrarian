@@ -79,34 +79,13 @@ Qt::ItemFlags TagEditorModel::flags(const QModelIndex &index) const {
 }
 
 bool TagEditorModel::setData(const QModelIndex &index, const QVariant &value, int role) {
-    if (!index.isValid())
-        return false;
-
-    qDebug() << "setData" << index.row() << value.toString();
-
-    if (index.row() < 0 || index.row() >= m_entries.size())
+    if (!index.isValid() || index.row() < 0 || index.row() >= m_entries.size())
         return false;
 
     if (role != Qt::EditRole)
         return false;
 
-    const QString newValue = value.toString();
-
-    TagEntry &entry = m_entries[index.row()];
-
-    if (entry.values.size() == 1 && entry.values.first() == newValue) {
-        return false;
-    }
-
-    entry.values = {newValue};
-
-    m_metadata.setValue(entry.key, newValue);
-
-    setDirty(true);
-
-    emit dataChanged(index, index,{ValueRole, ValuesRole});
-
-    return true;
+    return setValues(index.row(), {value.toString()});
 }
 
 bool TagEditorModel::save() {
@@ -149,9 +128,34 @@ bool TagEditorModel::discardChanges() {
 }
 
 bool TagEditorModel::setValue(int row, const QString &value) {
+    return setValues(row, {value});
+}
+
+bool TagEditorModel::setValues(int row, const QStringList &values) {
     if (row < 0 || row >= m_entries.size()) return false;
 
-    return setData(index(row, 0), value, Qt::EditRole);
+    QStringList normalizedValues;
+
+    for (const QString &value : values) {
+        const QString trimmedValue = value.trimmed();
+        if (!trimmedValue.isEmpty())
+            normalizedValues.append(trimmedValue);
+    }
+
+    TagEntry &entry = m_entries[row];
+
+    if (entry.values == normalizedValues)
+        return false;
+
+    entry.values = normalizedValues;
+    m_metadata.setValues(entry.key, normalizedValues);
+
+    setDirty(true);
+
+    const QModelIndex modelIndex = index(row, 0);
+    emit dataChanged(modelIndex, modelIndex, {ValueRole, ValuesRole});
+
+    return true;
 }
 
 void TagEditorModel::setDirty(const bool dirty) {
