@@ -268,6 +268,9 @@ Item {
         anchors.rightMargin: AppMetrics.spacingSmall
         anchors.topMargin: AppMetrics.spacingSmall
 
+        implicitWidth: AppMetrics.playerButtonsSize - AppMetrics.spacingMedium
+        implicitHeight: implicitWidth
+
         z: 10
 
         iconSource: root.expanded ? AppAssets.sortDescending : AppAssets.sortAscending

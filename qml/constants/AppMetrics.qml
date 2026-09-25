@@ -51,8 +51,8 @@ QtObject {
     readonly property int editFieldBorderBold: 2
 
     // Player
-    readonly property int playerHeight: 140
-    readonly property int playerButtonsSize: 60
+    readonly property int playerHeight: 70
+    readonly property int playerButtonsSize: 40
 
     // Text
     readonly property int fontSizeSmall: 12

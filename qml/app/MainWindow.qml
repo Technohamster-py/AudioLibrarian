@@ -75,7 +75,7 @@ ApplicationWindow {
         }
     }
 
-    PlayerController{
+    PlayerController {
         id: playerController
         objectName: "playerController"
 
@@ -94,7 +94,7 @@ ApplicationWindow {
             Layout.preferredWidth: AppMetrics.navigationBarWidth
             currentSection: root.activeSection
 
-            onSectionSelected: function(section) {
+            onSectionSelected: function (section) {
                 root.activeSection = section
             }
         }
@@ -125,13 +125,15 @@ ApplicationWindow {
                         color: SplitHandle.pressed ? AppColors.accent : AppColors.separator
                     }
 
-                    ColumnLayout{
+                    ColumnLayout {
                         id: navigationLayout
                         objectName: "navigationLayout"
 
                         SplitView.preferredWidth: SettingsManager.navigationWidth
                         SplitView.minimumWidth: AppMetrics.libraryMinimumWidth
                         SplitView.maximumWidth: AppMetrics.libraryMaximumWidth
+
+                        spacing: AppMetrics.spacingSmall
 
                         StackLayout {
                             id: contentStack
@@ -149,7 +151,7 @@ ApplicationWindow {
 
                                 currentFilePath: root.selectedFilePath
 
-                                onFileSelected: function(filePath) {
+                                onFileSelected: function (filePath) {
                                     root.selectedFilePath = filePath
                                     playerController.setFilePath(filePath)
                                 }
@@ -177,40 +179,34 @@ ApplicationWindow {
                                     playerController.setFilePath(filePath)
                                 }
 
-                                onBaseDirectoryChanged: function(directory) {
+                                onBaseDirectoryChanged: function (directory) {
                                     batchProcessView.baseFilePath = directory
                                 }
                             }
 
-                            NavigationPlaceholderView {
-                                objectName: "duplicatesView"
-                                title: qsTr("Duplicates")
-                                iconSource: AppAssets.duplicate
+                            // SettingsView {
+                            //     objectName: "settingsView"
+                            // }
+                        }
+
+                        PlayerBar {
+                            id: playerBar
+                            objectName: "playerBar"
+
+                            Layout.fillWidth: true
+
+                            Layout.preferredHeight: expanded ? AppMetrics.playerHeight : AppMetrics.iconButtonSize
+
+                            player: playerController
+
+                            Behavior on Layout.preferredHeight {
+                                NumberAnimation {
+                                    duration: 180
+                                    easing.type: Easing.OutCubic
+                                }
                             }
-
-                    // SettingsView {
-                    //     objectName: "settingsView"
-                    // }
-                }
-
-                PlayerBar {
-                    id: playerBar
-                    objectName: "playerBar"
-
-                    Layout.fillWidth: true
-
-                    Layout.preferredHeight: expanded ? AppMetrics.playerHeight : AppMetrics.iconButtonSize
-
-                    player: playerController
-
-                    Behavior on Layout.preferredHeight {
-                        NumberAnimation {
-                            duration: 180
-                            easing.type: Easing.OutCubic
                         }
                     }
-                }
-            }
 
                     EditorView {
                         id: editorView
@@ -235,8 +231,6 @@ ApplicationWindow {
             }
 
         }
-
-
     }
 
     /**
