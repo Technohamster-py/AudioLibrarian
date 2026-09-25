@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
+import QtQuick.Window
 import AudioLibrarian
 
 /**
@@ -24,8 +25,8 @@ ApplicationWindow {
     minimumWidth: AppMetrics.appMinimumWidth
     minimumHeight: AppMetrics.appMinimumHeight
 
-    maximumWidth: AppMetrics.appMaximumWidth
-    maximumHeight: AppMetrics.appMaximumHeight
+    // maximumWidth: AppMetrics.appMaximumWidth
+    // maximumHeight: AppMetrics.appMaximumHeight
 
     visible: true
 

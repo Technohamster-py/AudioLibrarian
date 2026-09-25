@@ -131,9 +131,11 @@ Item {
             }
 
             ColumnLayout {
-                anchors.margins: 8
+                id: titleAndProgressLayout
 
-                spacing: AppMetrics.spacingSmall
+                anchors.margins: AppMetrics.spacingSmall
+
+                spacing: 0
 
                 RowLayout {
                     Layout.fillWidth: true
