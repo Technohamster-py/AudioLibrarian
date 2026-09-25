@@ -23,6 +23,11 @@ Item {
         objectName: "metadataEditorController"
     }
 
+    FileRenamerController {
+        id: fileRenamerController
+        objectName: "fileRenamerController"
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: AppMetrics.spacingMedium
@@ -135,14 +140,28 @@ Item {
                 }
             }
 
-            Item {
-                objectName: "renameViewPlaceholder"
+            BatchRenamerView {
+                id: renameView
+                objectName: "renameView"
 
-                Label {
-                    anchors.centerIn: parent
+                renaming: fileRenamerController.running
 
-                    text: qsTr("Rename files")
-                    color: AppColors.settingsTextSecondary
+                onRenameRequested: function(templatePattern) {
+                    fileRenamerController.start(root.baseFilePath, templatePattern)
+                }
+
+                Connections {
+                    target: fileRenamerController
+
+                    function onProgressChanged() {
+                        renameView.progressCurrent = fileRenamerController.progressCurrent
+                        renameView.progressTotal = fileRenamerController.progressTotal
+                        renameView.currentFile = fileRenamerController.currentFile
+                    }
+
+                    function onErrorMessageChanged() {
+                        renameView.errorMessage = fileRenamerController.errorMessage
+                    }
                 }
             }
         }

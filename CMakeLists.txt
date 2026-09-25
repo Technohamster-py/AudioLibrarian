@@ -44,6 +44,7 @@ qt_add_library(AudioLibrarianCore STATIC
         src/batch/metadata/metadataeditorcontroller.h       src/batch/metadata/metadataeditorcontroller.cpp
         src/batch/metadata/metadataeditor.h                 src/batch/metadata/metadataeditor.cpp
         src/batch/rename/filerenamer.h                      src/batch/rename/filerenamer.cpp
+        src/batch/rename/filerenamercontroller.h            src/batch/rename/filerenamercontroller.cpp
         src/batch/rename/renametemplateparser.h             src/batch/rename/renametemplateparser.cpp
         src/batch/rename/renamefileresult.h
         src/library/audiofilerecord.h
@@ -61,6 +62,7 @@ qt_add_library(AudioLibrarianCore STATIC
         src/utils/filedialogcontroller.h                    src/utils/filedialogcontroller.cpp
         src/utils/filenamesanitizer.h                       src/utils/filenamesanitizer.cpp
         src/utils/filenamesanitizer.h                       src/utils/filenamesanitizer.cpp
+
 )
 
 target_link_libraries(AudioLibrarianCore
@@ -80,6 +82,7 @@ target_include_directories(AudioLibrarianCore PUBLIC
         src/batch
         src/batch/duplicates
         src/batch/metadata
+        src/batch/rename
         src/library/filetree
         src/library/library
         src/metadata
@@ -218,6 +221,12 @@ set_source_files_properties(
         PROPERTIES QT_RESOURCE_ALIAS "MultiValueEditor.qml"
 )
 
+set_source_files_properties(
+        qml/batch/BatchRenamerView.qml
+        PROPERTIES QT_RESOURCE_ALIAS "BatchRenamerView.qml"
+
+)
+
 qt_add_qml_module(AudioLibrarianCore
         URI AudioLibrarian
         VERSION 0.1
@@ -229,6 +238,7 @@ qt_add_qml_module(AudioLibrarianCore
         qml/app/MainWindow.qml
 
         qml/batch/BatchProcessView.qml
+        qml/batch/BatchRenamerView.qml
         qml/batch/DuplicateFinderView.qml
         qml/batch/MetadataEditorView.qml
         qml/batch/MetadataEditRow.qml
