@@ -205,6 +205,17 @@ Item {
 
                         value: pressed ? value : root.player.position
 
+                        handle: Rectangle {
+                            implicitWidth: AppMetrics.playerPlaybackHandleSize
+                            implicitHeight: AppMetrics.playerPlaybackHandleSize
+
+                            x: parent.leftPadding + parent.visualPosition * (parent.availableWidth - width)
+                            y: parent.topPadding + (parent.availableHeight - height) / 2
+
+                            radius: width / 2
+                            color: AppColors.playerHandle
+                        }
+
                         onPressedChanged: {
                             if (!pressed) {
                                 /*
@@ -222,6 +233,11 @@ Item {
                         Layout.preferredWidth: implicitWidth
                         horizontalAlignment: Text.AlignLeft
                     }
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: AppMetrics.spacingMedium
                 }
             }
 
@@ -251,6 +267,17 @@ Item {
 
                     from: 0
                     to: 100
+
+                    handle: Rectangle {
+                        implicitWidth: AppMetrics.playerPlaybackHandleSize
+                        implicitHeight: AppMetrics.playerPlaybackHandleSize
+
+                        x: parent.leftPadding + parent.visualPosition * (parent.availableWidth - width)
+                        y: parent.topPadding + (parent.availableHeight - height) / 2
+
+                        radius: width / 2
+                        color: AppColors.playerHandle
+                    }
 
                     value: root.player.volume
                     onMoved: {

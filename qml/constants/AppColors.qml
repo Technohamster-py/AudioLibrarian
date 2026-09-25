@@ -36,6 +36,7 @@ QtObject {
     // Player palette
     readonly property color playerBackground: accentPrimary
     readonly property color playerForeground: "#161616"
+    readonly property color playerHandle: selection
 
 
     // Editor palette

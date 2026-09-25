@@ -53,6 +53,7 @@ QtObject {
     // Player
     readonly property int playerHeight: 70
     readonly property int playerButtonsSize: 40
+    readonly property int playerPlaybackHandleSize: 14
 
     // Text
     readonly property int fontSizeSmall: 12
