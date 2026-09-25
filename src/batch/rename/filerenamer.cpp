@@ -1,5 +1,7 @@
 #include "filerenamer.h"
 
+#include  "utils/filenamesanitizer.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QHash>
@@ -126,7 +128,7 @@ QString FileRenamer::buildTargetPath(const AudioFileRecord &file) const{
             continue;
         }
 
-        path.append(fieldValue(file, token.field));
+        path.append(FilenameSanitizer::sanitize(fieldValue(file, token.field)));
     }
 
     const QFileInfo sourceInfo(file.filePath);
