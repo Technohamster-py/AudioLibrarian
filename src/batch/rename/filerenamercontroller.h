@@ -31,6 +31,9 @@ public:
      */
     Q_INVOKABLE bool start(const QString &baseFilePath, const QString &templatePattern);
 
+protected:
+    void handleFinished() override;
+
 private:
     LibraryScanner m_scanner;
     QSharedPointer<FileRenamer> m_fileRenamer;

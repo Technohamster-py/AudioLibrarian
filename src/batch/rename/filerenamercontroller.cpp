@@ -3,6 +3,7 @@
 #include <QDir>
 
 FileRenamerController::FileRenamerController(QObject *parent) : BatchProcessController(parent) {
+    connect(processor(), &BatchProcessor::finished, this, &FileRenamerController::handleFinished);
 }
 
 bool FileRenamerController::start(const QString &baseFilePath, const QString &templatePattern)
@@ -25,4 +26,8 @@ bool FileRenamerController::start(const QString &baseFilePath, const QString &te
     clearError();
 
     return startOperation(m_fileRenamer, files);
+}
+
+void FileRenamerController::handleFinished()
+{
 }
