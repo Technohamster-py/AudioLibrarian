@@ -34,14 +34,19 @@ qt_standard_project_setup(
 qt_add_library(AudioLibrarianCore STATIC
         src/batch/abstractbatchoperation.h                  src/batch/abstractbatchoperation.cpp
         src/batch/batchprocesscontroller.h                  src/batch/batchprocesscontroller.cpp
-        src/batch/batchprocessor.h                          src/batch/batchprocessor.cpp
-        src/batch/metadata/metadataeditresultmodel.h        src/batch/metadata/metadataeditresultmodel.cpp
-        src/batch/metadata/metadataeditorcontroller.h       src/batch/metadata/metadataeditorcontroller.cpp
-        src/batch/metadata/metadataeditor.h                 src/batch/metadata/metadataeditor.cpp
+        src/batch/batchprocessor.h
+        src/batch/batchprocessor.cpp
         src/batch/duplicates/duplicatefinder.h              src/batch/duplicates/duplicatefinder.cpp
         src/batch/duplicates/duplicatesearchresult.cpp      src/batch/duplicates/duplicatesearchresult.cpp
         src/batch/duplicates/duplicatefindercontroller.h    src/batch/duplicates/duplicatefindercontroller.cpp
         src/batch/duplicates/duplicateresultmodel.h         src/batch/duplicates/duplicateresultmodel.cpp
+        src/batch/metadata/metadataeditresultmodel.h        src/batch/metadata/metadataeditresultmodel.cpp
+        src/batch/metadata/metadataeditorcontroller.h       src/batch/metadata/metadataeditorcontroller.cpp
+        src/batch/metadata/metadataeditor.h                 src/batch/metadata/metadataeditor.cpp
+        src/batch/rename/filerenamer.h                      src/batch/rename/filerenamer.cpp
+        src/batch/rename/filerenamercontroller.h            src/batch/rename/filerenamercontroller.cpp
+        src/batch/rename/renametemplateparser.h             src/batch/rename/renametemplateparser.cpp
+        src/batch/rename/renamefileresult.h
         src/library/audiofilerecord.h
         src/library/filetree/filetreemodel.h                src/library/filetree/filetreemodel.cpp
         src/library/library/audiofiletablemodel.h           src/library/library/audiofiletablemodel.cpp
@@ -55,6 +60,9 @@ qt_add_library(AudioLibrarianCore STATIC
         src/settings/settingsstruct.h
         src/utils/datautils.h                               src/utils/datautils.cpp
         src/utils/filedialogcontroller.h                    src/utils/filedialogcontroller.cpp
+        src/utils/filenamesanitizer.h                       src/utils/filenamesanitizer.cpp
+        src/utils/filenamesanitizer.h                       src/utils/filenamesanitizer.cpp
+
 )
 
 target_link_libraries(AudioLibrarianCore
@@ -74,6 +82,7 @@ target_include_directories(AudioLibrarianCore PUBLIC
         src/batch
         src/batch/duplicates
         src/batch/metadata
+        src/batch/rename
         src/library/filetree
         src/library/library
         src/metadata
@@ -212,6 +221,12 @@ set_source_files_properties(
         PROPERTIES QT_RESOURCE_ALIAS "MultiValueEditor.qml"
 )
 
+set_source_files_properties(
+        qml/batch/BatchRenamerView.qml
+        PROPERTIES QT_RESOURCE_ALIAS "BatchRenamerView.qml"
+
+)
+
 qt_add_qml_module(AudioLibrarianCore
         URI AudioLibrarian
         VERSION 0.1
@@ -223,6 +238,7 @@ qt_add_qml_module(AudioLibrarianCore
         qml/app/MainWindow.qml
 
         qml/batch/BatchProcessView.qml
+        qml/batch/BatchRenamerView.qml
         qml/batch/DuplicateFinderView.qml
         qml/batch/MetadataEditorView.qml
         qml/batch/MetadataEditRow.qml
@@ -452,6 +468,23 @@ target_include_directories(tst_DuplicateFinder PRIVATE
 add_test(
         NAME tst_DuplicateFinder
         COMMAND tst_DuplicateFinder
+)
+
+add_executable(tst_FileRenamer
+        tests/batch/tst_filerenamer.cpp
+)
+
+target_link_libraries(tst_FileRenamer
+        PRIVATE
+        AudioLibrarianCore
+        Qt6::Test
+)
+
+target_include_directories(tst_FileRenamer PRIVATE src)
+
+add_test(
+        NAME tst_FileRenamer
+        COMMAND tst_FileRenamer
 )
 
 # ---------------------------------------------------------------------------

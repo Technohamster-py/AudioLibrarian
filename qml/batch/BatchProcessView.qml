@@ -23,6 +23,11 @@ Item {
         objectName: "metadataEditorController"
     }
 
+    FileRenamerController {
+        id: fileRenamerController
+        objectName: "fileRenamerController"
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: AppMetrics.spacingMedium
@@ -135,14 +140,60 @@ Item {
                 }
             }
 
-            Item {
-                objectName: "renameViewPlaceholder"
+            BatchRenamerView {
+                id: renameView
+                objectName: "renameView"
 
-                Label {
-                    anchors.centerIn: parent
+                renaming: fileRenamerController.running
 
-                    text: qsTr("Rename files")
-                    color: AppColors.settingsTextSecondary
+                onPreviewRequested: function(templatePattern) {
+                    const result = fileRenamerController.preparePreview(
+                        root.baseFilePath, templatePattern)
+
+                    if (!result || result.error) {
+                        renameView.errorMessage = result ? result.error : qsTr("Preview failed")
+                        renameView.previewEntries = []
+                        return
+                    }
+
+                    const entries = result.entries || []
+
+                    if (entries.length === 0) {
+                        renameView.errorMessage = qsTr("No files to rename")
+                        renameView.previewEntries = []
+                        return
+                    }
+
+                    renameView.errorMessage = ""
+                    renameView.previewEntries = entries
+                    renameView.previewVisible = true
+                }
+                
+                onConfirmRenameRequested: {
+                    if (fileRenamerController.confirmRename())
+                        renameView.previewVisible = false
+                    else
+                        renameView.errorMessage = fileRenamerController.errorMessage
+                }
+
+                onCancelPreviewRequested: {
+                    fileRenamerController.discardPreview()
+                    renameView.previewEntries = []
+                    renameView.previewVisible = false
+                }
+
+                Connections {
+                    target: fileRenamerController
+
+                    function onProgressChanged() {
+                        renameView.progressCurrent = fileRenamerController.progressCurrent
+                        renameView.progressTotal = fileRenamerController.progressTotal
+                        renameView.currentFile = fileRenamerController.currentFile
+                    }
+
+                    function onErrorMessageChanged() {
+                        renameView.errorMessage = fileRenamerController.errorMessage
+                    }
                 }
             }
         }
