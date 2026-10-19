@@ -7,10 +7,15 @@
 #include <QHash>
 #include <QSet>
 
-FileRenamer::FileRenamer(const QString& templatePattern, const QString& baseDirectory, QObject *parent): AbstractBatchOperation(parent), m_template(RenameTemplateParser::parse(templatePattern)), m_baseDirectory(QDir(baseDirectory).absolutePath()){
+FileRenamer::FileRenamer(const QString& templatePattern, const QString& baseDirectory, QObject* parent) :
+    AbstractBatchOperation(parent), m_template(RenameTemplateParser::parse(templatePattern)),
+    m_baseDirectory(QDir(baseDirectory).absolutePath())
+{
 }
 
-BatchOperationResult FileRenamer::execute(const QVector<AudioFileRecord> &files,const std::atomic_bool &cancellationRequested){
+BatchOperationResult FileRenamer::execute(const QVector<AudioFileRecord>& files,
+                                          const std::atomic_bool& cancellationRequested)
+{
     QVector<RenamePlanEntry> plan;
     QString planError;
 
@@ -22,26 +27,29 @@ BatchOperationResult FileRenamer::execute(const QVector<AudioFileRecord> &files,
 
     const qsizetype total = plan.size();
 
-    for (qsizetype index = 0; index < total; ++index) {
+    for (qsizetype index = 0; index < total; ++index)
+    {
         if (cancellationRequested.load())
             return {
                 BatchOperationState::Cancelled,
                 {}
             };
 
-        const auto &entry = plan.at(index);
+        const auto& entry = plan.at(index);
 
         const QFileInfo targetInfo(entry.targetPath);
         const QString targetDirectory = targetInfo.absolutePath();
 
-        if (!QDir().mkpath(targetDirectory)) {
+        if (!QDir().mkpath(targetDirectory))
+        {
             return {
                 BatchOperationState::Fail,
                 QStringLiteral("Failed to create directory: %1").arg(targetDirectory)
             };
         }
 
-        if (!QFile::rename(entry.sourcePath, entry.targetPath)) {
+        if (!QFile::rename(entry.sourcePath, entry.targetPath))
+        {
             return {
                 BatchOperationState::Fail,
                 QStringLiteral("Failed to rename '%1' to '%2'").arg(entry.sourcePath, entry.targetPath)
@@ -57,11 +65,14 @@ BatchOperationResult FileRenamer::execute(const QVector<AudioFileRecord> &files,
     };
 }
 
-QString FileRenamer::buildTargetPath(const AudioFileRecord &file) const{
+QString FileRenamer::buildTargetPath(const AudioFileRecord& file) const
+{
     QString path;
 
-    for (const auto &token : m_template.tokens) {
-        if (token.type == RenameTemplateParser::Token::Type::Literal) {
+    for (const auto& token : m_template.tokens)
+    {
+        if (token.type == RenameTemplateParser::Token::Type::Literal)
+        {
             path.append(token.value);
             continue;
         }
@@ -71,28 +82,40 @@ QString FileRenamer::buildTargetPath(const AudioFileRecord &file) const{
 
     const QFileInfo sourceInfo(file.filePath);
 
-    if (!sourceInfo.suffix().isEmpty()) {
+    if (!sourceInfo.suffix().isEmpty())
+    {
         path += QStringLiteral(".") + sourceInfo.suffix();
     }
 
     return QDir::cleanPath(path);
 }
 
-QString FileRenamer::fieldValue(const AudioFileRecord &file, const RenameTemplateParser::Field field) const {
-    const auto &metadata = file.fileInfo.metadata;
+QString FileRenamer::fieldValue(const AudioFileRecord& file, const RenameTemplateParser::Field field) const
+{
+    const auto& metadata = file.fileInfo.metadata;
 
     QString value;
 
-    switch (field) {
-        case RenameTemplateParser::Field::Title: value = metadata.title(); break;
-        case RenameTemplateParser::Field::Artist: value = metadata.artist(); break;
-        case RenameTemplateParser::Field::Album: value = metadata.album(); break;
-        case RenameTemplateParser::Field::AlbumArtist: value = metadata.albumArtist(); break;
-        case RenameTemplateParser::Field::Genre: value = metadata.genre(); break;
-        case RenameTemplateParser::Field::Date: value = metadata.date(); break;
-        case RenameTemplateParser::Field::TrackNumber: value = metadata.trackNumber(); break;
-        case RenameTemplateParser::Field::DiscNumber: value = metadata.discNumber(); break;
-        case RenameTemplateParser::Field::FileName: value = QFileInfo(file.filePath).completeBaseName(); break;
+    switch (field)
+    {
+    case RenameTemplateParser::Field::Title: value = metadata.title();
+        break;
+    case RenameTemplateParser::Field::Artist: value = metadata.artist();
+        break;
+    case RenameTemplateParser::Field::Album: value = metadata.album();
+        break;
+    case RenameTemplateParser::Field::AlbumArtist: value = metadata.albumArtist();
+        break;
+    case RenameTemplateParser::Field::Genre: value = metadata.genre();
+        break;
+    case RenameTemplateParser::Field::Date: value = metadata.date();
+        break;
+    case RenameTemplateParser::Field::TrackNumber: value = metadata.trackNumber();
+        break;
+    case RenameTemplateParser::Field::DiscNumber: value = metadata.discNumber();
+        break;
+    case RenameTemplateParser::Field::FileName: value = QFileInfo(file.filePath).completeBaseName();
+        break;
     }
 
     if (value.trimmed().isEmpty())
@@ -101,19 +124,22 @@ QString FileRenamer::fieldValue(const AudioFileRecord &file, const RenameTemplat
     return value;
 }
 
-QString FileRenamer::validatePlan(const QVector<RenamePlanEntry> &plan) const {
+QString FileRenamer::validatePlan(const QVector<RenamePlanEntry>& plan) const
+{
     QHash<QString, qsizetype> sourceIndices;
     QSet<QString> targetPaths;
 
-    for (qsizetype index = 0; index < plan.size(); ++index) {
-        const auto &entry = plan.at(index);
+    for (qsizetype index = 0; index < plan.size(); ++index)
+    {
+        const auto& entry = plan.at(index);
         const QString sourcePath = QDir::cleanPath(QFileInfo(entry.sourcePath).absoluteFilePath());
         const QString targetPath = QDir::cleanPath(QFileInfo(entry.targetPath).absoluteFilePath());
 
         if (sourcePath == targetPath)
             continue;
 
-        if (targetPaths.contains(targetPath)) {
+        if (targetPaths.contains(targetPath))
+        {
             return QStringLiteral("Multiple files have the same target path: %1").arg(targetPath);
         }
 
@@ -121,7 +147,8 @@ QString FileRenamer::validatePlan(const QVector<RenamePlanEntry> &plan) const {
         sourceIndices.insert(sourcePath, index);
     }
 
-    for (const auto &entry : plan) {
+    for (const auto& entry : plan)
+    {
         const QString sourcePath = QDir::cleanPath(QFileInfo(entry.sourcePath).absoluteFilePath());
         const QString targetPath = QDir::cleanPath(QFileInfo(entry.targetPath).absoluteFilePath());
 
@@ -133,7 +160,8 @@ QString FileRenamer::validatePlan(const QVector<RenamePlanEntry> &plan) const {
         if (!targetInfo.exists())
             continue;
 
-        if (!sourceIndices.contains(targetPath)) {
+        if (!sourceIndices.contains(targetPath))
+        {
             return QStringLiteral("Target file already exists: %1").arg(targetPath);
         }
     }
@@ -141,7 +169,8 @@ QString FileRenamer::validatePlan(const QVector<RenamePlanEntry> &plan) const {
     return {};
 }
 
-bool FileRenamer::isSafeRelativePath(const QString &relativePath) const {
+bool FileRenamer::isSafeRelativePath(const QString& relativePath) const
+{
     if (relativePath.isEmpty())
         return false;
 
@@ -169,23 +198,24 @@ bool FileRenamer::isSafeRelativePath(const QString &relativePath) const {
     return true;
 }
 
-BatchOperationResult FileRenamer::isSourceFileValid(const AudioFileRecord& file) const {
+BatchOperationResult FileRenamer::isSourceFileValid(const AudioFileRecord& file) const
+{
     if (file.filePath.isEmpty())
         return {
-        BatchOperationState::Fail,
-        QStringLiteral("Source file path cannot be empty")
-    };
+            BatchOperationState::Fail,
+            QStringLiteral("Source file path cannot be empty")
+        };
 
     const QFileInfo sourceInfo(file.filePath);
 
     if (!sourceInfo.exists() || !sourceInfo.isFile())
         return {
-        BatchOperationState::Fail,
-        QStringLiteral("Source file does not exist: %1").arg(file.filePath)
-    };
+            BatchOperationState::Fail,
+            QStringLiteral("Source file does not exist: %1").arg(file.filePath)
+        };
 }
 
-QVariantList FileRenamer::preview(const QVector<AudioFileRecord> &files, QString *error) const
+QVariantList FileRenamer::preview(const QVector<AudioFileRecord>& files, QString* error) const
 {
     QVector<RenamePlanEntry> plan;
 
@@ -193,16 +223,28 @@ QVariantList FileRenamer::preview(const QVector<AudioFileRecord> &files, QString
         return {};
 
     QVariantList result;
-    for (const auto &entry : plan) {
-        result.append(QVariantMap{{QStringLiteral("sourcePath"), entry.sourcePath},{QStringLiteral("targetPath"), entry.targetPath}});
+    for (const auto& entry : plan)
+    {
+        result.append(QVariantMap{
+            {QStringLiteral("sourcePath"), entry.sourcePath}, {QStringLiteral("targetPath"), entry.targetPath}
+        });
     }
 
     return result;
 }
 
 
-bool FileRenamer::buildPlan(const QVector<AudioFileRecord> &files,QVector<RenamePlanEntry> *plan,QString *error) const {
-    const auto fail = [error](const QString &message) {
+/**
+ * @brief Builds a rename plan and resolves duplicate target paths.
+ * @param files Files to process.
+ * @param plan Receives the validated rename plan.
+ * @param error Receives the error description.
+ * @return true when the plan is valid.
+ */
+bool FileRenamer::buildPlan(const QVector<AudioFileRecord>& files, QVector<RenamePlanEntry>* plan, QString* error) const
+{
+    const auto fail = [error](const QString& message)
+    {
         if (error)
             *error = message;
         return false;
@@ -216,7 +258,10 @@ bool FileRenamer::buildPlan(const QVector<AudioFileRecord> &files,QVector<Rename
     if (m_baseDirectory.isEmpty())
         return fail(QStringLiteral("Base directory cannot be empty"));
 
-    for (const auto &file : files) {
+    QSet<QString> sourcePaths;
+
+    for (const auto& file : files)
+    {
         if (file.filePath.isEmpty())
             return fail(QStringLiteral("Source file path cannot be empty"));
 
@@ -231,7 +276,77 @@ bool FileRenamer::buildPlan(const QVector<AudioFileRecord> &files,QVector<Rename
         if (!isSafeRelativePath(relativeTarget))
             return fail(QStringLiteral("Generated target path escapes base directory: %1").arg(relativeTarget));
 
-        plan->append({sourceInfo.absoluteFilePath(),QDir(m_baseDirectory).filePath(relativeTarget)});
+        const QString absoluteSource = QDir::cleanPath(sourceInfo.absoluteFilePath());
+        sourcePaths.insert(absoluteSource);
+        plan->append({absoluteSource, QDir(m_baseDirectory).filePath(relativeTarget)});
+    }
+
+    const auto pathKey = [](const QString& path)
+    {
+        const QString normalized = QDir::cleanPath(QFileInfo(path).absoluteFilePath());
+#ifdef Q_OS_WIN
+        return normalized.toCaseFolded();
+#else
+        return normalized;
+#endif
+    };
+
+    QHash<QString, qsizetype> targetCounts;
+    for (const auto& entry : *plan)
+        ++targetCounts[pathKey(entry.targetPath)];
+
+    for (auto& entry : *plan)
+    {
+        if (targetCounts.value(pathKey(entry.targetPath)) < 2)
+            continue;
+
+        const QFileInfo sourceInfo(entry.sourcePath);
+        entry.targetPath = QDir(QFileInfo(entry.targetPath).absolutePath()).filePath(sourceInfo.fileName());
+    }
+
+    QSet<QString> reservedTargets;
+
+    for (auto& entry : *plan)
+    {
+        const QFileInfo targetInfo(entry.targetPath);
+        const QString directory = targetInfo.absolutePath();
+        const QString baseName = targetInfo.completeBaseName();
+        const QString suffix = targetInfo.suffix();
+
+        const auto makeCandidate = [&](const QString& name)
+        {
+            const QString fileName = suffix.isEmpty()
+                                         ? name
+                                         : name + QStringLiteral(".") + suffix;
+            return QDir(directory).filePath(fileName);
+        };
+
+        const auto isAvailable = [&](const QString& candidate)
+        {
+            const QString key = pathKey(candidate);
+            const bool occupiedByAnotherTarget = reservedTargets.contains(key);
+            const bool occupiedByUnrelatedFile = QFileInfo::exists(candidate)
+                && !sourcePaths.contains(key);
+
+            return !occupiedByAnotherTarget && !occupiedByUnrelatedFile;
+        };
+
+        const QString originalCandidate = entry.targetPath;
+        if (!isAvailable(originalCandidate))
+        {
+            qsizetype number = 1;
+            QString candidate;
+
+            do
+            {
+                candidate = makeCandidate(QStringLiteral("%1 (%2)").arg(baseName).arg(number++));
+            }
+            while (!isAvailable(candidate));
+
+            entry.targetPath = candidate;
+        }
+
+        reservedTargets.insert(pathKey(entry.targetPath));
     }
 
     if (const QString validationError = validatePlan(*plan); !validationError.isEmpty())
