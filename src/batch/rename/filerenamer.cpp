@@ -81,19 +81,24 @@ QString FileRenamer::buildTargetPath(const AudioFileRecord &file) const{
 QString FileRenamer::fieldValue(const AudioFileRecord &file, const RenameTemplateParser::Field field) const {
     const auto &metadata = file.fileInfo.metadata;
 
+    QString value;
+
     switch (field) {
-        case RenameTemplateParser::Field::Title: return metadata.title();
-        case RenameTemplateParser::Field::Artist: return metadata.artist();
-        case RenameTemplateParser::Field::Album: return metadata.album();
-        case RenameTemplateParser::Field::AlbumArtist:return metadata.albumArtist();
-        case RenameTemplateParser::Field::Genre: return metadata.genre();
-        case RenameTemplateParser::Field::Date: return metadata.date();
-        case RenameTemplateParser::Field::TrackNumber: return metadata.trackNumber();
-        case RenameTemplateParser::Field::DiscNumber: return metadata.discNumber();
-        case RenameTemplateParser::Field::FileName: return QFileInfo(file.filePath).completeBaseName();
+        case RenameTemplateParser::Field::Title: value = metadata.title(); break;
+        case RenameTemplateParser::Field::Artist: value = metadata.artist(); break;
+        case RenameTemplateParser::Field::Album: value = metadata.album(); break;
+        case RenameTemplateParser::Field::AlbumArtist: value = metadata.albumArtist(); break;
+        case RenameTemplateParser::Field::Genre: value = metadata.genre(); break;
+        case RenameTemplateParser::Field::Date: value = metadata.date(); break;
+        case RenameTemplateParser::Field::TrackNumber: value = metadata.trackNumber(); break;
+        case RenameTemplateParser::Field::DiscNumber: value = metadata.discNumber(); break;
+        case RenameTemplateParser::Field::FileName: value = QFileInfo(file.filePath).completeBaseName(); break;
     }
 
-    return {};
+    if (value.trimmed().isEmpty())
+        return QStringLiteral("UNKNOWN");
+
+    return value;
 }
 
 QString FileRenamer::validatePlan(const QVector<RenamePlanEntry> &plan) const {

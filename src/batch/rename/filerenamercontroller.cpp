@@ -77,14 +77,17 @@ QVariantMap FileRenamerController::preparePreview(const QString &baseFilePath, c
         m_pendingTemplate.clear();
         m_pendingBaseDirectory.clear();
         m_previewEntries.clear();
-        // Ниже лучше использовать отдельный публичный setter ошибки,
-        // если требуется показать ошибку предпросмотра в QML.
-        return {{QStringLiteral("error"), error}};
+        return {
+            {QStringLiteral("entries"), QVariantList{}},
+            {QStringLiteral("error"), error}
+        };
     }
 
     clearError();
-    return {{QStringLiteral("entities"), m_previewEntries}, {QStringLiteral("error"), error}};
-}
+    return {
+        {QStringLiteral("entries"), m_previewEntries},
+        {QStringLiteral("error"), error}
+    };}
 
 bool FileRenamerController::confirmRename()
 {
