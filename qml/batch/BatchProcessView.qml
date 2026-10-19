@@ -146,8 +146,40 @@ Item {
 
                 renaming: fileRenamerController.running
 
-                onRenameRequested: function(templatePattern) {
-                    fileRenamerController.start(root.baseFilePath, templatePattern)
+                onPreviewRequested: function(templatePattern) {
+                    const result = fileRenamerController.preparePreview(
+                        root.baseFilePath, templatePattern)
+
+                    if (!result || result.error) {
+                        renameView.errorMessage = result ? result.error : qsTr("Preview failed")
+                        renameView.previewEntries = []
+                        return
+                    }
+
+                    const entries = result.entries || []
+
+                    if (entries.length === 0) {
+                        renameView.errorMessage = qsTr("No files to rename")
+                        renameView.previewEntries = []
+                        return
+                    }
+
+                    renameView.errorMessage = ""
+                    renameView.previewEntries = entries
+                    renameView.previewVisible = true
+                }
+                
+                onConfirmRenameRequested: {
+                    if (fileRenamerController.confirmRename())
+                        renameView.previewVisible = false
+                    else
+                        renameView.errorMessage = fileRenamerController.errorMessage
+                }
+
+                onCancelPreviewRequested: {
+                    fileRenamerController.discardPreview()
+                    renameView.previewEntries = []
+                    renameView.previewVisible = false
                 }
 
                 Connections {

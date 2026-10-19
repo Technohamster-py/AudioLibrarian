@@ -17,7 +17,122 @@ Item {
     property string currentFile: ""
     property string errorMessage: ""
 
+    property bool previewVisible: false
+    property var previewEntries: []
+
+    signal previewRequested(string templatePattern)
+    signal confirmRenameRequested()
+    signal cancelPreviewRequested()
+
     signal renameRequested(string templatePattern)
+
+    Popup {
+        id: renamePreviewPopup
+        objectName: "renamePreviewPopup"
+
+        parent: Overlay.overlay
+        anchors.centerIn: parent
+        width: Math.min(root.width * 0.9, 900)
+        height: Math.min(root.height * 0.85, 600)
+
+        modal: true
+        closePolicy: Popup.NoAutoClose
+        visible: root.previewVisible
+
+        background: Rectangle {
+            color: AppColors.navigationPanel
+            border.color: AppColors.settingsSeparator
+            radius: 8
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: AppMetrics.spacingMedium
+            spacing: AppMetrics.spacingMedium
+
+            Label {
+                Layout.fillWidth: true
+                text: qsTr("Rename preview (%1 files)").arg(root.previewEntries.length)
+                color: AppColors.settingsTextPrimary
+                font.bold: true
+                font.pixelSize: 20
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+
+                Label {
+                    Layout.fillWidth: true
+                    text: qsTr("Current path")
+                    color: AppColors.settingsTextSecondary
+                }
+
+                Label {
+                    Layout.fillWidth: true
+                    text: qsTr("New path")
+                    color: AppColors.settingsTextSecondary
+                }
+            }
+
+            ListView {
+                id: previewList
+                objectName: "renamePreviewList"
+
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                model: root.previewEntries
+                boundsBehavior: Flickable.StopAtBounds
+
+                delegate: RowLayout {
+                    required property var modelData
+
+                    width: previewList.width
+                    spacing: AppMetrics.spacingMedium
+
+                    Label {
+                        Layout.fillWidth: true
+                        text: modelData.sourcePath
+                        color: AppColors.settingsTextPrimary
+                        elide: Text.ElideMiddle
+                        ToolTip.visible: hovered
+                        ToolTip.text: text
+                    }
+
+                    Label {
+                        Layout.fillWidth: true
+                        text: modelData.targetPath
+                        color: AppColors.settingsTextPrimary
+                        elide: Text.ElideMiddle
+                        ToolTip.visible: hovered
+                        ToolTip.text: text
+                    }
+                }
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+
+                Item {
+                    Layout.fillWidth: true
+                }
+
+                Button {
+                    text: qsTr("Cancel")
+                    onClicked: root.cancelPreviewRequested()
+                }
+
+                Button {
+                    objectName: "confirmRenameButton"
+                    text: qsTr("Rename")
+                    enabled: root.previewEntries.length > 0
+                    onClicked: root.confirmRenameRequested()
+                }
+            }
+        }
+
+        onOpened: previewList.positionViewAtBeginning()
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -199,12 +314,12 @@ Item {
                 id: renameButton
                 objectName: "renameFilesButton"
 
-                text: qsTr("Rename files")
+                text: qsTr("Preview rename")
 
-                enabled: !root.renaming
+                enabled: !root.renaming && !root.previewVisible
                     && templateField.text.trim().length > 0
 
-                onClicked: root.renameRequested(templateField.text)
+                onClicked: root.previewRequested(templateField.text)
             }
         }
     }

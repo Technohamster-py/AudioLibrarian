@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QString>
 #include <QVector>
+#include <QVariantList>
 
 #include <atomic>
 
@@ -40,11 +41,28 @@ public:
      */
     BatchOperationResult execute(const QVector<AudioFileRecord>& files, const std::atomic_bool &cancellationRequested) override;
 
+    /**
+    * @brief Builds a rename preview without modifying files.
+    * @param files Files to include in the preview.
+    * @param error Receives a validation error, if any.
+    * @return List of maps containing sourcePath and targetPath.
+    */
+    QVariantList preview(const QVector<AudioFileRecord> &files, QString *error) const;
+
 private:
     struct RenamePlanEntry {
         QString sourcePath;
         QString targetPath;
     };
+
+    /**
+     * @brief Builds and validates the complete rename plan.
+     * @param files Files to process.
+     * @param plan Receives the validated plan.
+     * @param error Receives the error description.
+     * @return true when the plan is valid.
+     */
+    bool buildPlan(const QVector<AudioFileRecord> &files, QVector<RenamePlanEntry> *plan, QString *error) const;
 
     /**
      * @brief Builds a target path from one audio file and parsed tokens.
@@ -78,6 +96,8 @@ private:
      * @return true when the path does not escape the base directory.
      */
     bool isSafeRelativePath(const QString &relativePath) const;
+
+    BatchOperationResult isSourceFileValid(const AudioFileRecord &file) const;
 
     RenameTemplateParser::Result m_template;
     QString m_baseDirectory;

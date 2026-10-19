@@ -11,76 +11,14 @@ FileRenamer::FileRenamer(const QString& templatePattern, const QString& baseDire
 }
 
 BatchOperationResult FileRenamer::execute(const QVector<AudioFileRecord> &files,const std::atomic_bool &cancellationRequested){
-    if (!m_template.valid)
-        return {
-            BatchOperationState::Fail,
-            m_template.errorMessage
-        };
+    QVector<RenamePlanEntry> plan;
+    QString planError;
 
-    if (m_baseDirectory.isEmpty())
-        return {
-            BatchOperationState::Fail,
-        QStringLiteral("Base directory cannot be empty")
-        };
+    if (!buildPlan(files, &plan, &planError))
+        return {BatchOperationState::Fail, planError};
 
     if (files.isEmpty())
-        return {
-            BatchOperationState::Success,
-            {}
-        };
-
-    QVector<RenamePlanEntry> plan;
-    plan.reserve(files.size());
-
-    for (const auto &file : files) {
-        if (cancellationRequested.load())
-            return {
-                BatchOperationState::Cancelled,
-                {}
-            };
-
-        if (file.filePath.isEmpty())
-            return {
-                BatchOperationState::Fail,
-                QStringLiteral("Source file path cannot be empty")
-            };
-
-        const QFileInfo sourceInfo(file.filePath);
-
-        if (!sourceInfo.exists() || !sourceInfo.isFile())
-            return {
-                BatchOperationState::Fail,
-                QStringLiteral("Source file does not exist: %1").arg(file.filePath)
-            };
-
-        const QString relativeTarget = buildTargetPath(file);
-
-        if (relativeTarget.isEmpty())
-            return {
-                BatchOperationState::Fail,
-                QStringLiteral("Generated target path is empty for: %1").arg(file.filePath)
-            };
-
-        if (!isSafeRelativePath(relativeTarget))
-            return {
-                BatchOperationState::Fail,
-                QStringLiteral("Generated target path escapes base directory: %1").arg(relativeTarget)
-            };
-
-        RenamePlanEntry entry;
-        entry.sourcePath = sourceInfo.absoluteFilePath();
-        entry.targetPath = QDir(m_baseDirectory).filePath(relativeTarget);
-
-        plan.append(std::move(entry));
-    }
-
-    if (const QString validationError = validatePlan(plan);
-        !validationError.isEmpty()) {
-        return {
-            BatchOperationState::Fail,
-            validationError
-        };
-    }
+        return {BatchOperationState::Success, {}};
 
     const qsizetype total = plan.size();
 
@@ -222,6 +160,80 @@ bool FileRenamer::isSafeRelativePath(const QString &relativePath) const {
     if (QDir::isAbsolutePath(cleanedPath))
         return false;
 #endif
+
+    return true;
+}
+
+BatchOperationResult FileRenamer::isSourceFileValid(const AudioFileRecord& file) const {
+    if (file.filePath.isEmpty())
+        return {
+        BatchOperationState::Fail,
+        QStringLiteral("Source file path cannot be empty")
+    };
+
+    const QFileInfo sourceInfo(file.filePath);
+
+    if (!sourceInfo.exists() || !sourceInfo.isFile())
+        return {
+        BatchOperationState::Fail,
+        QStringLiteral("Source file does not exist: %1").arg(file.filePath)
+    };
+}
+
+QVariantList FileRenamer::preview(const QVector<AudioFileRecord> &files, QString *error) const
+{
+    QVector<RenamePlanEntry> plan;
+
+    if (!buildPlan(files, &plan, error))
+        return {};
+
+    QVariantList result;
+    for (const auto &entry : plan) {
+        result.append(QVariantMap{{QStringLiteral("sourcePath"), entry.sourcePath},{QStringLiteral("targetPath"), entry.targetPath}});
+    }
+
+    return result;
+}
+
+
+bool FileRenamer::buildPlan(const QVector<AudioFileRecord> &files,QVector<RenamePlanEntry> *plan,QString *error) const {
+    const auto fail = [error](const QString &message) {
+        if (error)
+            *error = message;
+        return false;
+    };
+
+    plan->clear();
+
+    if (!m_template.valid)
+        return fail(m_template.errorMessage);
+
+    if (m_baseDirectory.isEmpty())
+        return fail(QStringLiteral("Base directory cannot be empty"));
+
+    for (const auto &file : files) {
+        if (file.filePath.isEmpty())
+            return fail(QStringLiteral("Source file path cannot be empty"));
+
+        const QFileInfo sourceInfo(file.filePath);
+        if (!sourceInfo.exists() || !sourceInfo.isFile())
+            return fail(QStringLiteral("Source file does not exist: %1").arg(file.filePath));
+
+        const QString relativeTarget = buildTargetPath(file);
+        if (relativeTarget.isEmpty())
+            return fail(QStringLiteral("Generated target path is empty for: %1").arg(file.filePath));
+
+        if (!isSafeRelativePath(relativeTarget))
+            return fail(QStringLiteral("Generated target path escapes base directory: %1").arg(relativeTarget));
+
+        plan->append({sourceInfo.absoluteFilePath(),QDir(m_baseDirectory).filePath(relativeTarget)});
+    }
+
+    if (const QString validationError = validatePlan(*plan); !validationError.isEmpty())
+        return fail(validationError);
+
+    if (error)
+        error->clear();
 
     return true;
 }

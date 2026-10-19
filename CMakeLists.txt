@@ -470,6 +470,23 @@ add_test(
         COMMAND tst_DuplicateFinder
 )
 
+add_executable(tst_FileRenamer
+        tests/batch/tst_filerenamer.cpp
+)
+
+target_link_libraries(tst_FileRenamer
+        PRIVATE
+        AudioLibrarianCore
+        Qt6::Test
+)
+
+target_include_directories(tst_FileRenamer PRIVATE src)
+
+add_test(
+        NAME tst_FileRenamer
+        COMMAND tst_FileRenamer
+)
+
 # ---------------------------------------------------------------------------
 # Windows / Qt deployment
 # ---------------------------------------------------------------------------
