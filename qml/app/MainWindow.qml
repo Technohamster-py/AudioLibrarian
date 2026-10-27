@@ -230,6 +230,8 @@ ApplicationWindow {
                 id: batchProcessView
                 objectName: "batchProcessView"
 
+                playerController: playerController
+
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }

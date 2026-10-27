@@ -13,6 +13,8 @@ Item {
 
     property string baseFilePath: SettingsManager.baseDir
 
+    property var playerController
+
     DuplicateFinderController {
         id: duplicateFinderController
         objectName: "duplicateFinderController"
@@ -26,6 +28,33 @@ Item {
     FileRenamerController {
         id: fileRenamerController
         objectName: "fileRenamerController"
+    }
+
+    Connections {
+        target: duplicateFinderController
+
+        function onOperationAboutToStart() {
+            if (root.playerController)
+                root.playerController.releaseSource()
+        }
+    }
+
+    Connections {
+        target: metadataEditorController
+
+        function onOperationAboutToStart() {
+            if (root.playerController)
+                root.playerController.releaseSource()
+        }
+    }
+
+    Connections {
+        target: fileRenamerController
+
+        function onOperationAboutToStart() {
+            if (root.playerController)
+                root.playerController.releaseSource()
+        }
     }
 
     ColumnLayout {
@@ -226,6 +255,7 @@ Item {
                 objectName: "renameView"
 
                 renaming: fileRenamerController.running
+                baseDirectory: root.baseFilePath
 
                 onPreviewRequested: function(templatePattern) {
                     const result = fileRenamerController.preparePreview(

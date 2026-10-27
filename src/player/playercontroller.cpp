@@ -7,7 +7,7 @@
 
 #include "utils/datautils.h"
 
-PlayerController::PlayerController(QObject *parent) : QObject(parent)
+PlayerController::PlayerController(QObject* parent) : QObject(parent)
 {
     m_player.setAudioOutput(&m_audioOutput);
     m_audioOutput.setVolume(1.0f);
@@ -46,7 +46,8 @@ void PlayerController::setVolume(const int volume)
     emit volumeChanged(clampedVolume);
 }
 
-void PlayerController::setMuted(const bool muted) {
+void PlayerController::setMuted(const bool muted)
+{
     if (muted == m_audioOutput.isMuted())
         return;
 
@@ -54,65 +55,87 @@ void PlayerController::setMuted(const bool muted) {
     emit mutedChanged(muted);
 }
 
-void PlayerController::setFilePath(const QString &path) {
+void PlayerController::setFilePath(const QString& path)
+{
     setSource(QUrl::fromLocalFile(path));
+}
+
+/**
+ * @brief Releases the media source while preserving the selected track and its metadata.
+ */
+void PlayerController::releaseSource()
+{
+    m_player.stop();
+    m_player.setSource(QUrl{});
 }
 
 void PlayerController::setSource(const QUrl& source)
 {
-    if (source == m_player.source())
+    if (source == m_selectedSource)
         return;
 
     m_player.stop();
+    m_player.setSource(source);
 
+    m_selectedSource = source;
     clearMetadata();
 
-    if (source.isLocalFile()) {
+    if (source.isLocalFile())
+    {
         TagLibMetadataBackend backend;
-
         QString errorMessage;
-
         const auto fileInfo = backend.readFile(source.toLocalFile(), &errorMessage);
 
-        if (fileInfo.has_value()) {
+        if (fileInfo.has_value())
+        {
             m_title = fileInfo->metadata.title();
             m_artist = fileInfo->metadata.artist();
             m_album = fileInfo->metadata.album();
-
             m_coverUrl = DataUrl::makeDataUrl(fileInfo->coverData);
         }
     }
-    m_player.setSource(source);
 
     emit sourceChanged();
     emit metadataChanged();
 }
 
-void PlayerController::play() {
+void PlayerController::play()
+{
+    if (m_selectedSource.isEmpty())
+        return;
+
+    if (m_player.source() != m_selectedSource)
+        m_player.setSource(m_selectedSource);
+
     m_player.play();
 }
 
-void PlayerController::pause() {
+void PlayerController::pause()
+{
     m_player.pause();
 }
 
-void PlayerController::stop() {
+void PlayerController::stop()
+{
     m_player.stop();
 }
 
-void PlayerController::togglePlayback() {
-    if (isPlaying()) {
+void PlayerController::togglePlayback()
+{
+    if (isPlaying())
+    {
         pause();
-    } else {
+    }
+    else
+    {
         play();
     }
 }
 
-void PlayerController::clearMetadata() {
+void PlayerController::clearMetadata()
+{
     m_title.clear();
     m_artist.clear();
     m_album.clear();
     m_coverUrl.clear();
 }
-
-

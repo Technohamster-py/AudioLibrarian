@@ -125,7 +125,8 @@ public:
     explicit PlayerController(QObject *parent = nullptr);
     ~PlayerController() override = default;
 
-    QUrl source() const {return m_player.source();};
+    QUrl source() const {return m_selectedSource;}
+    bool hasLoadedMedia() const {return !m_player.source().isEmpty();}
     qint64 position() const {return m_player.position();};
     void setPosition(qint64 position);
     qint64 duration() const {return m_player.duration();};
@@ -141,6 +142,7 @@ public:
     QUrl coverUrl() const {return m_coverUrl;};
 
     Q_INVOKABLE void setFilePath(const QString& path);
+    Q_INVOKABLE void releaseSource();
 
 public slots:
     void setSource(const QUrl& source);
@@ -171,4 +173,6 @@ private:
     QString m_title;
     QString m_artist;
     QString m_album;
+
+    QUrl m_selectedSource;
 };

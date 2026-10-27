@@ -37,6 +37,7 @@ signals:
     void runningChanged();
     void progressChanged();
     void errorMessageChanged();
+    void operationAboutToStart();
 
 protected:
     bool startOperation(const QSharedPointer<AbstractBatchOperation> &operation, const QVector<AudioFileRecord> &files);

@@ -48,6 +48,8 @@ bool DuplicateFinderController::openFileLocation(const QString &filePath) {
 }
 
 bool DuplicateFinderController::deleteFile(const QString &filePath) {
+    emit operationAboutToStart();
+
     if (!QFile::moveToTrash(filePath))
         return false;
 
