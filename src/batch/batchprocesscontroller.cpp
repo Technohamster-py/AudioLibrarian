@@ -13,6 +13,8 @@ bool BatchProcessController::startOperation(const QSharedPointer<AbstractBatchOp
 
     clearError();
 
+    emit operationAboutToStart();
+
     if (!m_processor.start(operation, files)) {
         setErrorMessage(tr("Failed to start operation"));
         return false;

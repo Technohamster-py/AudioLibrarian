@@ -48,11 +48,14 @@ BatchOperationResult FileRenamer::execute(const QVector<AudioFileRecord>& files,
             };
         }
 
-        if (!QFile::rename(entry.sourcePath, entry.targetPath))
+        QFile sourceFile(entry.sourcePath);
+
+        if (!sourceFile.rename(entry.targetPath))
         {
             return {
                 BatchOperationState::Fail,
-                QStringLiteral("Failed to rename '%1' to '%2'").arg(entry.sourcePath, entry.targetPath)
+                QStringLiteral("Failed to rename '%1' to '%2': %3")
+                    .arg(entry.sourcePath, entry.targetPath, sourceFile.errorString())
             };
         }
 
