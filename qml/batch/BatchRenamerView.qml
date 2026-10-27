@@ -26,6 +26,17 @@ Item {
 
     signal renameRequested(string templatePattern)
 
+    /** @brief Indicates whether rename preview can be requested. */
+    readonly property bool canPreview: !root.renaming
+        && !root.previewVisible
+        && templateField.text.trim().length > 0
+
+    /** @brief Starts preview generation using the current template. */
+    function requestPreview() {
+        if (canPreview)
+            root.previewRequested(templateField.text)
+    }
+
     Popup {
         id: renamePreviewPopup
         objectName: "renamePreviewPopup"
@@ -301,26 +312,6 @@ Item {
             text: root.errorMessage
             color: AppColors.accent
             wrapMode: Text.WordWrap
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-
-            Item {
-                Layout.fillWidth: true
-            }
-
-            Button {
-                id: renameButton
-                objectName: "renameFilesButton"
-
-                text: qsTr("Preview rename")
-
-                enabled: !root.renaming && !root.previewVisible
-                    && templateField.text.trim().length > 0
-
-                onClicked: root.previewRequested(templateField.text)
-            }
         }
     }
 }

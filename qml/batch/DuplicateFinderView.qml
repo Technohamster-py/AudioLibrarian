@@ -207,32 +207,6 @@ Item {
 
         RowLayout {
             Layout.fillWidth: true
-
-            Button {
-                id: searchButton
-                objectName: "findDuplicatesButton"
-
-                Layout.alignment: Qt.AlignRight
-
-                text: qsTr("Find duplicates")
-
-                background: Rectangle {
-                    color: AppColors.accentPrimary
-                }
-
-                enabled: !root.searching
-                    && (root.searchByHash
-                        || root.searchByMetadata
-                        || root.searchByFileName)
-
-                onClicked: {
-                    root.searchRequested(root.searchByHash, root.searchByMetadata, root.searchByFileName, root.durationTolerance)
-                }
-            }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
             spacing: AppMetrics.spasingMedium
 
             Label {

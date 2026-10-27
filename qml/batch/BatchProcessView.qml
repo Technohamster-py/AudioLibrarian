@@ -73,22 +73,103 @@ Item {
             }
         }
 
-        ComboBox {
-            id: operationComboBox
-            objectName: "batchOperationComboBox"
-
+        RowLayout {
             Layout.fillWidth: true
+            spacing: AppMetrics.spacingSmall
 
-            model: [
-                qsTr("Find duplicates"),
-                qsTr("Edit metadata"),
-                qsTr("Rename files")
-            ]
+            ComboBox {
+                id: operationComboBox
+                objectName: "batchOperationComboBox"
 
-            currentIndex: root.operationIndex
+                Layout.fillWidth: true
 
-            onActivated: {
-                root.operationIndex = currentIndex
+                model: [
+                    qsTr("Find duplicates"),
+                    qsTr("Edit metadata"),
+                    qsTr("Rename files")
+                ]
+
+                currentIndex: root.operationIndex
+
+                onActivated: {
+                    root.operationIndex = currentIndex
+                }
+            }
+
+            Button {
+                id: searchButton
+                objectName: "findDuplicatesButton"
+
+                text: qsTr("Find duplicates")
+
+                Layout.preferredHeight: operationComboBox.height
+                Layout.minimumHeight: operationComboBox.height
+                Layout.maximumHeight: operationComboBox.height
+
+                background: Rectangle {
+                    color: AppColors.accentPrimary
+                    radius: 4
+                }
+
+                visible: root.operationIndex === 0
+                enabled: !duplicateFinderView.searching
+                    && (duplicateFinderView.searchByHash
+                        || duplicateFinderView.searchByMetadata
+                        || duplicateFinderView.searchByFileName)
+
+                onClicked: duplicateFinderView.searchRequested(
+                    duplicateFinderView.searchByHash,
+                    duplicateFinderView.searchByMetadata,
+                    duplicateFinderView.searchByFileName,
+                    duplicateFinderView.durationTolerance
+                )
+            }
+
+            Button {
+                id: applyButton
+                objectName: "applyMetadataChangesButton"
+
+                text: qsTr("Apply changes")
+
+                Layout.preferredHeight: operationComboBox.height
+                Layout.minimumHeight: operationComboBox.height
+                Layout.maximumHeight: operationComboBox.height
+
+                background: Rectangle {
+                    color: AppColors.accentPrimary
+                    radius: 4
+                }
+
+                visible: root.operationIndex === 1
+                enabled: metadataEditorView.editing
+                    && metadataEditorView.selectedFileCount > 0
+                    && metadataEditorView.hasChanges()
+
+
+                onClicked: metadataEditorView.changesRequested(
+                    metadataEditorView.createChanges()
+                )
+            }
+
+            Button {
+                id: renameButton
+                objectName: "renameFilesButton"
+
+                text: qsTr("Preview rename")
+
+                Layout.preferredHeight: operationComboBox.height
+                Layout.minimumHeight: operationComboBox.height
+                Layout.maximumHeight: operationComboBox.height
+
+                background: Rectangle {
+                    color: AppColors.accentPrimary
+                    radius: 4
+                }
+
+                visible: root.operationIndex === 2
+                enabled: renameView.canPreview
+
+                onClicked: renameView.requestPreview()
             }
         }
 
