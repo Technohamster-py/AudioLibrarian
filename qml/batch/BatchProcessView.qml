@@ -13,6 +13,8 @@ Item {
 
     property string baseFilePath: SettingsManager.baseDir
 
+    property var playerController
+
     DuplicateFinderController {
         id: duplicateFinderController
         objectName: "duplicateFinderController"
@@ -21,6 +23,38 @@ Item {
     MetadataEditorController {
         id: metadataEditorController
         objectName: "metadataEditorController"
+    }
+
+    FileRenamerController {
+        id: fileRenamerController
+        objectName: "fileRenamerController"
+    }
+
+    Connections {
+        target: duplicateFinderController
+
+        function onOperationAboutToStart() {
+            if (root.playerController)
+                root.playerController.releaseSource()
+        }
+    }
+
+    Connections {
+        target: metadataEditorController
+
+        function onOperationAboutToStart() {
+            if (root.playerController)
+                root.playerController.releaseSource()
+        }
+    }
+
+    Connections {
+        target: fileRenamerController
+
+        function onOperationAboutToStart() {
+            if (root.playerController)
+                root.playerController.releaseSource()
+        }
     }
 
     ColumnLayout {
@@ -68,22 +102,103 @@ Item {
             }
         }
 
-        ComboBox {
-            id: operationComboBox
-            objectName: "batchOperationComboBox"
-
+        RowLayout {
             Layout.fillWidth: true
+            spacing: AppMetrics.spacingSmall
 
-            model: [
-                qsTr("Find duplicates"),
-                qsTr("Edit metadata"),
-                qsTr("Rename files")
-            ]
+            ComboBox {
+                id: operationComboBox
+                objectName: "batchOperationComboBox"
 
-            currentIndex: root.operationIndex
+                Layout.fillWidth: true
 
-            onActivated: {
-                root.operationIndex = currentIndex
+                model: [
+                    qsTr("Find duplicates"),
+                    qsTr("Edit metadata"),
+                    qsTr("Rename files")
+                ]
+
+                currentIndex: root.operationIndex
+
+                onActivated: {
+                    root.operationIndex = currentIndex
+                }
+            }
+
+            Button {
+                id: searchButton
+                objectName: "findDuplicatesButton"
+
+                text: qsTr("Find duplicates")
+
+                Layout.preferredHeight: operationComboBox.height
+                Layout.minimumHeight: operationComboBox.height
+                Layout.maximumHeight: operationComboBox.height
+
+                background: Rectangle {
+                    color: AppColors.accentPrimary
+                    radius: 4
+                }
+
+                visible: root.operationIndex === 0
+                enabled: !duplicateFinderView.searching
+                    && (duplicateFinderView.searchByHash
+                        || duplicateFinderView.searchByMetadata
+                        || duplicateFinderView.searchByFileName)
+
+                onClicked: duplicateFinderView.searchRequested(
+                    duplicateFinderView.searchByHash,
+                    duplicateFinderView.searchByMetadata,
+                    duplicateFinderView.searchByFileName,
+                    duplicateFinderView.durationTolerance
+                )
+            }
+
+            Button {
+                id: applyButton
+                objectName: "applyMetadataChangesButton"
+
+                text: qsTr("Apply changes")
+
+                Layout.preferredHeight: operationComboBox.height
+                Layout.minimumHeight: operationComboBox.height
+                Layout.maximumHeight: operationComboBox.height
+
+                background: Rectangle {
+                    color: AppColors.accentPrimary
+                    radius: 4
+                }
+
+                visible: root.operationIndex === 1
+                enabled: metadataEditorView.editing
+                    && metadataEditorView.selectedFileCount > 0
+                    && metadataEditorView.hasChanges()
+
+
+                onClicked: metadataEditorView.changesRequested(
+                    metadataEditorView.createChanges()
+                )
+            }
+
+            Button {
+                id: renameButton
+                objectName: "renameFilesButton"
+
+                text: qsTr("Preview rename")
+
+                Layout.preferredHeight: operationComboBox.height
+                Layout.minimumHeight: operationComboBox.height
+                Layout.maximumHeight: operationComboBox.height
+
+                background: Rectangle {
+                    color: AppColors.accentPrimary
+                    radius: 4
+                }
+
+                visible: root.operationIndex === 2
+                enabled: renameView.canPreview
+
+                onClicked: renameView.requestPreview()
             }
         }
 
@@ -135,14 +250,61 @@ Item {
                 }
             }
 
-            Item {
-                objectName: "renameViewPlaceholder"
+            BatchRenamerView {
+                id: renameView
+                objectName: "renameView"
 
-                Label {
-                    anchors.centerIn: parent
+                renaming: fileRenamerController.running
+                baseDirectory: root.baseFilePath
 
-                    text: qsTr("Rename files")
-                    color: AppColors.settingsTextSecondary
+                onPreviewRequested: function(templatePattern) {
+                    const result = fileRenamerController.preparePreview(
+                        root.baseFilePath, templatePattern)
+
+                    if (!result || result.error) {
+                        renameView.errorMessage = result ? result.error : qsTr("Preview failed")
+                        renameView.previewEntries = []
+                        return
+                    }
+
+                    const entries = result.entries || []
+
+                    if (entries.length === 0) {
+                        renameView.errorMessage = qsTr("No files to rename")
+                        renameView.previewEntries = []
+                        return
+                    }
+
+                    renameView.errorMessage = ""
+                    renameView.previewEntries = entries
+                    renameView.previewVisible = true
+                }
+                
+                onConfirmRenameRequested: {
+                    if (fileRenamerController.confirmRename())
+                        renameView.previewVisible = false
+                    else
+                        renameView.errorMessage = fileRenamerController.errorMessage
+                }
+
+                onCancelPreviewRequested: {
+                    fileRenamerController.discardPreview()
+                    renameView.previewEntries = []
+                    renameView.previewVisible = false
+                }
+
+                Connections {
+                    target: fileRenamerController
+
+                    function onProgressChanged() {
+                        renameView.progressCurrent = fileRenamerController.progressCurrent
+                        renameView.progressTotal = fileRenamerController.progressTotal
+                        renameView.currentFile = fileRenamerController.currentFile
+                    }
+
+                    function onErrorMessageChanged() {
+                        renameView.errorMessage = fileRenamerController.errorMessage
+                    }
                 }
             }
         }

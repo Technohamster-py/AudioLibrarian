@@ -402,17 +402,6 @@ Item {
 
                 color: AppColors.settingsTextSecondary
             }
-
-            Button {
-                id: applyButton
-                objectName: "applyMetadataChangesButton"
-
-                text: qsTr("Apply changes")
-
-                enabled: root.editing && root.selectedFileCount > 0 && root.hasChanges()
-
-                onClicked: root.changesRequested(root.createChanges())
-            }
         }
     }
 }
