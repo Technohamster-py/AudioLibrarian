@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 import QtQml.Models
 
@@ -8,81 +8,74 @@ Item {
 
     property string currentFilePath: ""
 
-    property var columnWidths: [
-        260, // File Name
-        180, // Artist
-        220, // Album
-        80,  // Year
-        100, // Duration
-        140, // Genre
-        70   // Lyrics
+    property var columnWidths: [260 // File Name
+        , 180 // Artist
+        , 220 // Album
+        , 80  // Year
+        , 100 // Duration
+        , 140 // Genre
+        , 70   // Lyrics
     ]
 
     readonly property real minimumColumnWidth: 50
 
     function columnWidth(column) {
         if (column < 0 || column >= root.columnWidths.length)
-            return 100
+            return 100;
 
-        return root.columnWidths[column]
+        return root.columnWidths[column];
     }
 
     function setColumnWidth(column, width) {
         if (column < 0 || column >= root.columnWidths.length)
-            return
+            return;
+        const widths = root.columnWidths.slice();
 
-        const widths = root.columnWidths.slice()
+        widths[column] = Math.max(root.minimumColumnWidth, width);
 
-        widths[column] = Math.max(root.minimumColumnWidth, width)
+        root.columnWidths = widths;
 
-        root.columnWidths = widths
-
-        treeView.forceLayout()
+        treeView.forceLayout();
     }
 
     function revealFile(filePath) {
         if (filePath.length === 0)
-            return
-
-        const fileIndex = fileModel.indexForPath(filePath)
+            return;
+        const fileIndex = fileModel.indexForPath(filePath);
 
         if (!fileIndex.valid)
-            return
+            return;
+        const parents = [];
 
-        const parents = []
-
-        let parentIndex = fileIndex.parent()
+        let parentIndex = fileIndex.parent();
 
         while (parentIndex.valid) {
-            parents.push(parentIndex)
-            parentIndex = parentIndex.parent()
+            parents.push(parentIndex);
+            parentIndex = parentIndex.parent();
         }
 
         for (let i = parents.length - 1; i >= 0; --i)
-            treeView.expand(parents[i])
+            treeView.expand(parents[i]);
 
-        treeSelectionModel.setCurrentIndex(fileIndex.siblingAtColumn(0), ItemSelectionModel.ClearAndSelect)
-        treeView.currentIndex = fileIndex.siblingAtColumn(0)
+        treeSelectionModel.setCurrentIndex(fileIndex.siblingAtColumn(0), ItemSelectionModel.ClearAndSelect);
+        treeView.currentIndex = fileIndex.siblingAtColumn(0);
     }
 
     function selectRow(row) {
-        const modelIndex = treeView.index(row, 0)
+        const modelIndex = treeView.index(row, 0);
 
         if (!modelIndex.valid)
-            return
-
+            return;
         if (fileModel.isDirectory(modelIndex))
-            return
+            return;
+        treeSelectionModel.setCurrentIndex(modelIndex, ItemSelectionModel.ClearAndSelect | ItemSelectionModel.Rows);
 
-        treeSelectionModel.setCurrentIndex(modelIndex, ItemSelectionModel.ClearAndSelect | ItemSelectionModel.Rows)
-
-        const path = fileModel.filePath(modelIndex)
+        const path = fileModel.filePath(modelIndex);
 
         if (path.length === 0)
-            return
-
-        root.currentFilePath = path
-        root.fileSelected(path)
+            return;
+        root.currentFilePath = path;
+        root.fileSelected(path);
     }
 
     signal fileSelected(string filePath)
@@ -105,7 +98,7 @@ Item {
 
         function onLoadingChanged() {
             if (!fileModel.loading && root.currentFilePath.length > 0) {
-                root.revealFile(root.currentFilePath)
+                root.revealFile(root.currentFilePath);
             }
         }
     }
@@ -142,7 +135,7 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: AppMetrics.spacingLarge
+        anchors.margins: AppMetrics.pagePadding
 
         spacing: AppMetrics.spacingMedium
 
@@ -153,6 +146,7 @@ Item {
             Layout.preferredHeight: 36
 
             color: AppColors.navigationElevated
+            radius: AppMetrics.radiusSmall
 
             clip: true
 
@@ -171,12 +165,12 @@ Item {
                     height: tableHeader.height
 
                     width: {
-                        let result = 0
+                        let result = 0;
 
                         for (let i = 0; i < root.columnWidths.length; ++i) {
-                            result += root.columnWidth(i)
+                            result += root.columnWidth(i);
                         }
-                        return result
+                        return result;
                     }
 
                     Repeater {
@@ -235,14 +229,14 @@ Item {
 
                                     onActiveChanged: {
                                         if (active) {
-                                            initialWidth = root.columnWidth(index)
+                                            initialWidth = root.columnWidth(index);
                                         }
                                     }
 
                                     onTranslationChanged: {
                                         if (!active)
-                                            return
-                                        root.setColumnWidth(index, initialWidth + translation.x)
+                                            return;
+                                        root.setColumnWidth(index, initialWidth + translation.x);
                                     }
                                 }
                             }
@@ -279,21 +273,32 @@ Item {
             selectionBehavior: TableView.SelectRows
             selectionMode: TableView.SingleSelection
 
-            columnWidthProvider: function(column) {
-                return root.columnWidth(column)
+            columnWidthProvider: function (column) {
+                return root.columnWidth(column);
             }
 
-            rowHeightProvider: function(row) {
-                return 32
+            rowHeightProvider: function (row) {
+                return AppMetrics.tableRowHeight;
             }
 
             delegate: TreeViewDelegate {
                 id: delegate
 
-                implicitHeight: 32
+                implicitHeight: AppMetrics.tableRowHeight
 
                 background: Rectangle {
-                    color: delegate.row === treeView.currentRow ? AppColors.navigationAccent : (delegate.row % 2 === 0 ? AppColors.navigationPanel : AppColors.navigationElevated)
+                    color: delegate.row === treeView.currentRow ? AppColors.navigationSelection : delegate.hovered ? AppColors.navigationHover : "transparent"
+                    radius: AppMetrics.radiusSmall
+
+                    Rectangle {
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 3
+                        height: 20
+                        radius: 1.5
+                        color: AppColors.accentPrimary
+                        visible: delegate.column === 0 && delegate.row === treeView.currentRow
+                    }
                 }
 
                 contentItem: Item {
@@ -331,9 +336,12 @@ Item {
                 }
 
                 onClicked: {
-                    root.selectRow(row)
+                    root.selectRow(row);
                 }
             }
+
+            ScrollBar.vertical: ScrollBar {}
+            ScrollBar.horizontal: ScrollBar {}
         }
     }
 
@@ -341,7 +349,7 @@ Item {
         target: SettingsManager
 
         function onBaseDirChanged() {
-            fileModel.rootPath = SettingsManager.baseDir
+            fileModel.rootPath = SettingsManager.baseDir;
         }
     }
 }

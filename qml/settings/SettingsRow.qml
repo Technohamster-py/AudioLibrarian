@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 
 /**
@@ -9,7 +9,7 @@ import QtQuick.Layouts
  * - a flexible column containing the setting title and description;
  * - a fixed-width control column aligned to the right edge.
  */
-Item {
+Rectangle {
     id: root
 
     /**
@@ -35,12 +35,16 @@ Item {
      */
     default property alias control: controlContainer.data
 
-    implicitHeight: contentLayout.implicitHeight
+    implicitHeight: Math.max(72, contentLayout.implicitHeight + 32)
+    color: AppColors.panel
+    radius: AppMetrics.radiusSmall
+    border.color: AppColors.separator
 
     RowLayout {
         id: contentLayout
 
         anchors.fill: parent
+        anchors.margins: AppMetrics.spacingLarge
 
         spacing: AppMetrics.spacingLarge
 
@@ -54,7 +58,7 @@ Item {
 
                 color: AppColors.settingsTextPrimary
 
-                font.pixelSize: 15
+                font.pixelSize: AppMetrics.fontSizeMedium
             }
 
             Label {
@@ -72,7 +76,7 @@ Item {
             }
         }
 
-        Item {
+        ColumnLayout {
             id: controlContainer
 
             Layout.preferredWidth: root.controlWidth

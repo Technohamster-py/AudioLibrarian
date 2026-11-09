@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 
 /**
@@ -25,76 +25,71 @@ Item {
     implicitHeight: editorColumn.implicitHeight
 
     function commitInput() {
-        const text = inputField.text.trim()
+        const text = inputField.text.trim();
 
         if (text.length === 0) {
-            editingIndex = -1
-            inputField.clear()
-            return
+            editingIndex = -1;
+            inputField.clear();
+            return;
         }
 
-        const enteredValues = text
-            .split(";")
-            .map(function(item) {
-            return item.trim()
-        })
-            .filter(function(item) {
-            return item.length > 0
-        })
+        const enteredValues = text.split(";").map(function (item) {
+            return item.trim();
+        }).filter(function (item) {
+            return item.length > 0;
+        });
 
         if (enteredValues.length === 0) {
-            editingIndex = -1
-            inputField.clear()
-            return
+            editingIndex = -1;
+            inputField.clear();
+            return;
         }
 
-        const newValues = root.values.slice()
+        const newValues = root.values.slice();
 
         if (editingIndex >= 0 && editingIndex < newValues.length) {
-            newValues.splice(editingIndex, 1, enteredValues[0])
+            newValues.splice(editingIndex, 1, enteredValues[0]);
 
             for (let i = enteredValues.length - 1; i >= 1; --i)
-                newValues.splice(editingIndex + 1, 0, enteredValues[i])
+                newValues.splice(editingIndex + 1, 0, enteredValues[i]);
         } else {
             for (const enteredValue of enteredValues)
-                newValues.push(enteredValue)
+                newValues.push(enteredValue);
         }
 
-        editingIndex = -1
-        inputField.clear()
+        editingIndex = -1;
+        inputField.clear();
 
-        root.valuesEdited(newValues)
+        root.valuesEdited(newValues);
     }
 
     function startEditing(index) {
         if (index < 0 || index >= root.values.length)
-            return
-
-        editingIndex = index
-        inputField.text = root.values[index]
-        inputField.selectAll()
-        inputField.forceActiveFocus()
+            return;
+        editingIndex = index;
+        inputField.text = root.values[index];
+        inputField.selectAll();
+        inputField.forceActiveFocus();
     }
 
     function removeValue(index) {
         if (index < 0 || index >= root.values.length)
-            return
+            return;
+        const newValues = root.values.slice();
 
-        const newValues = root.values.slice()
-
-        newValues.splice(index, 1)
+        newValues.splice(index, 1);
 
         if (editingIndex === index)
-            editingIndex = -1
+            editingIndex = -1;
         else if (editingIndex > index)
-            --editingIndex
+            --editingIndex;
 
-        root.valuesEdited(newValues)
+        root.valuesEdited(newValues);
     }
 
     function cancelEditing() {
-        editingIndex = -1
-        inputField.clear()
+        editingIndex = -1;
+        inputField.clear();
     }
 
     property int editingIndex: -1
@@ -128,11 +123,11 @@ Item {
                     height: 32
                     width: chipLabel.implicitWidth + removeButton.width + 24
 
-                    radius: height / 2
+                    radius: AppMetrics.radiusSmall
 
-                    color: AppColors.editorBackground
+                    color: AppColors.panelElevated
 
-                    border.color: AppColors.editorTextSecondary
+                    border.color: AppColors.separator
 
                     Label {
                         id: chipLabel
@@ -143,7 +138,7 @@ Item {
 
                         text: modelData
 
-                        color: AppColors.editorTextPrimary
+                        color: enabled ? AppColors.textPrimary : AppColors.textDisabled
 
                         elide: Text.ElideRight
                     }
@@ -176,7 +171,7 @@ Item {
                         }
 
                         onClicked: {
-                            root.removeValue(index)
+                            root.removeValue(index);
                         }
                     }
 
@@ -190,7 +185,7 @@ Item {
                         acceptedButtons: Qt.LeftButton
 
                         onDoubleClicked: {
-                            root.startEditing(index)
+                            root.startEditing(index);
                         }
                     }
                 }
@@ -208,37 +203,30 @@ Item {
 
             placeholderText: root.editingIndex >= 0 ? qsTr("Edit value...") : root.placeholderText
 
-            color: AppColors.editorTextPrimary
+            color: enabled ? AppColors.textPrimary : AppColors.textDisabled
 
             horizontalAlignment: TextInput.AlignLeft
             verticalAlignment: TextInput.AlignVCenter
 
-            background: Rectangle {
-                color: inputField.enabled ? AppColors.inputBackground : AppColors.editorPanelDisabled
-                radius: AppMetrics.editFieldRadius
-                border.width: inputField.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder
-                border.color: inputField.activeFocus ? AppColors.inputBorderActive : AppColors.inputBorder
-            }
-
             onTextChanged: {
                 if (text.indexOf(";") >= 0)
-                    root.commitInput()
+                    root.commitInput();
             }
 
             onActiveFocusChanged: {
                 if (!activeFocus && text.trim().length > 0)
-                    root.commitInput()
+                    root.commitInput();
             }
 
             Keys.onReturnPressed: {
-                root.commitInput()
+                root.commitInput();
             }
 
             Keys.onEscapePressed: {
                 if (root.editingIndex >= 0)
-                    root.cancelEditing()
+                    root.cancelEditing();
                 else
-                    clear()
+                    clear();
             }
         }
     }

@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 
 /**
@@ -68,16 +68,16 @@ Item {
      * The keys correspond to AudioFileTableModel column identifiers.
      */
     property var columnWidths: ({
-        [AudioFileTableModel.Cover]: 64,
-        [AudioFileTableModel.FileName]: 260,
-        [AudioFileTableModel.Title]: 220,
-        [AudioFileTableModel.Artist]: 180,
-        [AudioFileTableModel.Album]: 220,
-        [AudioFileTableModel.Year]: 80,
-        [AudioFileTableModel.Duration]: 90,
-        [AudioFileTableModel.Genre]: 140,
-        [AudioFileTableModel.HasLyrics]: 70
-    })
+            [AudioFileTableModel.Cover]: 64,
+            [AudioFileTableModel.FileName]: 260,
+            [AudioFileTableModel.Title]: 220,
+            [AudioFileTableModel.Artist]: 180,
+            [AudioFileTableModel.Album]: 220,
+            [AudioFileTableModel.Year]: 80,
+            [AudioFileTableModel.Duration]: 90,
+            [AudioFileTableModel.Genre]: 140,
+            [AudioFileTableModel.HasLyrics]: 70
+        })
 
     /**
      * @brief Returns the current visual width of a column.
@@ -86,11 +86,11 @@ Item {
      * @return Column width in pixels.
      */
     function columnWidth(column) {
-        const width = columnWidths[column] ?? minimumColumnWidth
+        const width = columnWidths[column] ?? minimumColumnWidth;
 
         if (column === AudioFileTableModel.Cover)
-            return Math.max(minimumCoverColumnWidth, width)
-        return Math.max(minimumColumnWidth, width)
+            return Math.max(minimumCoverColumnWidth, width);
+        return Math.max(minimumColumnWidth, width);
     }
 
     /**
@@ -100,21 +100,15 @@ Item {
      * @param width Requested new width.
      */
     function setColumnWidth(column, width) {
-        const widths = Object.assign({}, columnWidths)
+        const widths = Object.assign({}, columnWidths);
 
-        const minimumWidth =
-                column === AudioFileTableModel.Cover
-            ? root.minimumCoverColumnWidth
-            : root.minimumColumnWidth
+        const minimumWidth = column === AudioFileTableModel.Cover ? root.minimumCoverColumnWidth : root.minimumColumnWidth;
 
-        widths[column] = Math.max(
-            minimumWidth,
-            width
-        )
+        widths[column] = Math.max(minimumWidth, width);
 
-        columnWidths = widths
+        columnWidths = widths;
 
-        fileTable.forceLayout()
+        fileTable.forceLayout();
     }
 
     /**
@@ -124,36 +118,28 @@ Item {
      */
     function selectFile(index) {
         if (index < 0 || index >= libraryModel.rowCount())
-            return
+            return;
+        root.selectedIndex = index;
 
-        root.selectedIndex = index
+        const modelIndex = libraryModel.index(index, AudioFileTableModel.FileName);
 
-        const modelIndex = libraryModel.index(
-            index,
-            AudioFileTableModel.FileName
-        )
+        const filePath = libraryModel.data(modelIndex, AudioFileTableModel.FilePathRole);
 
-        const filePath = libraryModel.data(
-            modelIndex,
-            AudioFileTableModel.FilePathRole
-        )
-
-        root.fileSelected(filePath)
+        root.fileSelected(filePath);
     }
 
     function selectBaseDirectory() {
-        const directory = FileDialogController.getExistingDirectory(qsTr("Select library directory"), libraryModel.rootPath)
+        const directory = FileDialogController.getExistingDirectory(qsTr("Select library directory"), libraryModel.rootPath);
 
         if (directory.length === 0)
-            return
-
-        libraryModel.rootPath = Qt.resolvedUrl(directory)
-        root.baseDirectoryChanged(directory)
+            return;
+        libraryModel.rootPath = Qt.resolvedUrl(directory);
+        root.baseDirectoryChanged(directory);
     }
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: AppMetrics.spacingLarge
+        anchors.margins: AppMetrics.pagePadding
 
         spacing: AppMetrics.spacingMedium
 
@@ -163,7 +149,8 @@ Item {
             text: qsTr("Library")
 
             color: AppColors.navigationTextPrimary
-            font.pixelSize: 28
+            font.pixelSize: AppMetrics.fontSizeTitle
+            font.weight: Font.DemiBold
         }
 
         RowLayout {
@@ -232,6 +219,7 @@ Item {
             Layout.preferredHeight: 36
 
             color: AppColors.navigationElevated
+            radius: AppMetrics.radiusSmall
 
             clip: true
 
@@ -271,12 +259,12 @@ Item {
 
                             onClicked: {
                                 if (root.sortColumn === index) {
-                                    root.sortOrder = root.sortOrder === Qt.AscendingOrder ? Qt.DescendingOrder : Qt.AscendingOrder
+                                    root.sortOrder = root.sortOrder === Qt.AscendingOrder ? Qt.DescendingOrder : Qt.AscendingOrder;
                                 } else {
-                                    root.sortColumn = index
-                                    root.sortOrder = Qt.AscendingOrder
+                                    root.sortColumn = index;
+                                    root.sortOrder = Qt.AscendingOrder;
                                 }
-                                libraryModel.sort(index, root.sortOrder)
+                                libraryModel.sort(index, root.sortOrder);
                             }
                         }
 
@@ -349,14 +337,13 @@ Item {
 
                                 onActiveChanged: {
                                     if (active)
-                                        initialWidth = root.columnWidth(index)
+                                        initialWidth = root.columnWidth(index);
                                 }
 
                                 onTranslationChanged: {
                                     if (!active)
-                                        return
-
-                                    root.setColumnWidth(index, initialWidth + translation.x)
+                                        return;
+                                    root.setColumnWidth(index, initialWidth + translation.x);
                                 }
                             }
                         }
@@ -392,12 +379,12 @@ Item {
             columnSpacing: 0
             rowSpacing: 1
 
-            columnWidthProvider: function(column) {
-                return root.columnWidth(column)
+            columnWidthProvider: function (column) {
+                return root.columnWidth(column);
             }
 
-            rowHeightProvider: function(row) {
-                return root.columnWidth(AudioFileTableModel.Cover)
+            rowHeightProvider: function (row) {
+                return root.columnWidth(AudioFileTableModel.Cover);
             }
 
             delegate: Rectangle {
@@ -407,6 +394,16 @@ Item {
                 readonly property bool selected: row === root.selectedIndex
 
                 color: selected ? AppColors.navigationSelection : AppColors.navigationPanel
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 3
+                    height: 24
+                    radius: 1.5
+                    color: AppColors.accentPrimary
+                    visible: selected && column === 0
+                }
 
                 Loader {
                     anchors.centerIn: parent
@@ -448,7 +445,6 @@ Item {
                             fillMode: Image.PreserveAspectFit
 
                             source: AppAssets.music
-
                         }
                     }
                 }
@@ -461,9 +457,7 @@ Item {
 
                     verticalAlignment: Text.AlignVCenter
 
-                    visible:
-                        column !== AudioFileTableModel.Cover &&
-                        column !== AudioFileTableModel.HasLyrics
+                    visible: column !== AudioFileTableModel.Cover && column !== AudioFileTableModel.HasLyrics
 
                     color: selected ? AppColors.navigationTextPrimary : AppColors.navigationTextSecondary
 
@@ -471,29 +465,22 @@ Item {
 
                     text: {
                         switch (column) {
-                            case AudioFileTableModel.FileName:
-                                return model.fileName
-
-                            case AudioFileTableModel.Title:
-                                return model.title
-
-                            case AudioFileTableModel.Artist:
-                                return model.artist
-
-                            case AudioFileTableModel.Album:
-                                return model.album
-
-                            case AudioFileTableModel.Year:
-                                return model.year
-
-                            case AudioFileTableModel.Duration:
-                                return model.duration
-
-                            case AudioFileTableModel.Genre:
-                                return model.genre
-
-                            default:
-                                return ""
+                        case AudioFileTableModel.FileName:
+                            return model.fileName;
+                        case AudioFileTableModel.Title:
+                            return model.title;
+                        case AudioFileTableModel.Artist:
+                            return model.artist;
+                        case AudioFileTableModel.Album:
+                            return model.album;
+                        case AudioFileTableModel.Year:
+                            return model.year;
+                        case AudioFileTableModel.Duration:
+                            return model.duration;
+                        case AudioFileTableModel.Genre:
+                            return model.genre;
+                        default:
+                            return "";
                         }
                     }
                 }
@@ -501,8 +488,7 @@ Item {
                 Label {
                     anchors.centerIn: parent
 
-                    visible:
-                        column === AudioFileTableModel.HasLyrics
+                    visible: column === AudioFileTableModel.HasLyrics
 
                     text: model.hasLyrics ? "✓" : ""
 
@@ -534,12 +520,11 @@ Item {
 
         function onLoadingChanged() {
             if (libraryModel.loading)
-                return
-
-            root.fileCount = libraryModel.rowCount()
+                return;
+            root.fileCount = libraryModel.rowCount();
 
             if (root.selectedIndex < 0 && libraryModel.rowCount() > 0) {
-                root.selectFile(0)
+                root.selectFile(0);
             }
         }
     }

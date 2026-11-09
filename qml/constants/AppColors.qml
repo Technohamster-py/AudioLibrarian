@@ -11,32 +11,33 @@ import QtQuick
 QtObject {
     // Global palette
 
-    readonly property color primary: "#1e1e1e"
+    readonly property color primary: "#202020"
     readonly property color background: primary
-    readonly property color panel: "#292929"
-    readonly property color panelElevated: "#303030"
-    readonly property color separator: "#454545"
+    readonly property color panel: "#2b2b2b"
+    readonly property color panelElevated: "#323232"
+    readonly property color separator: "#3d3d3d"
 
-    readonly property color textPrimary: "#f2f2f2"
-    readonly property color textSecondary: "#a8a8a8"
-    readonly property color textDisabled: "#686868"
+    readonly property color textPrimary: "#ffffff"
+    readonly property color textSecondary: "#c5c5c5"
+    readonly property color textDisabled: "#808080"
 
     readonly property color accentPrimary: "#ff6766"
     readonly property color accentSecondary: "#18c5c8"
     readonly property color selection: "#333f40"
     readonly property color hover: "#353535"
 
-    readonly property color inputBackground: "#000000"
-    readonly property color inputBorder: textSecondary
+    readonly property color inputBackground: "#1f1f1f"
+    readonly property color inputBorder: separator
     readonly property color inputBorderActive: accentPrimary
 
+    readonly property color error: "#ff99a4"
+    readonly property color warning: "#fce100"
 
     // Module palettes
 
     // Player palette
-    readonly property color playerBackground: accentPrimary
-    readonly property color playerForeground: "#161616"
-
+    readonly property color playerBackground: panel
+    readonly property color playerForeground: textPrimary
 
     // Editor palette
     readonly property color editorBackground: background
@@ -61,10 +62,8 @@ QtObject {
 
     readonly property color navigationSeparator: separator
 
-
     // Toolbar palette
-    readonly property color toolbarBackground: "#171717"
-
+    readonly property color toolbarBackground: "#202020"
 
     // Settings palette
     readonly property color settingsBackground: background
@@ -74,7 +73,6 @@ QtObject {
 
     readonly property color settingsSeparator: separator
 
-
     // Batch palette
-    readonly property color duplicatesMethodColor: textDisabled
+    readonly property color duplicatesMethodColor: panelElevated
 }

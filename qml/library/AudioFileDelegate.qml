@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 
 /**
@@ -19,7 +19,7 @@ Item {
 
     property bool selected: false
 
-    signal activated()
+    signal activated
 
     Rectangle {
         anchors.fill: parent
@@ -61,9 +61,7 @@ Item {
                 Label {
                     Layout.fillWidth: true
 
-                    text: qsTr("%1 - %2")
-                        .arg(root.artist)
-                        .arg(root.album)
+                    text: qsTr("%1 - %2").arg(root.artist).arg(root.album)
 
                     color: AppColors.navigationTextSecondary
 

@@ -25,5 +25,15 @@ AppToolButton {
     Layout.fillWidth: true
     Layout.preferredHeight: AppMetrics.navigationItemHeight
 
+    Rectangle {
+        anchors.left: parent.left
+        anchors.verticalCenter: parent.verticalCenter
+        width: 3
+        height: 16
+        radius: 1.5
+        color: AppColors.accentPrimary
+        visible: root.checked
+    }
+
     onClicked: root.selected(root.section)
 }

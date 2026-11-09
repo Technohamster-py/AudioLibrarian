@@ -1,7 +1,6 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
-import QtQuick.Controls
 
 /**
  * @brief Settings and result view for duplicate file search.
@@ -39,18 +38,13 @@ Item {
     property var resultModel
 
     /** @brief Requests a duplicate search with the current settings. */
-    signal searchRequested(
-        bool searchByHash,
-        bool searchByMetadata,
-        bool searchByFileName,
-        int durationTolerance
-    )
+    signal searchRequested(bool searchByHash, bool searchByMetadata, bool searchByFileName, int durationTolerance)
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: AppMetrics.spacingLarge
+        anchors.margins: AppMetrics.pagePadding
 
-        spacing: AppMetrics.spacingMedium
+        spacing: AppMetrics.spacingLarge
 
         Label {
             Layout.fillWidth: true
@@ -59,8 +53,8 @@ Item {
 
             color: AppColors.settingsTextPrimary
 
-            font.pixelSize: 24
-            font.bold: true
+            font.pixelSize: AppMetrics.fontSizeSubtitle
+            font.weight: Font.DemiBold
         }
 
         Rectangle {
@@ -70,37 +64,26 @@ Item {
             color: AppColors.settingsSeparator
         }
 
-        RowLayout {
+        Flow {
             Layout.fillWidth: true
-            spacing: AppMetrics.spacingSmall
-
-            palette.window: AppColors.navigationPanel
-            palette.base: AppColors.navigationPanel
-            palette.alternateBase: AppColors.navigationElevated
-            palette.text: AppColors.textPrimary
-            palette.windowText: AppColors.textPrimary
-            palette.button: AppColors.navigationElevated
-            palette.buttonText: AppColors.textPrimary
-            palette.highlight: AppColors.navigationAccent
-            palette.highlightedText: AppColors.textPrimary
+            spacing: AppMetrics.spacingLarge
 
             CheckBox {
                 id: hashCheckBox
                 objectName: "searchByHashCheckBox"
 
                 text: qsTr("Search by file content (hash)")
-                palette.windowText: AppColors.textPrimary
 
                 checked: root.searchByHash
 
                 onToggled: {
-                    root.searchByHash = checked
+                    root.searchByHash = checked;
                 }
             }
 
             Rectangle {
-                Layout.preferredHeight: 20
-                Layout.preferredWidth: 1
+                height: AppMetrics.controlHeight
+                width: 1
 
                 color: AppColors.settingsSeparator
             }
@@ -110,19 +93,17 @@ Item {
                 objectName: "searchByMetadataCheckBox"
 
                 text: qsTr("Search by metadata")
-                palette.windowText: AppColors.textPrimary
-
 
                 checked: root.searchByMetadata
 
                 onToggled: {
-                    root.searchByMetadata = checked
+                    root.searchByMetadata = checked;
                 }
             }
 
             Rectangle {
-                Layout.preferredHeight: 20
-                Layout.preferredWidth: 1
+                height: AppMetrics.controlHeight
+                width: 1
 
                 color: AppColors.settingsSeparator
             }
@@ -132,19 +113,17 @@ Item {
                 objectName: "searchByFileNameCheckBox"
 
                 text: qsTr("Search by file name")
-                palette.windowText: AppColors.textPrimary
-
 
                 checked: root.searchByFileName
 
                 onToggled: {
-                    root.searchByFileName = checked
+                    root.searchByFileName = checked;
                 }
             }
 
             Rectangle {
-                Layout.preferredHeight: 20
-                Layout.preferredWidth: 1
+                height: AppMetrics.controlHeight
+                width: 1
 
                 color: AppColors.settingsSeparator
             }
@@ -159,7 +138,7 @@ Item {
                 id: durationToleranceSpinBox
                 objectName: "durationToleranceSpinBox"
 
-                Layout.preferredWidth: 140
+                width: 140
 
                 from: 0
                 to: 3600
@@ -171,23 +150,23 @@ Item {
 
                 property string suffix: qsTr(" sec")
 
-                textFromValue: function(value, locale) {
-                    return Number(value).toLocaleString(locale, 'f', 0) + suffix
+                textFromValue: function (value, locale) {
+                    return Number(value).toLocaleString(locale, 'f', 0) + suffix;
                 }
 
-                valueFromText: function(text, locale) {
-                    const number = text.replace(/[^\d]/g, "")
+                valueFromText: function (text, locale) {
+                    const number = text.replace(/[^\d]/g, "");
 
                     if (number.length === 0)
-                        return value
+                        return value;
 
-                    return Number.fromLocaleString(locale, number)
+                    return Number.fromLocaleString(locale, number);
                 }
 
                 enabled: root.searchByMetadata
 
                 onValueModified: {
-                    root.durationTolerance = value
+                    root.durationTolerance = value;
                 }
             }
 
@@ -207,7 +186,7 @@ Item {
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: AppMetrics.spasingMedium
+            spacing: AppMetrics.spacingMedium
 
             Label {
                 text: qsTr("Result")
@@ -215,7 +194,7 @@ Item {
                 color: AppColors.settingsTextPrimary
 
                 font.pixelSize: AppMetrics.fontSizeLarge
-                font.bold: true
+                font.weight: Font.DemiBold
             }
 
             Item {
@@ -250,7 +229,8 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
 
-            color: AppColors.settingsBackground
+            color: AppColors.panel
+            radius: AppMetrics.radiusSmall
 
             border.width: 1
             border.color: AppColors.settingsSeparator
@@ -263,16 +243,6 @@ Item {
             Menu {
                 id: fileContextMenu
 
-                palette.window: AppColors.navigationPanel
-                palette.base: AppColors.navigationPanel
-                palette.alternateBase: AppColors.navigationElevated
-                palette.text: AppColors.textPrimary
-                palette.windowText: AppColors.textPrimary
-                palette.button: AppColors.navigationElevated
-                palette.buttonText: AppColors.textPrimary
-                palette.highlight: AppColors.navigationAccent
-                palette.highlightedText: AppColors.textPrimary
-
                 property string filePath
                 property string relativeFilePath
 
@@ -283,7 +253,7 @@ Item {
                     text: qsTr("Expand all")
 
                     onTriggered: {
-                        duplicateTreeView.expandRecursively()
+                        duplicateTreeView.expandRecursively();
                     }
                 }
 
@@ -291,7 +261,7 @@ Item {
                     text: qsTr("Collapse all")
 
                     onTriggered: {
-                        duplicateTreeView.collapseRecursively()
+                        duplicateTreeView.collapseRecursively();
                     }
                 }
 
@@ -302,7 +272,7 @@ Item {
 
                     enabled: fileContextMenu.filePath !== ""
                     onTriggered: {
-                        duplicateFinderController.deleteFile(fileContextMenu.filePath)
+                        duplicateFinderController.deleteFile(fileContextMenu.filePath);
                     }
                 }
 
@@ -311,7 +281,7 @@ Item {
 
                     enabled: fileContextMenu.filePath !== "" && fileContextMenu.groupIndex >= 0 && fileContextMenu.searchMode >= 0
                     onTriggered: {
-                        duplicateFinderController.keepFile(fileContextMenu.filePath, fileContextMenu.groupIndex, fileContextMenu.searchMode)
+                        duplicateFinderController.keepFile(fileContextMenu.filePath, fileContextMenu.groupIndex, fileContextMenu.searchMode);
                     }
                 }
 
@@ -322,9 +292,7 @@ Item {
 
                     enabled: fileContextMenu.filePath !== ""
                     onTriggered: {
-                        Qt.openUrlExternally(
-                            Qt.resolvedUrl("file://" + fileContextMenu.filePath)
-                        )
+                        Qt.openUrlExternally(Qt.resolvedUrl("file://" + fileContextMenu.filePath));
                     }
                 }
             }
@@ -342,7 +310,7 @@ Item {
 
                 model: root.resultModel
 
-                columnWidthProvider: function(column) {
+                columnWidthProvider: function (column) {
                     return width;
                 }
 
@@ -352,7 +320,7 @@ Item {
                     implicitHeight: model.nodeType === 0 ? AppMetrics.duplicatesRowHeightLarge : AppMetrics.duplicatesRowHeightSmall
                     text: model.display
                     highlighted: selected
-                    width: treeView.width
+                    width: duplicateTreeView.width
 
                     font.pixelSize: model.nodeType === 0 ? AppMetrics.duplicatesFontLarge : (model.nodeType === 1 ? AppMetrics.duplicatesFontMedium : AppMetrics.duplicatesFontSmall)
 
@@ -361,7 +329,8 @@ Item {
                     opacity: model.nodeType === 2 && !model.active ? 0.45 : 1.0
 
                     background: Rectangle {
-                        color: treeDelegate.row === duplicateTreeView.currentRow ? AppColors.navigationAccent : (model.nodeType === 0 ? AppColors.duplicatesMethodColor : (treeDelegate.row % 2 === 0 ? AppColors.navigationPanel : AppColors.navigationElevated))
+                        radius: AppMetrics.radiusSmall
+                        color: treeDelegate.row === duplicateTreeView.currentRow ? AppColors.navigationSelection : treeDelegate.hovered ? AppColors.navigationHover : model.nodeType === 0 ? AppColors.duplicatesMethodColor : "transparent"
                     }
 
                     ToolTip.visible: hovered && isTreeNode && model.nodeType === 2
@@ -372,21 +341,24 @@ Item {
                         acceptedButtons: Qt.RightButton
 
                         onTapped: function (eventPoint, button) {
-                            fileContextMenu.filePath = ""
-                            fileContextMenu.relativeFilePath = ""
-                            fileContextMenu.groupIndex = -1
-                            fileContextMenu.searchMode = -1
+                            fileContextMenu.filePath = "";
+                            fileContextMenu.relativeFilePath = "";
+                            fileContextMenu.groupIndex = -1;
+                            fileContextMenu.searchMode = -1;
 
                             if (model.nodeType === 2) {
-                                fileContextMenu.filePath = model.filePath
-                                fileContextMenu.relativeFilePath = model.relativeFilePath
-                                fileContextMenu.groupIndex = model.groupIndex
-                                fileContextMenu.searchMode = model.searchMode
+                                fileContextMenu.filePath = model.filePath;
+                                fileContextMenu.relativeFilePath = model.relativeFilePath;
+                                fileContextMenu.groupIndex = model.groupIndex;
+                                fileContextMenu.searchMode = model.searchMode;
                             }
-                            fileContextMenu.popup()
+                            fileContextMenu.popup();
                         }
                     }
                 }
+
+                ScrollBar.vertical: ScrollBar {}
+                ScrollBar.horizontal: ScrollBar {}
             }
 
             Label {

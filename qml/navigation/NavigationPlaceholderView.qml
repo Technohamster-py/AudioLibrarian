@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 
 /**
  * @brief Temporary content view for an unimplemented navigation section.
@@ -47,7 +47,8 @@ Item {
 
                 color: AppColors.navigationTextPrimary
 
-                font.pixelSize: 28
+                font.pixelSize: AppMetrics.fontSizeTitle
+                font.weight: Font.DemiBold
             }
 
             Label {

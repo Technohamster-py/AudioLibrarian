@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 
 /**
@@ -22,8 +22,8 @@ Item {
 
         filePath: root.filePath
 
-        onErrorOccurred: function(message) {
-            console.warn("Unable to read metadata:", message)
+        onErrorOccurred: function (message) {
+            console.warn("Unable to read metadata:", message);
         }
     }
 
@@ -34,7 +34,7 @@ Item {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: AppMetrics.spacingLarge
+            anchors.margins: AppMetrics.pagePadding
 
             spacing: AppMetrics.spacingLarge
 
@@ -43,8 +43,9 @@ Item {
 
                 text: qsTr("Tag Editor")
 
-                color: AppColors.editorTextPrimary
-                font.pixelSize: 28
+                color: enabled ? AppColors.textPrimary : AppColors.textDisabled
+                font.pixelSize: AppMetrics.fontSizeTitle
+                font.weight: Font.DemiBold
             }
 
             Label {
@@ -66,7 +67,8 @@ Item {
 
                 clip: true
 
-                spacing: 1
+                spacing: AppMetrics.spacingSmall
+                ScrollBar.vertical: ScrollBar {}
 
                 model: tagModel
 
@@ -81,18 +83,19 @@ Item {
                     required property bool isMultiValue
                     required property bool isEditable
                     required property int modelIndex
-                    
+
                     width: tagList.width
 
-                    height: isLyrics ? 220 : isMultiValue ? Math.max(72, multiValueEditor.implicitHeight + 20) : 48
+                    height: isLyrics ? 240 : isMultiValue ? Math.max(88, multiValueEditor.implicitHeight + 24) : 64
 
                     color: AppColors.editorPanel
+                    radius: AppMetrics.radiusSmall
+                    border.color: AppColors.separator
 
                     RowLayout {
                         anchors.fill: parent
 
-                        anchors.leftMargin: AppMetrics.spacingMedium
-                        anchors.rightMargin: AppMetrics.spacingMedium
+                        anchors.margins: 12
 
                         spacing: AppMetrics.spacingLarge
 
@@ -114,7 +117,7 @@ Item {
 
                                 text: displayName
 
-                                color: AppColors.editorTextPrimary
+                                color: enabled ? AppColors.textPrimary : AppColors.textDisabled
 
                                 elide: Text.ElideRight
                             }
@@ -126,7 +129,7 @@ Item {
 
                                 color: AppColors.editorTextSecondary
 
-                                font.pixelSize: 11
+                                font.pixelSize: AppMetrics.fontSizeSmall
 
                                 elide: Text.ElideRight
                             }
@@ -150,8 +153,8 @@ Item {
 
                             values: tagDelegate.values
 
-                            onValuesEdited: function(newValues) {
-                                tagModel.setValues(tagDelegate.modelIndex, newValues)
+                            onValuesEdited: function (newValues) {
+                                tagModel.setValues(tagDelegate.modelIndex, newValues);
                             }
                         }
 
@@ -170,28 +173,20 @@ Item {
 
                             visible: !isLyrics && !isMultiValue
 
-                            color: AppColors.editorTextPrimary
+                            color: enabled ? AppColors.textPrimary : AppColors.textDisabled
 
                             horizontalAlignment: TextInput.AlignLeft
                             verticalAlignment: TextInput.AlignVCenter
 
                             Component.onCompleted: {
-                                text = value
-                            }
-
-                            background: Rectangle {
-                                color: valueField.enabled ? AppColors.inputBackground : AppColors.editorPanelDisabled
-                                radius: AppMetrics.editFieldRadius
-
-                                border.width: valueField.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder
-                                border.color: valueField.activeFocus ? AppColors.inputBorderActive : AppColors.inputBorder
+                                text = value;
                             }
 
                             onTextChanged: {
                                 if (activeFocus)
-                                    tagModel.setValue(tagDelegate.modelIndex, text)
+                                    tagModel.setValue(tagDelegate.modelIndex, text);
                                 else
-                                    text = value
+                                    text = value;
                             }
                         }
 
@@ -218,7 +213,7 @@ Item {
 
                                 width: lyricsScrollView.availableWidth
 
-                                color: AppColors.editorTextPrimary
+                                color: enabled ? AppColors.textPrimary : AppColors.textDisabled
 
                                 wrapMode: TextEdit.Wrap
 
@@ -227,23 +222,15 @@ Item {
 
                                 selectByMouse: true
 
-                                background: Rectangle {
-                                    color: AppColors.inputBackground
-                                    radius: AppMetrics.editFieldRadius
-
-                                    border.width: lyricsEditor.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder
-                                    border.color: lyricsEditor.activeFocus ? AppColors.inputBorderActive : AppColors.inputBorder
-                                }
-
                                 Component.onCompleted: {
-                                    text = value
+                                    text = value;
                                 }
 
                                 onTextChanged: {
                                     if (activeFocus)
-                                        tagModel.setValue(tagDelegate.modelIndex, text)
+                                        tagModel.setValue(tagDelegate.modelIndex, text);
                                     else
-                                        text = value
+                                        text = value;
                                 }
                             }
                         }
@@ -268,19 +255,20 @@ Item {
                     enabled: tagModel.dirty
 
                     onClicked: {
-                        tagModel.discardChanges()
+                        tagModel.discardChanges();
                     }
                 }
 
                 Button {
                     objectName: "saveButton"
+                    highlighted: true
 
                     text: qsTr("Save")
 
                     enabled: tagModel.dirty
 
                     onClicked: {
-                        tagModel.save()
+                        tagModel.save();
                     }
                 }
             }

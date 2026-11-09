@@ -33,10 +33,11 @@ Item {
         ColumnLayout {
             anchors.fill: parent
 
-            anchors.topMargin: 6
-            anchors.bottomMargin: 6
+            anchors.margins: 8
+            anchors.topMargin: 16
+            anchors.bottomMargin: 16
 
-            spacing: 2
+            spacing: 4
 
             NavigationItem {
                 section: "files"
