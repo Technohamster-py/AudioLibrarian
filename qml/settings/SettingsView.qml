@@ -1,7 +1,8 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 import QtQuick.Dialogs
+
 /**
  * @brief Application settings page.
  *
@@ -20,14 +21,13 @@ Item {
 
         ScrollView {
             anchors.fill: parent
+            anchors.margins: AppMetrics.pagePadding
+            contentWidth: availableWidth
 
             clip: true
 
             ColumnLayout {
-                width: Math.min(
-                    parent.width - AppMetrics.spacingLarge * 2,
-                    900
-                )
+                width: Math.min(parent.width, 900)
 
                 anchors.horizontalCenter: parent.horizontalCenter
 
@@ -38,8 +38,8 @@ Item {
 
                     color: AppColors.settingsTextPrimary
 
-                    font.pixelSize: 28
-                    font.bold: true
+                    font.pixelSize: AppMetrics.fontSizeTitle
+                    font.weight: Font.DemiBold
                 }
 
                 Label {
@@ -48,7 +48,7 @@ Item {
                     color: AppColors.settingsTextPrimary
 
                     font.pixelSize: 20
-                    font.bold: true
+                    font.weight: Font.DemiBold
 
                     Layout.topMargin: AppMetrics.spacingMedium
                 }
@@ -88,18 +88,18 @@ Item {
                         valueRole: "value"
 
                         currentIndex: {
-                            const value = SettingsManager.language
+                            const value = SettingsManager.language;
 
                             for (let i = 0; i < model.length; ++i) {
                                 if (model[i].value === value)
-                                    return i
+                                    return i;
                             }
 
-                            return 0
+                            return 0;
                         }
 
                         onActivated: {
-                            SettingsManager.setLanguage(model[currentIndex].value)
+                            SettingsManager.setLanguage(model[currentIndex].value);
                         }
                     }
                 }
@@ -187,7 +187,7 @@ Item {
         title: qsTr("Select library directory")
 
         onAccepted: {
-            SettingsManager.baseDir = selectedFolder.toLocalFile()
+            SettingsManager.baseDir = selectedFolder.toLocalFile();
         }
     }
 }

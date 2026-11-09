@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 
 /**
@@ -22,9 +22,10 @@ Rectangle {
     signal valuesEdited(var values)
 
     Layout.fillWidth: true
-    Layout.preferredHeight: root.multiline ? 140 : root.multiValue ? 100 : 52
+    Layout.preferredHeight: root.multiline ? 160 : root.multiValue ? Math.max(112, multiValueEditor.implicitHeight + 24) : 64
 
-    color: AppColors.settingsBackground
+    color: AppColors.panel
+    radius: AppMetrics.radiusSmall
 
     border.width: 1
     border.color: AppColors.settingsSeparator
@@ -32,8 +33,7 @@ Rectangle {
     RowLayout {
         anchors.fill: parent
 
-        anchors.leftMargin: AppMetrics.spacingMedium
-        anchors.rightMargin: AppMetrics.spacingMedium
+        anchors.margins: 12
 
         spacing: AppMetrics.spacingMedium
 
@@ -58,7 +58,7 @@ Rectangle {
 
                 text: root.label
 
-                color: AppColors.settingsTextPrimary
+                color: enabled ? AppColors.textPrimary : AppColors.textDisabled
 
                 elide: Text.ElideRight
             }
@@ -70,7 +70,7 @@ Rectangle {
 
                 color: AppColors.settingsTextSecondary
 
-                font.pixelSize: 11
+                font.pixelSize: AppMetrics.fontSizeSmall
 
                 elide: Text.ElideRight
             }
@@ -88,8 +88,8 @@ Rectangle {
 
             values: root.values
 
-            onValuesEdited: function(newValues) {
-                root.valuesEdited(newValues)
+            onValuesEdited: function (newValues) {
+                root.valuesEdited(newValues);
             }
         }
 
@@ -106,18 +106,11 @@ Rectangle {
 
             text: root.value
 
-            color: AppColors.settingsTextPrimary
+            color: enabled ? AppColors.textPrimary : AppColors.textDisabled
 
             horizontalAlignment: TextInput.AlignLeft
 
             onTextEdited: root.valueEdited(text)
-
-            background: Rectangle {
-                color: valueField.enabled ? AppColors.inputBackground : AppColors.editorPanelDisabled
-                radius: AppMetrics.editFieldRadius
-                border.width: valueField.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder
-                border.color: valueField.activeFocus ? AppColors.inputBorderActive : AppColors.inputBorder
-            }
         }
 
         ScrollView {
@@ -141,7 +134,7 @@ Rectangle {
 
                 text: root.value
 
-                color: AppColors.settingsTextPrimary
+                color: enabled ? AppColors.textPrimary : AppColors.textDisabled
 
                 wrapMode: TextEdit.Wrap
 
@@ -151,13 +144,6 @@ Rectangle {
                 selectByMouse: true
 
                 onTextEdited: root.valueEdited(text)
-
-                background: Rectangle {
-                    color: multilineScrollView.enabled ? AppColors.inputBackground : AppColors.editorPanelDisabled
-                    radius: AppMetrics.editFieldRadius
-                    border.width: multilineValueField.activeFocus ? AppMetrics.editFieldBorderBold : AppMetrics.editFieldBorder
-                    border.color: multilineValueField.activeFocus ? AppColors.inputBorderActive : AppColors.inputBorder
-                }
             }
         }
 
@@ -171,9 +157,9 @@ Rectangle {
 
             onClicked: {
                 if (root.multiValue)
-                    root.valuesEdited([])
+                    root.valuesEdited([]);
                 else
-                    root.valueEdited("")
+                    root.valueEdited("");
             }
         }
     }

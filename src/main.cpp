@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
+#include <QStyleHints>
 #include <QtQml/QQmlExtensionPlugin>
 
 #include "settings/settingsstruct.h"
@@ -10,7 +11,7 @@ Q_IMPORT_QML_PLUGIN(AudioLibrarianPlugin)
 /**
  * @brief Application entry point
  *
- * Initializes the Qt application, selects the Basic Qt Quick Controls style,
+ * Initializes the Qt application, selects the Fluent WinUI 3 controls style,
  * and loads the root QML type from the AudioLibrarian QML module.
  *
  * @param argc Number of command-line arguments
@@ -25,7 +26,8 @@ int main(int argc, char *argv[]) {
     app.setApplicationName(QStringLiteral(APPLICATION_NAME));
     app.setApplicationVersion(QStringLiteral(VERSION));
 
-    QQuickStyle::setStyle(QStringLiteral("Basic"));
+    app.styleHints()->setColorScheme(Qt::ColorScheme::Dark);
+    QQuickStyle::setStyle(QStringLiteral("FluentWinUI3"));
 
     QQmlApplicationEngine engine;
 

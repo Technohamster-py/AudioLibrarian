@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 
 /**
@@ -35,7 +35,7 @@ Item {
 
         function onOperationAboutToStart() {
             if (root.playerController)
-                root.playerController.releaseSource()
+                root.playerController.releaseSource();
         }
     }
 
@@ -44,7 +44,7 @@ Item {
 
         function onOperationAboutToStart() {
             if (root.playerController)
-                root.playerController.releaseSource()
+                root.playerController.releaseSource();
         }
     }
 
@@ -53,28 +53,44 @@ Item {
 
         function onOperationAboutToStart() {
             if (root.playerController)
-                root.playerController.releaseSource()
+                root.playerController.releaseSource();
         }
     }
 
+    Rectangle {
+        x: pageLayout.x + operationStack.x
+        y: pageLayout.y + operationStack.y
+        width: operationStack.width
+        height: operationStack.height
+        color: AppColors.panel
+        radius: AppMetrics.radiusMedium
+        border.color: AppColors.separator
+    }
+
     ColumnLayout {
+        id: pageLayout
         anchors.fill: parent
-        anchors.margins: AppMetrics.spacingMedium
+        anchors.margins: AppMetrics.pagePadding
 
-        spacing: AppMetrics.spacingMedium
+        spacing: AppMetrics.spacingLarge
 
-        palette.window: AppColors.navigationPanel
-        palette.base: AppColors.navigationPanel
-        palette.alternateBase: AppColors.navigationElevated
-        palette.text: AppColors.textPrimary
-        palette.windowText: AppColors.textPrimary
-        palette.button: AppColors.navigationElevated
-        palette.buttonText: AppColors.textPrimary
-        palette.highlight: AppColors.navigationAccent
-        palette.highlightedText: AppColors.textPrimary
+        Label {
+            Layout.fillWidth: true
+            text: qsTr("Batch processing")
+            color: AppColors.textPrimary
+            font.pixelSize: AppMetrics.fontSizeTitle
+            font.weight: Font.DemiBold
+        }
+
+        Label {
+            Layout.fillWidth: true
+            text: qsTr("Base directory")
+            color: AppColors.textSecondary
+        }
 
         RowLayout {
             Layout.fillWidth: true
+            spacing: AppMetrics.spacingMedium
 
             TextField {
                 id: baseFilePathField
@@ -94,17 +110,17 @@ Item {
                 text: qsTr("Browse...")
 
                 onClicked: {
-                    const directory = FileDialogController.getExistingDirectory(qsTr("Select base directory"), root.baseFilePath)
+                    const directory = FileDialogController.getExistingDirectory(qsTr("Select base directory"), root.baseFilePath);
 
                     if (directory.length > 0)
-                        root.baseFilePath = directory
+                        root.baseFilePath = directory;
                 }
             }
         }
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: AppMetrics.spacingSmall
+            spacing: AppMetrics.spacingMedium
 
             ComboBox {
                 id: operationComboBox
@@ -112,22 +128,19 @@ Item {
 
                 Layout.fillWidth: true
 
-                model: [
-                    qsTr("Find duplicates"),
-                    qsTr("Edit metadata"),
-                    qsTr("Rename files")
-                ]
+                model: [qsTr("Find duplicates"), qsTr("Edit metadata"), qsTr("Rename files")]
 
                 currentIndex: root.operationIndex
 
                 onActivated: {
-                    root.operationIndex = currentIndex
+                    root.operationIndex = currentIndex;
                 }
             }
 
             Button {
                 id: searchButton
                 objectName: "findDuplicatesButton"
+                highlighted: true
 
                 text: qsTr("Find duplicates")
 
@@ -135,28 +148,16 @@ Item {
                 Layout.minimumHeight: operationComboBox.height
                 Layout.maximumHeight: operationComboBox.height
 
-                background: Rectangle {
-                    color: AppColors.accentPrimary
-                    radius: 4
-                }
-
                 visible: root.operationIndex === 0
-                enabled: !duplicateFinderView.searching
-                    && (duplicateFinderView.searchByHash
-                        || duplicateFinderView.searchByMetadata
-                        || duplicateFinderView.searchByFileName)
+                enabled: !duplicateFinderView.searching && (duplicateFinderView.searchByHash || duplicateFinderView.searchByMetadata || duplicateFinderView.searchByFileName)
 
-                onClicked: duplicateFinderView.searchRequested(
-                    duplicateFinderView.searchByHash,
-                    duplicateFinderView.searchByMetadata,
-                    duplicateFinderView.searchByFileName,
-                    duplicateFinderView.durationTolerance
-                )
+                onClicked: duplicateFinderView.searchRequested(duplicateFinderView.searchByHash, duplicateFinderView.searchByMetadata, duplicateFinderView.searchByFileName, duplicateFinderView.durationTolerance)
             }
 
             Button {
                 id: applyButton
                 objectName: "applyMetadataChangesButton"
+                highlighted: true
 
                 text: qsTr("Apply changes")
 
@@ -164,36 +165,22 @@ Item {
                 Layout.minimumHeight: operationComboBox.height
                 Layout.maximumHeight: operationComboBox.height
 
-                background: Rectangle {
-                    color: AppColors.accentPrimary
-                    radius: 4
-                }
-
                 visible: root.operationIndex === 1
-                enabled: metadataEditorView.editing
-                    && metadataEditorView.selectedFileCount > 0
-                    && metadataEditorView.hasChanges()
+                enabled: metadataEditorView.editing && metadataEditorView.selectedFileCount > 0 && metadataEditorView.hasChanges()
 
-
-                onClicked: metadataEditorView.changesRequested(
-                    metadataEditorView.createChanges()
-                )
+                onClicked: metadataEditorView.changesRequested(metadataEditorView.createChanges())
             }
 
             Button {
                 id: renameButton
                 objectName: "renameFilesButton"
+                highlighted: true
 
                 text: qsTr("Preview rename")
 
                 Layout.preferredHeight: operationComboBox.height
                 Layout.minimumHeight: operationComboBox.height
                 Layout.maximumHeight: operationComboBox.height
-
-                background: Rectangle {
-                    color: AppColors.accentPrimary
-                    radius: 4
-                }
 
                 visible: root.operationIndex === 2
                 enabled: renameView.canPreview
@@ -224,14 +211,8 @@ Item {
 
                 resultModel: duplicateFinderController.resultModel
 
-                onSearchRequested: function(searchByHash, searchByMetadata, searchByFileName, durationTolerance) {
-                    duplicateFinderController.start(
-                        root.baseFilePath,
-                        searchByHash,
-                        searchByMetadata,
-                        searchByFileName,
-                        durationTolerance
-                    )
+                onSearchRequested: function (searchByHash, searchByMetadata, searchByFileName, durationTolerance) {
+                    duplicateFinderController.start(root.baseFilePath, searchByHash, searchByMetadata, searchByFileName, durationTolerance);
                 }
             }
 
@@ -242,11 +223,8 @@ Item {
                 editing: metadataEditorController.running
                 selectedFileCount: metadataEditorController.selectedFileCount
 
-                onChangesRequested: function(changes) {
-                    metadataEditorController.start(
-                        root.baseFilePath,
-                        changes
-                    )
+                onChangesRequested: function (changes) {
+                    metadataEditorController.start(root.baseFilePath, changes);
                 }
             }
 
@@ -257,53 +235,52 @@ Item {
                 renaming: fileRenamerController.running
                 baseDirectory: root.baseFilePath
 
-                onPreviewRequested: function(templatePattern) {
-                    const result = fileRenamerController.preparePreview(
-                        root.baseFilePath, templatePattern)
+                onPreviewRequested: function (templatePattern) {
+                    const result = fileRenamerController.preparePreview(root.baseFilePath, templatePattern);
 
                     if (!result || result.error) {
-                        renameView.errorMessage = result ? result.error : qsTr("Preview failed")
-                        renameView.previewEntries = []
-                        return
+                        renameView.errorMessage = result ? result.error : qsTr("Preview failed");
+                        renameView.previewEntries = [];
+                        return;
                     }
 
-                    const entries = result.entries || []
+                    const entries = result.entries || [];
 
                     if (entries.length === 0) {
-                        renameView.errorMessage = qsTr("No files to rename")
-                        renameView.previewEntries = []
-                        return
+                        renameView.errorMessage = qsTr("No files to rename");
+                        renameView.previewEntries = [];
+                        return;
                     }
 
-                    renameView.errorMessage = ""
-                    renameView.previewEntries = entries
-                    renameView.previewVisible = true
+                    renameView.errorMessage = "";
+                    renameView.previewEntries = entries;
+                    renameView.previewVisible = true;
                 }
-                
+
                 onConfirmRenameRequested: {
                     if (fileRenamerController.confirmRename())
-                        renameView.previewVisible = false
+                        renameView.previewVisible = false;
                     else
-                        renameView.errorMessage = fileRenamerController.errorMessage
+                        renameView.errorMessage = fileRenamerController.errorMessage;
                 }
 
                 onCancelPreviewRequested: {
-                    fileRenamerController.discardPreview()
-                    renameView.previewEntries = []
-                    renameView.previewVisible = false
+                    fileRenamerController.discardPreview();
+                    renameView.previewEntries = [];
+                    renameView.previewVisible = false;
                 }
 
                 Connections {
                     target: fileRenamerController
 
                     function onProgressChanged() {
-                        renameView.progressCurrent = fileRenamerController.progressCurrent
-                        renameView.progressTotal = fileRenamerController.progressTotal
-                        renameView.currentFile = fileRenamerController.currentFile
+                        renameView.progressCurrent = fileRenamerController.progressCurrent;
+                        renameView.progressTotal = fileRenamerController.progressTotal;
+                        renameView.currentFile = fileRenamerController.currentFile;
                     }
 
                     function onErrorMessageChanged() {
-                        renameView.errorMessage = fileRenamerController.errorMessage
+                        renameView.errorMessage = fileRenamerController.errorMessage;
                     }
                 }
             }

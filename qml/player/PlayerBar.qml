@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 
 /**
@@ -24,40 +24,44 @@ Item {
      */
     function formatTime(milliseconds) {
         if (milliseconds <= 0)
-            return "00:00"
+            return "00:00";
 
-        const totalSeconds = Math.floor(milliseconds / 1000)
-        const seconds = totalSeconds % 60
-        const totalMinutes = Math.floor(totalSeconds / 60)
-        const minutes = totalMinutes % 60
-        const hours = Math.floor(totalMinutes / 60)
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const seconds = totalSeconds % 60;
+        const totalMinutes = Math.floor(totalSeconds / 60);
+        const minutes = totalMinutes % 60;
+        const hours = Math.floor(totalMinutes / 60);
 
-        const paddedSeconds = seconds.toString().padStart(2, "0")
+        const paddedSeconds = seconds.toString().padStart(2, "0");
 
-        const paddedMinutes = minutes.toString().padStart(2, "0")
+        const paddedMinutes = minutes.toString().padStart(2, "0");
 
         if (hours > 0) {
-            const paddedHours = hours.toString().padStart(2, "0")
-            return paddedHours + ":" + paddedMinutes + ":" + paddedSeconds
+            const paddedHours = hours.toString().padStart(2, "0");
+            return paddedHours + ":" + paddedMinutes + ":" + paddedSeconds;
         }
-        return paddedMinutes + ":" + paddedSeconds
+        return paddedMinutes + ":" + paddedSeconds;
     }
 
     Rectangle {
         anchors.fill: parent
         color: AppColors.playerBackground
+        radius: AppMetrics.radiusMedium
+        border.color: AppColors.separator
 
         visible: root.expanded
 
         RowLayout {
             anchors.fill: parent
-            anchors.margins: AppMetrics.spacingMedium
+            anchors.margins: 12
+            anchors.rightMargin: AppMetrics.iconButtonSize + AppMetrics.spacingSmall
+            spacing: AppMetrics.spacingMedium
 
             Image {
                 id: coverImage
 
-                Layout.preferredWidth: parent.height
-                Layout.preferredHeight: parent.height
+                Layout.preferredWidth: 56
+                Layout.preferredHeight: 56
 
                 fillMode: Image.PreserveAspectFit
 
@@ -66,16 +70,17 @@ Item {
                 asynchronous: true
                 cache: false
 
-                visible: source.toString().length > 0
+                visible: source.toString().length > 0 && root.width >= 640
             }
 
             Rectangle {
                 Layout.preferredWidth: coverImage.width
                 Layout.preferredHeight: coverImage.height
 
-                visible: !coverImage.visible
+                visible: !coverImage.visible && root.width >= 640
 
                 color: AppColors.background
+                radius: AppMetrics.radiusSmall
 
                 Image {
                     anchors.centerIn: parent
@@ -91,6 +96,7 @@ Item {
 
             AppToolButton {
                 objectName: "previousButton"
+                visible: root.width >= 560
 
                 Layout.preferredWidth: AppMetrics.playerButtonsSize - AppMetrics.spacingMedium
                 Layout.preferredHeight: AppMetrics.playerButtonsSize - AppMetrics.spacingMedium
@@ -117,6 +123,7 @@ Item {
 
             AppToolButton {
                 objectName: "nextButton"
+                visible: root.width >= 560
 
                 Layout.preferredWidth: AppMetrics.playerButtonsSize - AppMetrics.spacingMedium
                 Layout.preferredHeight: AppMetrics.playerButtonsSize - AppMetrics.spacingMedium
@@ -131,7 +138,8 @@ Item {
             }
 
             ColumnLayout {
-                id: titleAndProgressLayout
+                Layout.fillWidth: true
+                Layout.minimumWidth: 100
 
                 anchors.margins: AppMetrics.spacingSmall
 
@@ -148,29 +156,27 @@ Item {
                      * Title and artist label
                      */
                     Label {
-                        // Layout.fillWidth: true
+                        Layout.fillWidth: true
 
                         text: {
                             if (root.player.artist.length > 0 && root.player.title.length > 0) {
-                                return root.player.artist + " - " + root.player.title
+                                return root.player.artist + " - " + root.player.title;
                             }
 
                             if (root.player.title.length > 0) {
-                                return root.player.title
+                                return root.player.title;
                             }
 
-                            return qsTr("No track selected")
-
+                            return qsTr("No track selected");
                         }
 
-                        font.pointSize: AppMetrics.fontSizeMedium
+                        font.pixelSize: AppMetrics.fontSizeMedium
+                        font.weight: Font.DemiBold
 
                         color: AppColors.playerForeground
 
                         elide: Text.ElideRight
                         verticalAlignment: Text.AlignVCenter
-
-
                     }
 
                     Item {
@@ -221,7 +227,7 @@ Item {
                                 /*
                                  * Perform exactly one seek after the user releases the slider.
                                  */
-                                root.player.position = value
+                                root.player.position = value;
                             }
                         }
                     }
@@ -255,15 +261,16 @@ Item {
                     iconSource: root.player.muted ? AppAssets.mute : AppAssets.unmute
                     tooltipText: root.player.muted ? qsTr("Unmute") : qsTr("Mute")
                     onClicked: {
-                        root.player.muted = !root.player.muted
+                        root.player.muted = !root.player.muted;
                     }
                 }
 
                 Slider {
                     id: volumeSlider
                     objectName: "volumeSlider"
+                    visible: root.width >= 720
 
-                    Layout.preferredWidth: 150
+                    Layout.preferredWidth: Math.min(120, root.width * 0.14)
 
                     from: 0
                     to: 100
@@ -281,7 +288,7 @@ Item {
 
                     value: root.player.volume
                     onMoved: {
-                        root.player.volume = Math.round(value)
+                        root.player.volume = Math.round(value);
                     }
                 }
             }
@@ -305,6 +312,8 @@ Item {
         iconSource: root.expanded ? AppAssets.sortDescending : AppAssets.sortAscending
         tooltipText: root.expanded ? qsTr("Hide player") : qsTr("Show player")
 
-        onClicked: {root.expanded = !root.expanded}
+        onClicked: {
+            root.expanded = !root.expanded;
+        }
     }
 }

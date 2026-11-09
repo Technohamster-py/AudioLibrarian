@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 
 /**
@@ -49,14 +49,14 @@ Item {
     property var commentValues: []
 
     function createChanges() {
-        var changes = []
+        var changes = [];
 
         if (titleEnabled) {
             changes.push({
                 key: "TITLE",
                 values: [titleValue],
                 remove: titleValue.length === 0
-            })
+            });
         }
 
         if (artistEnabled) {
@@ -64,7 +64,7 @@ Item {
                 key: "ARTIST",
                 values: artistValues,
                 remove: artistValues.length === 0
-            })
+            });
         }
 
         if (albumEnabled) {
@@ -72,7 +72,7 @@ Item {
                 key: "ALBUM",
                 values: [albumValue],
                 remove: albumValue.length === 0
-            })
+            });
         }
 
         if (albumArtistEnabled) {
@@ -80,7 +80,7 @@ Item {
                 key: "ALBUMARTIST",
                 values: albumArtistValues,
                 remove: albumArtistValues.length === 0
-            })
+            });
         }
 
         if (genreEnabled) {
@@ -88,7 +88,7 @@ Item {
                 key: "GENRE",
                 values: genreValues,
                 remove: genreValues.length === 0
-            })
+            });
         }
 
         if (commentEnabled) {
@@ -96,7 +96,7 @@ Item {
                 key: "COMMENT",
                 values: commentValues,
                 remove: commentValues.length === 0
-            })
+            });
         }
 
         if (dateEnabled) {
@@ -104,7 +104,7 @@ Item {
                 key: "DATE",
                 values: [dateValue],
                 remove: dateValue.length === 0
-            })
+            });
         }
 
         if (trackNumberEnabled) {
@@ -112,7 +112,7 @@ Item {
                 key: "TRACKNUMBER",
                 values: [trackNumberValue],
                 remove: trackNumberValue.length === 0
-            })
+            });
         }
 
         if (discNumberEnabled) {
@@ -120,7 +120,7 @@ Item {
                 key: "DISCNUMBER",
                 values: [discNumberValue],
                 remove: discNumberValue.length === 0
-            })
+            });
         }
 
         if (lyricsEnabled) {
@@ -128,45 +128,34 @@ Item {
                 key: "LYRICS",
                 values: [lyricsValue],
                 remove: lyricsValue.length === 0
-            })
+            });
         }
 
-        return changes
+        return changes;
     }
 
     function hasChanges() {
-        return titleEnabled ||
-            artistEnabled ||
-            albumEnabled ||
-            albumArtistEnabled ||
-            genreEnabled ||
-            commentEnabled ||
-            dateEnabled ||
-            trackNumberEnabled ||
-            discNumberEnabled ||
-            lyricsEnabled
+        return titleEnabled || artistEnabled || albumEnabled || albumArtistEnabled || genreEnabled || commentEnabled || dateEnabled || trackNumberEnabled || discNumberEnabled || lyricsEnabled;
     }
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: AppMetrics.spacingMedium
-        spacing: AppMetrics.spacingMedium
+        anchors.margins: AppMetrics.pagePadding
+        spacing: AppMetrics.spacingLarge
 
         Label {
             Layout.fillWidth: true
 
             text: qsTr("Metadata editor")
             color: AppColors.settingsTextPrimary
-            font.pixelSize: 20
-            font.bold: true
+            font.pixelSize: AppMetrics.fontSizeSubtitle
+            font.weight: Font.DemiBold
         }
 
         Label {
             Layout.fillWidth: true
 
-            text: root.selectedFileCount > 0
-                ? qsTr("Selected files: %1").arg(root.selectedFileCount)
-                : qsTr("No files selected")
+            text: root.selectedFileCount > 0 ? qsTr("Selected files: %1").arg(root.selectedFileCount) : qsTr("No files selected")
 
             color: AppColors.settingsTextSecondary
         }
@@ -196,8 +185,8 @@ Item {
                     checked: root.titleEnabled
                     value: root.titleValue
 
-                    onValueEdited: function(newValue) {
-                        root.titleValue = newValue
+                    onValueEdited: function (newValue) {
+                        root.titleValue = newValue;
                     }
 
                     onCheckedChanged: root.titleEnabled = checked
@@ -216,8 +205,8 @@ Item {
                     multiValue: true
                     values: root.artistValues
 
-                    onValuesEdited: function(newValues) {
-                        root.artistValues = newValues
+                    onValuesEdited: function (newValues) {
+                        root.artistValues = newValues;
                     }
 
                     onCheckedChanged: root.artistEnabled = checked
@@ -235,8 +224,8 @@ Item {
                     checked: root.albumEnabled
                     value: root.albumValue
 
-                    onValueEdited: function(newValue) {
-                        root.albumValue = newValue
+                    onValueEdited: function (newValue) {
+                        root.albumValue = newValue;
                     }
 
                     onCheckedChanged: root.albumEnabled = checked
@@ -255,8 +244,8 @@ Item {
                     multiValue: true
                     values: root.albumArtistValues
 
-                    onValuesEdited: function(newValues) {
-                        root.albumArtistValues = newValues
+                    onValuesEdited: function (newValues) {
+                        root.albumArtistValues = newValues;
                     }
 
                     onCheckedChanged: root.albumArtistEnabled = checked
@@ -275,8 +264,8 @@ Item {
                     multiValue: true
                     values: root.genreValues
 
-                    onValuesEdited: function(newValues) {
-                        root.genreValues = newValues
+                    onValuesEdited: function (newValues) {
+                        root.genreValues = newValues;
                     }
 
                     onCheckedChanged: root.genreEnabled = checked
@@ -295,8 +284,8 @@ Item {
                     multiValue: true
                     values: root.commentValues
 
-                    onValuesEdited: function(newValues) {
-                        root.commentValues = newValues
+                    onValuesEdited: function (newValues) {
+                        root.commentValues = newValues;
                     }
 
                     onCheckedChanged: root.commentEnabled = checked
@@ -314,8 +303,8 @@ Item {
                     checked: root.dateEnabled
                     value: root.dateValue
 
-                    onValueEdited: function(newValue) {
-                        root.dateValue = newValue
+                    onValueEdited: function (newValue) {
+                        root.dateValue = newValue;
                     }
 
                     onCheckedChanged: root.dateEnabled = checked
@@ -333,8 +322,8 @@ Item {
                     checked: root.trackNumberEnabled
                     value: root.trackNumberValue
 
-                    onValueEdited: function(newValue) {
-                        root.trackNumberValue = newValue
+                    onValueEdited: function (newValue) {
+                        root.trackNumberValue = newValue;
                     }
 
                     onCheckedChanged: root.trackNumberEnabled = checked
@@ -352,8 +341,8 @@ Item {
                     checked: root.discNumberEnabled
                     value: root.discNumberValue
 
-                    onValueEdited: function(newValue) {
-                        root.discNumberValue = newValue
+                    onValueEdited: function (newValue) {
+                        root.discNumberValue = newValue;
                     }
 
                     onCheckedChanged: root.discNumberEnabled = checked
@@ -372,8 +361,8 @@ Item {
                     value: root.lyricsValue
                     multiline: true
 
-                    onValueEdited: function(newValue) {
-                        root.lyricsValue = newValue
+                    onValueEdited: function (newValue) {
+                        root.lyricsValue = newValue;
                     }
 
                     onCheckedChanged: root.lyricsEnabled = checked
@@ -396,9 +385,7 @@ Item {
             Label {
                 Layout.fillWidth: true
 
-                text: root.hasChanges()
-                    ? qsTr("%1 field(s) will be changed").arg(root.createChanges().length)
-                    : qsTr("No changes selected")
+                text: root.hasChanges() ? qsTr("%1 field(s) will be changed").arg(root.createChanges().length) : qsTr("No changes selected")
 
                 color: AppColors.settingsTextSecondary
             }

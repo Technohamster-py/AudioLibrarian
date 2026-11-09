@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Basic
+import QtQuick.Controls.FluentWinUI3
 import QtQuick.Layouts
 import QtQuick.Window
 import AudioLibrarian
@@ -33,6 +33,10 @@ ApplicationWindow {
     title: qsTr("AudioLibrarian")
 
     color: AppColors.background
+    font.family: AppMetrics.fontFamily
+    font.pixelSize: AppMetrics.fontSizeMedium
+    palette.accent: AppColors.accentPrimary
+    palette.highlight: AppColors.accentPrimary
 
     /**
      * @brief Currently active top-level application section.
@@ -45,7 +49,7 @@ ApplicationWindow {
     property string selectedFilePath: ""
 
     onClosing: {
-        SettingsManager.saveApplicationState(width, height, x, y, navigationLayout.width, activeSection, playerController.volume, playerBar.expanded)
+        SettingsManager.saveApplicationState(width, height, x, y, navigationLayout.width, activeSection, playerController.volume, playerBar.expanded);
     }
 
     /**
@@ -59,20 +63,20 @@ ApplicationWindow {
      */
     function sectionIndex(section) {
         switch (section) {
-            case "files":
-                return 0
-            case "albums":
-                return 1
-            case "artists":
-                return 2
-            case "library":
-                return 3
-            case "duplicates":
-                return 4
-            case "settings":
-                return 5
-            default:
-                return 0
+        case "files":
+            return 0;
+        case "albums":
+            return 1;
+        case "artists":
+            return 2;
+        case "library":
+            return 3;
+        case "duplicates":
+            return 4;
+        case "settings":
+            return 5;
+        default:
+            return 0;
         }
     }
 
@@ -96,7 +100,7 @@ ApplicationWindow {
             currentSection: root.activeSection
 
             onSectionSelected: function (section) {
-                root.activeSection = section
+                root.activeSection = section;
             }
         }
 
@@ -122,8 +126,15 @@ ApplicationWindow {
                     orientation: Qt.Horizontal
 
                     handle: Rectangle {
-                        implicitWidth: 3
-                        color: SplitHandle.pressed ? AppColors.accent : AppColors.separator
+                        implicitWidth: 8
+                        color: "transparent"
+
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 1
+                            height: parent.height - AppMetrics.pagePadding * 2
+                            color: SplitHandle.pressed || SplitHandle.hovered ? AppColors.accentPrimary : AppColors.separator
+                        }
                     }
 
                     ColumnLayout {
@@ -153,8 +164,8 @@ ApplicationWindow {
                                 currentFilePath: root.selectedFilePath
 
                                 onFileSelected: function (filePath) {
-                                    root.selectedFilePath = filePath
-                                    playerController.setFilePath(filePath)
+                                    root.selectedFilePath = filePath;
+                                    playerController.setFilePath(filePath);
                                 }
                             }
 
@@ -176,13 +187,19 @@ ApplicationWindow {
                                 objectName: "libraryPane"
 
                                 onFileSelected: function (filePath) {
-                                    root.selectedFilePath = filePath
-                                    playerController.setFilePath(filePath)
+                                    root.selectedFilePath = filePath;
+                                    playerController.setFilePath(filePath);
                                 }
 
                                 onBaseDirectoryChanged: function (directory) {
-                                    batchProcessView.baseFilePath = directory
+                                    batchProcessView.baseFilePath = directory;
                                 }
+                            }
+
+                            NavigationPlaceholderView {
+                                objectName: "duplicatesView"
+                                title: qsTr("Duplicates")
+                                iconSource: AppAssets.duplicate
                             }
 
                             // SettingsView {
@@ -232,7 +249,6 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
             }
-
         }
     }
 
