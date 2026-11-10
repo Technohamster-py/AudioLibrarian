@@ -9,9 +9,12 @@ Item {
     signal fileSelected(string filePath)
     property string currentFilePath: ""
     property var selectedAlbum: null
+    property bool albumsOnly: false
+    property var allAlbums: []
     property var artists: []
     property var selectedArtist: null
-    readonly property var cards: selectedArtist ? selectedArtist.albums : artists
+    readonly property bool showingAlbums: albumsOnly || selectedArtist !== null
+    readonly property var cards: albumsOnly ? allAlbums : selectedArtist ? selectedArtist.albums : artists
 
     readonly property string alphabet: "#ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
     readonly property var availableLetters: {
@@ -124,7 +127,7 @@ Item {
             const entry = groups.get(artist)
             ++entry.tracks
             if (!entry.byAlbum.has(album)) {
-                const item = {name: album, cover: cover, tracks: 0, files: []}
+                const item = {name: album, artist: artist, cover: cover, tracks: 0, files: []}
                 entry.byAlbum.set(album, item)
                 entry.albums.push(item)
             }
@@ -150,10 +153,17 @@ Item {
         const previousAlbum = selectedAlbum
         const previous = selectedArtist
         artists = sorted
+        const albums = []
+        for (const artist of sorted)
+            albums.push(...artist.albums)
+        albums.sort((a, b) => compare(a, b) || a.artist.localeCompare(b.artist))
+        allAlbums = albums
         if (previous)
             selectedArtist = sorted.find(a => a.name === previous.name) || null
-        if (previousAlbum)
-            selectedAlbum = selectedArtist ? selectedArtist.albums.find(a => a.name === previousAlbum.name) || null : null
+        if (previousAlbum) {
+            const candidates = albumsOnly ? allAlbums : selectedArtist ? selectedArtist.albums : []
+            selectedAlbum = candidates.find(a => a.name === previousAlbum.name && a.artist === previousAlbum.artist) || null
+        }
     }
 
     Component.onCompleted: rebuild()
@@ -171,7 +181,7 @@ Item {
         RowLayout {
             Button {
                 id: backButton
-                visible: root.selectedArtist !== null
+                visible: root.selectedArtist !== null || root.selectedAlbum !== null
                 text: qsTr("Back")
                 highlighted: true
                 palette.accent: AppColors.accentPrimary
@@ -190,7 +200,7 @@ Item {
             }
             Label {
                 Layout.fillWidth: true
-                text: root.selectedAlbum ? (root.selectedAlbum.name || qsTr("Unknown album")) : root.selectedArtist ? (root.selectedArtist.name || qsTr("Unknown artist")) : qsTr("Artists")
+                text: root.selectedAlbum ? (root.selectedAlbum.name || qsTr("Unknown album")) : root.selectedArtist ? (root.selectedArtist.name || qsTr("Unknown artist")) : root.albumsOnly ? qsTr("Albums") : qsTr("Artists")
                 elide: Text.ElideRight
                 font.bold: true
             }
@@ -235,18 +245,18 @@ Item {
                             width: grid.cardWidth
                             height: 160
                             coverSource: modelData.cover
-                            title: modelData.name || (root.selectedArtist ? qsTr("Unknown album") : qsTr("Unknown artist"))
-                            subtitle: root.selectedArtist
+                            title: modelData.name || (root.showingAlbums ? qsTr("Unknown album") : qsTr("Unknown artist"))
+                            subtitle: root.showingAlbums
                                       ? qsTr("Tracks: %1").arg(modelData.tracks)
                                       : qsTr("Albums: %1 · Tracks: %2").arg(modelData.albums.length).arg(modelData.tracks)
                             onActivated: {
-                                if (root.selectedArtist)
+                                if (root.showingAlbums)
                                     root.selectedAlbum = modelData
                                 else
                                     root.selectedArtist = modelData
                             }
                             onContextMenuRequested: {
-                                if (!root.selectedArtist)
+                                if (!root.showingAlbums)
                                     menu.popup()
                             }
                             Menu {
@@ -263,7 +273,7 @@ Item {
             Label {
                 anchors.centerIn: parent
                 visible: grid.count === 0
-                text: root.libraryModel.loading ? qsTr("Loading…") : qsTr("No artists in the library")
+                text: root.libraryModel.loading ? qsTr("Loading…") : root.albumsOnly ? qsTr("No albums in the library") : qsTr("No artists in the library")
             }
         }
         ListView {

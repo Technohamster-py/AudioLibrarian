@@ -229,6 +229,8 @@ set_source_files_properties(
 
 set_source_files_properties(qml/components/LibraryCard.qml PROPERTIES QT_RESOURCE_ALIAS "LibraryCard.qml")
 
+set_source_files_properties(qml/library/AlbumsView.qml PROPERTIES QT_RESOURCE_ALIAS "AlbumsView.qml")
+
 set_source_files_properties(qml/library/ArtistsView.qml PROPERTIES QT_RESOURCE_ALIAS "ArtistsView.qml")
 
 qt_add_qml_module(AudioLibrarianCore
@@ -260,6 +262,7 @@ qt_add_qml_module(AudioLibrarianCore
         qml/library/AudioFileDelegate.qml
         qml/library/LibraryPane.qml
         qml/library/ArtistsView.qml
+        qml/library/AlbumsView.qml
         qml/library/LibraryView.qml
 
         qml/player/PlayerBar.qml

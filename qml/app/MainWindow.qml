@@ -169,10 +169,14 @@ ApplicationWindow {
                                 }
                             }
 
-                            NavigationPlaceholderView {
+                            AlbumsView {
                                 objectName: "albumsView"
-                                title: qsTr("Albums")
-                                iconSource: AppAssets.albums
+                                libraryModel: libraryPane.model
+                                currentFilePath: root.selectedFilePath
+                                onFileSelected: function(filePath) {
+                                    root.selectedFilePath = filePath;
+                                    playerController.setFilePath(filePath);
+                                }
                             }
 
                             ArtistsView {
