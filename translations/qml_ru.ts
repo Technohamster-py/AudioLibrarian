@@ -312,4 +312,5 @@
         <translation>Сохранить</translation>
     </message>
 </context>
+<context><name>ArtistsView</name><message><source>Back</source><translation>Назад</translation></message><message><source>Artists</source><translation>Исполнители</translation></message><message><source>Unknown artist</source><translation>Неизвестный исполнитель</translation></message><message><source>Unknown album</source><translation>Неизвестный альбом</translation></message><message><source>Tracks: %1</source><translation>Треков: %1</translation></message><message><source>Albums: %1 · Tracks: %2</source><translation>Альбомов: %1 · Треков: %2</translation></message><message><source>Change artist name</source><translation>Изменить имя исполнителя</translation></message><message><source>Loading…</source><translation>Загрузка…</translation></message><message><source>No artists in the library</source><translation>В библиотеке нет исполнителей</translation></message></context>
 </TS>
