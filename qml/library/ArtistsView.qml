@@ -230,69 +230,30 @@ Item {
                 Row {
                     Repeater {
                         model: modelData.cards
-                        delegate: Item {
+                        delegate: LibraryCard {
                             required property var modelData
                             width: grid.cardWidth
                             height: 160
-                            Rectangle {
-                                anchors.fill: parent
-                                anchors.margins: 5
-                                scale: cardMouse.containsMouse ? 1.03 : 1
-                                Behavior on scale {
-                                    NumberAnimation {
-                                        duration: 167
-                                        easing.type: Easing.BezierSpline
-                                        easing.bezierCurve: [0.1, 0.9, 0.2, 1, 1, 1]
-                                    }
-                                }
-                                color: AppColors.panel
-                                clip: true
-                                Image {
-                                    anchors.fill: parent
-                                    source: modelData.cover
-                                    fillMode: Image.PreserveAspectCrop
-                                    asynchronous: true
-                                }
-                                Rectangle { anchors.fill: parent; color: "#80000000" }
-                                Label {
-                                    anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }
-                                    text: modelData.name || (root.selectedArtist ? qsTr("Unknown album") : qsTr("Unknown artist"))
-                                    color: "white"
-                                    font.bold: true
-                                    wrapMode: Text.Wrap
-                                    maximumLineCount: 3
-                                    elide: Text.ElideRight
-                                }
-                                Label {
-                                    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 12 }
-                                    text: root.selectedArtist
-                                          ? qsTr("Tracks: %1").arg(modelData.tracks)
-                                          : qsTr("Albums: %1 · Tracks: %2").arg(modelData.albums.length).arg(modelData.tracks)
-                                    color: "white"
-                                    wrapMode: Text.Wrap
-                                }
-                                MouseArea {
-                                    id: cardMouse
-                                    hoverEnabled: true
-                                    anchors.fill: parent
-                                    acceptedButtons: Qt.LeftButton | Qt.RightButton
-                                    onClicked: function(mouse) {
-                                        if (root.selectedArtist) {
-                                            if (mouse.button === Qt.LeftButton) root.selectedAlbum = modelData
-                                            return
-                                        }
-                                        if (mouse.button === Qt.RightButton)
-                                            menu.popup()
-                                        else
-                                            root.selectedArtist = modelData
-                                    }
-                                }
-                                Menu {
-                                    id: menu
-                                    MenuItem {
-                                        text: qsTr("Change artist name")
-                                        enabled: false
-                                    }
+                            coverSource: modelData.cover
+                            title: modelData.name || (root.selectedArtist ? qsTr("Unknown album") : qsTr("Unknown artist"))
+                            subtitle: root.selectedArtist
+                                      ? qsTr("Tracks: %1").arg(modelData.tracks)
+                                      : qsTr("Albums: %1 · Tracks: %2").arg(modelData.albums.length).arg(modelData.tracks)
+                            onActivated: {
+                                if (root.selectedArtist)
+                                    root.selectedAlbum = modelData
+                                else
+                                    root.selectedArtist = modelData
+                            }
+                            onContextMenuRequested: {
+                                if (!root.selectedArtist)
+                                    menu.popup()
+                            }
+                            Menu {
+                                id: menu
+                                MenuItem {
+                                    text: qsTr("Change artist name")
+                                    enabled: false
                                 }
                             }
                         }
