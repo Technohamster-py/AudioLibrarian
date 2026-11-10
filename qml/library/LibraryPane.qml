@@ -17,6 +17,8 @@ Item {
     signal fileSelected(string filePath)
     signal baseDirectoryChanged(string directory)
 
+    property alias model: libraryView.model
+
     implicitWidth: AppMetrics.libraryWidth
 
     ColumnLayout {

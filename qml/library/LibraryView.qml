@@ -26,6 +26,7 @@ Item {
     signal baseDirectoryChanged(string directory)
 
     property int fileCount: 0
+    property alias model: libraryModel
 
     /**
      * @brief C++ model containing the actual audio library.
@@ -42,6 +43,7 @@ Item {
      * @brief Index of the currently selected row.
      */
     property int selectedIndex: -1
+    property int hoveredRow: -1
 
     /**
      * @brief Currently sorted column.
@@ -393,7 +395,14 @@ Item {
 
                 readonly property bool selected: row === root.selectedIndex
 
-                color: selected ? AppColors.navigationSelection : AppColors.navigationPanel
+                color: selected ? AppColors.navigationSelection : (root.hoveredRow === row ? AppColors.navigationHover : AppColors.navigationPanel)
+                Behavior on color { ColorAnimation { duration: 100 } }
+                HoverHandler {
+                    onHoveredChanged: {
+                        if (hovered) root.hoveredRow = row
+                        else if (root.hoveredRow === row) root.hoveredRow = -1
+                    }
+                }
 
                 Rectangle {
                     anchors.left: parent.left

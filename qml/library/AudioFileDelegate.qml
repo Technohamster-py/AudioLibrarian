@@ -28,6 +28,8 @@ Item {
 
         color: root.selected ? AppColors.navigationSelection : (mouseArea.containsMouse ? AppColors.navigationHover : "transparent")
 
+        Behavior on color { ColorAnimation { duration: 100 } }
+
         RowLayout {
             anchors.fill: parent
 
