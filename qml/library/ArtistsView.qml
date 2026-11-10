@@ -13,6 +13,105 @@ Item {
     property var selectedArtist: null
     readonly property var cards: selectedArtist ? selectedArtist.albums : artists
 
+    readonly property string alphabet: "#ABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+    readonly property var availableLetters: {
+        const result = new Set()
+        for (const card of cards)
+            result.add(sectionLetter(card.name))
+        return result
+    }
+
+    function sectionLetter(name) {
+        const first = Array.from(name.trim())[0] || ""
+        const letter = first.toUpperCase()
+        return letter.length === 1 && alphabet.indexOf(letter) > 0 ? letter : "#"
+    }
+
+    function jumpToLetter(letter) {
+        const rows = grid.model
+        for (let i = 0; i < rows.length; ++i) {
+            if (rows[i].letter === letter) {
+                grid.positionViewAtIndex(i, ListView.Beginning)
+                break
+            }
+        }
+        letterNavigator.close()
+    }
+
+    Popup {
+        id: letterNavigator
+        anchors.centerIn: parent
+        width: Math.min(root.width, 420)
+        height: Math.min(root.height, letterFlow.implicitHeight + padding * 2)
+        padding: 12
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        background: Rectangle {
+            color: AppColors.panel
+            radius: AppMetrics.radiusSmall
+            border.color: AppColors.separator
+        }
+        contentItem: Flickable {
+            clip: true
+            contentHeight: letterFlow.implicitHeight
+            boundsBehavior: Flickable.StopAtBounds
+            ScrollBar.vertical: ScrollBar {}
+            Column {
+                id: letterFlow
+                width: parent.width
+                spacing: 8
+                Repeater {
+                    model: ["#", "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"]
+                    delegate: Flow {
+                        id: alphabetFlow
+                        required property string modelData
+                        width: letterFlow.width
+                        Repeater {
+                            model: alphabetFlow.modelData.split("")
+                            delegate: ItemDelegate {
+                                required property string modelData
+                                readonly property bool available: root.availableLetters.has(modelData)
+                                width: alphabetFlow.width / Math.max(1, Math.floor(alphabetFlow.width / 44))
+                                height: 44
+                                enabled: available
+                                text: modelData
+                                contentItem: Label {
+                                    text: parent.text
+                                    color: available ? AppColors.textSecondary : AppColors.textDisabled
+                                    font.pixelSize: 20
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                                onClicked: root.jumpToLetter(modelData)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Each section starts a fresh row, even if the preceding row is not full.
+    function cardRows(items, columns) {
+        const groups = new Map()
+        for (const item of items) {
+            const letter = sectionLetter(item.name)
+            if (!groups.has(letter))
+                groups.set(letter, [])
+            groups.get(letter).push(item)
+        }
+        const rows = []
+        const letters = Array.from(groups.keys()).sort((a, b) => a.localeCompare(b))
+        for (const letter of letters) {
+            rows.push({letter: letter, cards: []})
+            const entries = groups.get(letter)
+            for (let i = 0; i < entries.length; i += columns)
+                rows.push({letter: "", cards: entries.slice(i, i + columns)})
+        }
+        return rows
+    }
+
     function rebuild() {
         const groups = new Map()
         for (let row = 0; row < libraryModel.rowCount(); ++row) {
@@ -71,8 +170,19 @@ Item {
         anchors.margins: AppMetrics.pagePadding
         RowLayout {
             Button {
+                id: backButton
                 visible: root.selectedArtist !== null
                 text: qsTr("Back")
+                highlighted: true
+                palette.accent: AppColors.accentPrimary
+                palette.highlight: AppColors.accentPrimary
+
+                Shortcut {
+                    sequence: "Escape"
+                    context: Qt.WindowShortcut
+                    enabled: root.visible && backButton.visible && !letterNavigator.visible
+                    onActivated: backButton.clicked()
+                }
                 onClicked: {
                     if (root.selectedAlbum) root.selectedAlbum = null
                     else root.selectedArtist = null
@@ -85,78 +195,106 @@ Item {
                 font.bold: true
             }
         }
-        GridView {
+        ListView {
             id: grid
             visible: root.selectedAlbum === null
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
-            cellWidth: width / Math.max(1, Math.floor(width / 200))
-            cellHeight: 160
-            model: root.cards
+            readonly property int columns: Math.max(1, Math.floor(width / 200))
+            readonly property real cardWidth: width / columns
+            model: root.cardRows(root.cards, columns)
+            onModelChanged: positionViewAtBeginning()
             ScrollBar.vertical: ScrollBar {}
             delegate: Item {
                 required property var modelData
-                width: grid.cellWidth
-                height: grid.cellHeight
-                Rectangle {
+                width: grid.width
+                height: modelData.letter ? 44 : 160
+                Label {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 5
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: modelData.letter
+                    visible: modelData.letter !== ""
+                    font.bold: true
+                    font.pixelSize: 22
+                    color: AppColors.textDisabled
+                }
+                MouseArea {
                     anchors.fill: parent
-                    anchors.margins: 5
-                    scale: cardMouse.containsMouse ? 1.03 : 1
-                    Behavior on scale {
-                        NumberAnimation {
-                            duration: 167
-                            easing.type: Easing.BezierSpline
-                            easing.bezierCurve: [0.1, 0.9, 0.2, 1, 1, 1]
-                        }
-                    }
-                    color: AppColors.panel
-                    clip: true
-                    Image {
-                        anchors.fill: parent
-                        source: modelData.cover
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                    }
-                    Rectangle { anchors.fill: parent; color: "#80000000" }
-                    Label {
-                        anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }
-                        text: modelData.name || (root.selectedArtist ? qsTr("Unknown album") : qsTr("Unknown artist"))
-                        color: "white"
-                        font.bold: true
-                        wrapMode: Text.Wrap
-                        maximumLineCount: 3
-                        elide: Text.ElideRight
-                    }
-                    Label {
-                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 12 }
-                        text: root.selectedArtist
-                              ? qsTr("Tracks: %1").arg(modelData.tracks)
-                              : qsTr("Albums: %1 · Tracks: %2").arg(modelData.albums.length).arg(modelData.tracks)
-                        color: "white"
-                        wrapMode: Text.Wrap
-                    }
-                    MouseArea {
-                        id: cardMouse
-                        hoverEnabled: true
-                        anchors.fill: parent
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
-                        onClicked: function(mouse) {
-                            if (root.selectedArtist) {
-                                if (mouse.button === Qt.LeftButton) root.selectedAlbum = modelData
-                                return
+                    enabled: modelData.letter !== ""
+                    visible: enabled
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: letterNavigator.open()
+                }
+                Row {
+                    Repeater {
+                        model: modelData.cards
+                        delegate: Item {
+                            required property var modelData
+                            width: grid.cardWidth
+                            height: 160
+                            Rectangle {
+                                anchors.fill: parent
+                                anchors.margins: 5
+                                scale: cardMouse.containsMouse ? 1.03 : 1
+                                Behavior on scale {
+                                    NumberAnimation {
+                                        duration: 167
+                                        easing.type: Easing.BezierSpline
+                                        easing.bezierCurve: [0.1, 0.9, 0.2, 1, 1, 1]
+                                    }
+                                }
+                                color: AppColors.panel
+                                clip: true
+                                Image {
+                                    anchors.fill: parent
+                                    source: modelData.cover
+                                    fillMode: Image.PreserveAspectCrop
+                                    asynchronous: true
+                                }
+                                Rectangle { anchors.fill: parent; color: "#80000000" }
+                                Label {
+                                    anchors { left: parent.left; right: parent.right; top: parent.top; margins: 12 }
+                                    text: modelData.name || (root.selectedArtist ? qsTr("Unknown album") : qsTr("Unknown artist"))
+                                    color: "white"
+                                    font.bold: true
+                                    wrapMode: Text.Wrap
+                                    maximumLineCount: 3
+                                    elide: Text.ElideRight
+                                }
+                                Label {
+                                    anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 12 }
+                                    text: root.selectedArtist
+                                          ? qsTr("Tracks: %1").arg(modelData.tracks)
+                                          : qsTr("Albums: %1 · Tracks: %2").arg(modelData.albums.length).arg(modelData.tracks)
+                                    color: "white"
+                                    wrapMode: Text.Wrap
+                                }
+                                MouseArea {
+                                    id: cardMouse
+                                    hoverEnabled: true
+                                    anchors.fill: parent
+                                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                    onClicked: function(mouse) {
+                                        if (root.selectedArtist) {
+                                            if (mouse.button === Qt.LeftButton) root.selectedAlbum = modelData
+                                            return
+                                        }
+                                        if (mouse.button === Qt.RightButton)
+                                            menu.popup()
+                                        else
+                                            root.selectedArtist = modelData
+                                    }
+                                }
+                                Menu {
+                                    id: menu
+                                    MenuItem {
+                                        text: qsTr("Change artist name")
+                                        enabled: false
+                                    }
+                                }
                             }
-                            if (mouse.button === Qt.RightButton)
-                                menu.popup()
-                            else
-                                root.selectedArtist = modelData
-                        }
-                    }
-                    Menu {
-                        id: menu
-                        MenuItem {
-                            text: qsTr("Change artist name")
-                            enabled: false
                         }
                     }
                 }
