@@ -13,8 +13,8 @@ Item {
     signal activated()
     signal contextMenuRequested()
 
-    implicitWidth: 200
-    implicitHeight: 160
+    implicitWidth: 210
+    implicitHeight: implicitWidth
 
     Rectangle {
         anchors.fill: parent

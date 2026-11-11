@@ -211,15 +211,15 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
-            readonly property int columns: Math.max(1, Math.floor(width / 200))
-            readonly property real cardWidth: width / columns
+            readonly property int cardWidth: 210
+            readonly property int columns: Math.max(1, Math.floor(width / cardWidth))
             model: root.cardRows(root.cards, columns)
             onModelChanged: positionViewAtBeginning()
             ScrollBar.vertical: ScrollBar {}
             delegate: Item {
                 required property var modelData
                 width: grid.width
-                height: modelData.letter ? 44 : 160
+                height: modelData.letter ? 44 : grid.cardWidth
                 Label {
                     anchors.left: parent.left
                     anchors.leftMargin: 5
@@ -243,7 +243,7 @@ Item {
                         delegate: LibraryCard {
                             required property var modelData
                             width: grid.cardWidth
-                            height: 160
+                            height: width
                             coverSource: modelData.cover
                             title: modelData.name || (root.showingAlbums ? qsTr("Unknown album") : qsTr("Unknown artist"))
                             subtitle: root.showingAlbums
