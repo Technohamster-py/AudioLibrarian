@@ -7,6 +7,7 @@ import QtQuick.Layouts
  */
 Item {
     id: root
+    signal filesUpdated(var filePaths)
 
     /** @brief Currently selected batch operation. */
     property int operationIndex: 0
@@ -21,6 +22,7 @@ Item {
     }
 
     MetadataEditorController {
+        onFilesUpdated: function(filePaths) { root.filesUpdated(filePaths) }
         id: metadataEditorController
         objectName: "metadataEditorController"
     }

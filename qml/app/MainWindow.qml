@@ -48,6 +48,20 @@ ApplicationWindow {
      */
     property string selectedFilePath: ""
 
+    function refreshFileModels(filePath) {
+        libraryPane.model.reloadFile(filePath)
+        filesView.reloadFile(filePath)
+    }
+
+    function refreshUpdatedFiles(filePaths) {
+        for (const filePath of filePaths)
+            refreshFileModels(filePath)
+        if (root.selectedFilePath && filePaths.indexOf(root.selectedFilePath) !== -1) {
+            editorView.reload()
+            playerController.reloadMetadata()
+        }
+    }
+
     onClosing: {
         SettingsManager.saveApplicationState(width, height, x, y, navigationLayout.width, activeSection, playerController.volume, playerBar.expanded);
     }
@@ -170,6 +184,7 @@ ApplicationWindow {
                             }
 
                             AlbumsView {
+                onFilesUpdated: function(filePaths) { root.refreshUpdatedFiles(filePaths) }
                                 objectName: "albumsView"
                                 libraryModel: libraryPane.model
                                 currentFilePath: root.selectedFilePath
@@ -180,6 +195,7 @@ ApplicationWindow {
                             }
 
                             ArtistsView {
+                onFilesUpdated: function(filePaths) { root.refreshUpdatedFiles(filePaths) }
                                 objectName: "artistsView"
                                 libraryModel: libraryPane.model
                                 currentFilePath: root.selectedFilePath
@@ -236,6 +252,11 @@ ApplicationWindow {
 
                     EditorView {
                         id: editorView
+                        onMetadataSaved: function(filePath) {
+                            root.refreshFileModels(filePath)
+                            if (filePath === root.selectedFilePath)
+                                playerController.reloadMetadata()
+                        }
                         objectName: "editorView"
 
                         SplitView.minimumWidth: AppMetrics.editorMinimumWidth
@@ -249,6 +270,7 @@ ApplicationWindow {
             }
 
             BatchProcessView {
+                onFilesUpdated: function(filePaths) { root.refreshUpdatedFiles(filePaths) }
                 id: batchProcessView
                 objectName: "batchProcessView"
 

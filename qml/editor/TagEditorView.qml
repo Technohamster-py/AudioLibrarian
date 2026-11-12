@@ -12,11 +12,14 @@ import QtQuick.Layouts
  */
 Item {
     id: root
+    signal metadataSaved(string filePath)
+    function reload() { tagModel.discardChanges() }
 
     property string filePath: ""
     property string fileName: filePath.length > 0 ? filePath.substring(filePath.lastIndexOf("/") + 1) : ""
 
     TagEditorModel {
+        onMetadataSaved: function(filePath) { root.metadataSaved(filePath) }
         id: tagModel
         objectName: "tagModel"
 

@@ -5,6 +5,7 @@ import QtQml.Models
 
 Item {
     id: root
+    function reloadFile(filePath) { fileModel.reloadFile(filePath) }
 
     property string currentFilePath: ""
 

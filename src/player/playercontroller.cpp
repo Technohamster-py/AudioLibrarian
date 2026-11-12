@@ -78,6 +78,13 @@ void PlayerController::setSource(const QUrl& source)
     m_player.setSource(source);
 
     m_selectedSource = source;
+    reloadMetadata();
+    emit sourceChanged();
+}
+
+void PlayerController::reloadMetadata()
+{
+    const QUrl source = m_selectedSource;
     clearMetadata();
 
     if (source.isLocalFile())
@@ -95,7 +102,6 @@ void PlayerController::setSource(const QUrl& source)
         }
     }
 
-    emit sourceChanged();
     emit metadataChanged();
 }
 

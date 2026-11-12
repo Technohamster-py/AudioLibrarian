@@ -304,6 +304,17 @@ QStringList FileTreeModel::pathToRoot(const QString &filePath) const {
     return result;
 }
 
+void FileTreeModel::reloadFile(const QString &filePath) {
+    TagLibMetadataBackend backend;
+    const auto info = backend.readFile(filePath);
+    if (!info)
+        return;
+    m_metadataCache.insert(filePath, *info);
+    const QModelIndex index = indexForPath(filePath);
+    if (index.isValid())
+        emit dataChanged(index.siblingAtColumn(0), index.siblingAtColumn(HasLyrics));
+}
+
 void FileTreeModel::reload() {
     const QString path = m_sourceModel.rootPath();
 
@@ -431,6 +442,10 @@ void FileTreeModel::loadMetadata(const QString &filePath) {
                 return;
 
             if (!result.fileInfo.has_value())
+                return;
+
+            // A manual refresh may have supplied newer metadata while this read ran.
+            if (m_metadataCache.contains(result.filePath))
                 return;
 
             m_metadataCache.insert(result.filePath, *result.fileInfo);

@@ -141,6 +141,7 @@ public:
     QString album() const {return m_album;};
     QUrl coverUrl() const {return m_coverUrl;};
 
+    Q_INVOKABLE void reloadMetadata();
     Q_INVOKABLE void setFilePath(const QString& path);
     Q_INVOKABLE void releaseSource();
 

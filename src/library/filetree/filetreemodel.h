@@ -107,6 +107,7 @@ public:
     Q_INVOKABLE QModelIndex indexForPath(const QString &filePath) const;
     Q_INVOKABLE QStringList pathToRoot(const QString &filePath) const;
     Q_INVOKABLE void reload();
+    Q_INVOKABLE void reloadFile(const QString &filePath);
 
 signals:
     void rootPathChanged();

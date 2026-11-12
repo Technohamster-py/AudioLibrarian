@@ -5,6 +5,7 @@ import AudioLibrarian
 
 Item {
     id: root
+    signal filesUpdated(var filePaths)
     required property var libraryModel
     signal fileSelected(string filePath)
     property string currentFilePath: ""
@@ -175,6 +176,77 @@ Item {
         function onRowsRemoved() { root.rebuild() }
     }
 
+    MetadataEditorController {
+        onFilesUpdated: function(filePaths) { root.filesUpdated(filePaths) }
+        id: albumEditor
+        onAlbumRenameFinished: root.libraryModel.reload()
+        onArtistRenameFinished: root.libraryModel.reload()
+    }
+
+    Dialog {
+        id: albumNameDialog
+        anchors.centerIn: parent
+        width: Math.min(root.width, 360)
+        title: editingArtist ? qsTr("Change artist name") : qsTr("Change album name")
+        modal: true
+        standardButtons: Dialog.Ok | Dialog.Cancel
+        property var filePaths: []
+        property bool editingArtist: false
+        property string originalName: ""
+        property string artistName: ""
+        property string pendingName: ""
+
+        function applyRename() {
+            if (editingArtist)
+                albumEditor.renameArtist(filePaths, pendingName)
+            else
+                albumEditor.renameAlbum(filePaths, pendingName)
+        }
+
+        onAccepted: {
+            pendingName = albumNameField.text
+            if (!pendingName.trim().length || pendingName === originalName)
+                return
+            const exists = editingArtist
+                ? root.artists.some(artist => artist.name === pendingName)
+                : root.allAlbums.some(album => album.artist === artistName && album.name === pendingName)
+            if (exists)
+                mergeConfirmation.open()
+            else
+                applyRename()
+        }
+        contentItem: TextField {
+            id: albumNameField
+            selectByMouse: true
+            onAccepted: albumNameDialog.accept()
+        }
+        onOpened: {
+            const okButton = standardButton(Dialog.Ok)
+            okButton.highlighted = true
+            okButton.palette.accent = AppColors.accentPrimary
+            okButton.palette.highlight = AppColors.accentPrimary
+            albumNameField.forceActiveFocus()
+            albumNameField.selectAll()
+        }
+    }
+
+    Dialog {
+        id: mergeConfirmation
+        anchors.centerIn: parent
+        width: Math.min(root.width, 420)
+        title: qsTr("Confirm merge")
+        modal: true
+        standardButtons: Dialog.Yes | Dialog.No
+        contentItem: Label {
+            text: albumNameDialog.editingArtist
+                ? qsTr('Исполнитель "%1" Уже существует. Объединить с этим исполнителем? Альбомы с одинаковыми названиями так же будут объединены.').arg(albumNameDialog.pendingName)
+                : qsTr('Альбом "%1" Уже существует у этого исполнителя. Объединить альбомы?').arg(albumNameDialog.pendingName)
+            wrapMode: Text.WordWrap
+        }
+        onAccepted: albumNameDialog.applyRename()
+        onOpened: standardButton(Dialog.No).forceActiveFocus()
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: AppMetrics.pagePadding
@@ -256,14 +328,23 @@ Item {
                                     root.selectedArtist = modelData
                             }
                             onContextMenuRequested: {
-                                if (!root.showingAlbums)
-                                    menu.popup()
+                                menu.popup()
                             }
                             Menu {
                                 id: menu
                                 MenuItem {
-                                    text: qsTr("Change artist name")
-                                    enabled: false
+                                    text: root.showingAlbums ? qsTr("Change album name") : qsTr("Change artist name")
+                                    enabled: !albumEditor.running
+                                    onTriggered: {
+                                        albumNameDialog.editingArtist = !root.showingAlbums
+                                        albumNameDialog.originalName = modelData.name
+                                        albumNameDialog.artistName = root.showingAlbums ? modelData.artist : modelData.name
+                                        const files = root.showingAlbums ? modelData.files
+                                            : modelData.albums.reduce((tracks, album) => tracks.concat(album.files), [])
+                                        albumNameDialog.filePaths = files.map(file => file.path)
+                                        albumNameField.text = modelData.name
+                                        albumNameDialog.open()
+                                    }
                                 }
                             }
                         }

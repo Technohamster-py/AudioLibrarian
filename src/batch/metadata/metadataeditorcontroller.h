@@ -44,13 +44,24 @@ public:
     */
     MetadataEditResultModel *resultModel() { return &m_resultModel; }
 
+    /** @brief Changes the album tag for the explicitly selected tracks. */
+    Q_INVOKABLE bool renameAlbum(const QStringList &filePaths, const QString &name);
+
+    /** @brief Changes the artist tag for all explicitly selected tracks. */
+    Q_INVOKABLE bool renameArtist(const QStringList &filePaths, const QString &name);
+
 signals:
+    void filesUpdated(const QStringList &filePaths);
+    void artistRenameFinished();
+    void albumRenameFinished();
     void selectedFileCountChanged();
 
 protected:
     void handleFinished() override;
 
 private:
+    bool renameFiles(const QStringList &filePaths, const QString &name, const QString &key);
+    QString m_renameKey;
     LibraryScanner m_scanner;
     QSharedPointer<MetadataEditor> m_metadataEditor;
 

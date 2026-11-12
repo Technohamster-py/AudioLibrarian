@@ -214,7 +214,10 @@ bool AudioFileTableModel::reloadFile(const QString &filePath) {
     const int row = std::distance(m_files.begin(), iterator);
 
     LibraryScanner scanner;
-    m_files[row].fileInfo = scanner.readFile(filePath)->fileInfo;
+    const auto record = scanner.readFile(filePath);
+    if (!record)
+        return false;
+    m_files[row].fileInfo = record->fileInfo;
 
     const QModelIndex first = index(row, 0);
     const QModelIndex last = index(row, ColumnCount - 1);
